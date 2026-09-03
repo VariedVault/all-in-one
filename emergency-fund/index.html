@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emergency Fund Calculator — All-in-One</title>
+<meta name="description" content="Work out how big your emergency fund should be and how far along you already are. Runs entirely in your browser.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/tokens.css">
+</head>
+<body data-depth="1">
+<main>
+  <div class="wrap">
+    <a class="back-link" href="../">← All calculators</a>
+
+    <div class="calc-head">
+      <h1>Emergency Fund Calculator</h1>
+      <p>A safety net of a few months' essential expenses, set aside in case of job loss or an unexpected bill. Find your target and see how close you are.</p>
+    </div>
+
+    <div class="calc-layout">
+      <!-- Inputs -->
+      <section class="panel" aria-label="Your details">
+        <h2>Your details</h2>
+
+        <div class="field">
+          <label for="expenses">Monthly essential expenses (€)</label>
+          <input type="number" id="expenses" inputmode="numeric" placeholder="2000" min="0" step="50">
+          <span class="hint">Rent, groceries, utilities, insurance, transport — what you'd still have to pay if your income stopped.</span>
+        </div>
+
+        <div class="field">
+          <label id="monthsLabel">Months of coverage desired</label>
+          <div class="seg" role="group" aria-labelledby="monthsLabel" id="monthsSeg">
+            <button type="button" class="seg-btn" data-months="3">3</button>
+            <button type="button" class="seg-btn" data-months="6">6</button>
+            <button type="button" class="seg-btn" data-months="12">12</button>
+            <input type="number" class="custom" id="customMonths" inputmode="numeric" placeholder="Custom" min="1" step="1" aria-label="Custom number of months">
+          </div>
+          <span class="hint">3 months is a common minimum; 6 is a comfortable target; 12 suits variable or single incomes.</span>
+        </div>
+
+        <div class="field">
+          <label for="current">Current savings already set aside (€)</label>
+          <input type="number" id="current" inputmode="numeric" placeholder="4000" min="0" step="50">
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section class="panel" aria-label="Your target" aria-live="polite">
+        <h2>Your target</h2>
+
+        <div class="result-block">
+          <p class="result-label">Target emergency fund</p>
+          <div class="result-big" id="target">—</div>
+          <div class="result-inr" id="targetInr"></div>
+        </div>
+
+        <hr class="result-sep">
+
+        <div class="result-block">
+          <p class="result-label" id="gapLabel">Still to save</p>
+          <div class="result-mid" id="gap">—</div>
+          <div class="result-inr" id="gapInr"></div>
+        </div>
+
+        <p class="hint" id="meta" style="margin-top:14px">Enter your monthly expenses to see your target.</p>
+      </section>
+    </div>
+
+    <div class="disclaimer">
+      A guideline, not financial advice. Keep your emergency fund somewhere safe and easy to reach
+      (e.g. an instant-access savings account), separate from money you invest. ₹ figures use the live
+      exchange rate shown in the header and are for reference only.
+    </div>
+  </div>
+</main>
+<script src="../shared/app.js" defer></script>
+<script src="emergency.js" defer></script>
+</body>
+</html>

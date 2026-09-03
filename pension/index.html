@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>German Pension Calculator — All-in-One</title>
+<meta name="description" content="Estimate your German statutory monthly gross pension from your salary history and Entgeltpunkte. Runs entirely in your browser.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/tokens.css">
+</head>
+<body data-depth="1">
+<main>
+  <div class="wrap">
+    <a class="back-link" href="../">← All calculators</a>
+
+    <div class="calc-head">
+      <h1>German Pension Calculator</h1>
+      <p>A rough estimate of your statutory monthly gross pension (gesetzliche Rente), based on your earnings and how many pension points you collect over your career.</p>
+    </div>
+
+    <div class="calc-layout">
+      <!-- Inputs -->
+      <section class="panel" aria-label="Your details">
+        <h2>Your details</h2>
+
+        <div class="field">
+          <label for="birthYear">Birth year</label>
+          <input type="number" id="birthYear" inputmode="numeric" placeholder="1990" min="1930" max="2025">
+        </div>
+
+        <div class="field">
+          <label for="retireAge">Retirement age</label>
+          <input type="number" id="retireAge" inputmode="numeric" value="67" min="55" max="75">
+          <span class="hint">The standard statutory retirement age is currently 67.</span>
+        </div>
+
+        <div class="field">
+          <label for="salary">Current gross annual salary (€)</label>
+          <input type="number" id="salary" inputmode="numeric" placeholder="55000" min="0" step="100">
+        </div>
+
+        <div class="field">
+          <label for="careerStart">Career start year</label>
+          <input type="number" id="careerStart" inputmode="numeric" placeholder="2014" min="1940" max="2030">
+          <span class="hint">The first year you started paying into the pension insurance.</span>
+        </div>
+
+        <div class="field">
+          <label for="growth">Expected annual salary growth (%) <span class="de-term">optional · default 0</span></label>
+          <input type="number" id="growth" inputmode="decimal" value="0" step="0.1">
+        </div>
+
+        <div class="field">
+          <label for="override">Known pension points <span class="de-term">Entgeltpunkte — optional, from your official Renteninformation letter</span></label>
+          <input type="number" id="override" inputmode="decimal" placeholder="e.g. 18.4" min="0" step="0.01">
+          <span class="hint">If filled, we use this as your points so far and add estimated points for future years until retirement — instead of estimating your whole career from the career start year.</span>
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section class="panel" aria-label="Your estimate" aria-live="polite">
+        <h2>Your estimate</h2>
+
+        <div class="result-block">
+          <p class="result-label">Total pension points <span class="de-term">Entgeltpunkte</span></p>
+          <div class="result-mid" id="points">—</div>
+        </div>
+
+        <hr class="result-sep">
+
+        <div class="result-block">
+          <p class="result-label">Estimated monthly gross pension <span class="de-term">monatliche Bruttorente</span></p>
+          <div class="result-big" id="monthly">—</div>
+          <div class="result-inr" id="inr"></div>
+        </div>
+
+        <p class="hint" id="meta" style="margin-top:14px">Fill in your birth year, retirement age, salary and career start to see an estimate.</p>
+      </section>
+    </div>
+
+    <div class="disclaimer">
+      <strong>This is a rough, simplified estimate — not an official forecast.</strong>
+      It multiplies your accumulated pension points (Entgeltpunkte) by today's pension value
+      (aktueller Rentenwert, €<span id="rw"></span>) and assumes a constant salary (adjusted only by any growth rate you enter)
+      and a constant average wage. It does <em>not</em> account for future changes to the Rentenwert or average wage,
+      contribution gaps, part-time periods, child-rearing credits (Kindererziehungszeiten), disability, voluntary
+      contributions, or deductions for retiring early. For real numbers, use your official
+      <a href="https://www.deutsche-rentenversicherung.de" target="_blank" rel="noopener noreferrer">Renteninformation</a>
+      from Deutsche Rentenversicherung.
+    </div>
+  </div>
+</main>
+<script src="../shared/app.js" defer></script>
+<script src="constants.js" defer></script>
+<script src="pension.js" defer></script>
+</body>
+</html>
