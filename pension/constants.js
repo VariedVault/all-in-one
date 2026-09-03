@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-   German statutory pension — official constants.
+   German statutory pension: official constants.
    These change roughly once a year. Update the value + the dated comment when
    Deutsche Rentenversicherung / the Sozialversicherung publishes new figures.
    Last reviewed: 2026-09.
@@ -15,5 +15,9 @@ window.PENSION_CONSTANTS = {
 
   // Contribution assessment ceiling ("Beitragsbemessungsgrenze", pension
   // insurance). Earnings above this don't earn extra points. Value for 2026, €/year.
-  BEITRAGSBEMESSUNGSGRENZE_2026: 101400
+  BEITRAGSBEMESSUNGSGRENZE_2026: 101400,
+
+  // Pensioners' flat health + long-term care contribution on the gross pension
+  // (KVdR + Pflegeversicherung), applied as a single simplified rate. ~11.5%.
+  KRANKEN_PFLEGE_RATE: 0.115
 };

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-   Emergency Fund Calculator — live target + gap.
+   Emergency Fund Calculator: live target + gap.
    Uses the shared window.AIO helpers (formatting, rate, localStorage).
 --------------------------------------------------------------------------- */
 (function () {
@@ -54,7 +54,7 @@
 
     if (!isFinite(expenses) || expenses < 0 || !isFinite(months) || months <= 0) {
       render(null);
-      persist();
+      persist(null);
       return;
     }
 
@@ -64,15 +64,15 @@
     lastTargetEUR = target;
     lastGapEUR = reached ? 0 : gap;
     render({ target: target, gap: gap, current: current });
-    persist();
+    persist({ target: target, current: current, gap: gap, months: months, reached: reached });
   }
 
   function render(r) {
     if (!r) {
       lastTargetEUR = null; lastGapEUR = null; reached = false;
-      els.target.textContent = '—';
+      els.target.textContent = '–';
       els.targetInr.textContent = '';
-      els.gap.textContent = '—';
+      els.gap.textContent = '–';
       els.gap.className = 'result-mid';
       els.gapInr.textContent = '';
       els.gapLabel.textContent = 'Still to save';
@@ -93,7 +93,7 @@
     }
 
     els.meta.textContent = months + ' months of cover' +
-      (reached ? ' — you have ' + AIO.formatEUR(r.current) + ' saved.' : '.');
+      (reached ? '. You have ' + AIO.formatEUR(r.current) + ' saved.' : '.');
 
     renderINR();
   }
@@ -110,12 +110,15 @@
     els.gapInr.textContent = reached ? '' : '≈ ' + AIO.formatINR(lastGapEUR * rate);
   }
 
-  function persist() {
+  // Save inputs (so the form restores) plus the computed result (so the homepage
+  // dashboard can read it). result is null when inputs are incomplete.
+  function persist(result) {
     AIO.save(KEY, {
       expenses: els.expenses.value,
       current: els.current.value,
       months: months,
-      isCustom: isCustom
+      isCustom: isCustom,
+      result: result
     });
   }
   function restore() {

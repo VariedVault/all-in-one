@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------
-   German Pension Calculator — live estimate.
-   Simplified model (see the on-page disclaimer). Uses window.PENSION_CONSTANTS
-   and the shared window.AIO helpers (formatting, rate, localStorage).
+   German Pension Calculator: live estimate.
+   Simplified model (see the on-page disclaimer). Uses window.PENSION_CONSTANTS,
+   window.estimateIncomeTax, and the shared window.AIO helpers.
 --------------------------------------------------------------------------- */
 (function () {
   'use strict';
@@ -10,7 +10,7 @@
   var KEY = 'aio:pension';
   var FIELDS = ['birthYear', 'retireAge', 'salary', 'careerStart', 'growth', 'override'];
   var els = {};
-  var lastMonthlyEUR = null;
+  var lastNetEUR = null; // net monthly pension, used for the INR conversion
 
   function $(id) { return document.getElementById(id); }
   function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
@@ -50,10 +50,10 @@
 
     var valid = isFinite(v.birthYear) && isFinite(v.retireAge) &&
                 isFinite(v.salary) && v.salary > 0 && isFinite(v.careerStart);
-    if (!valid) { render(null); persist(); return; }
+    if (!valid) { render(null); persist(null); return; }
 
     var retirementYear = v.birthYear + v.retireAge;
-    if (retirementYear <= v.careerStart) { render(null); persist(); return; }
+    if (retirementYear <= v.careerStart) { render(null); persist(null); return; }
 
     var totalEP;
     var usedOverride = (v.override != null && isFinite(v.override) && v.override >= 0);
@@ -65,38 +65,72 @@
       totalEP = pointsForRange(v.careerStart, retirementYear, v.salary, g, currentYear);
     }
 
-    var monthly = totalEP * C.AKTUELLER_RENTENWERT;
-    lastMonthlyEUR = monthly;
-    render({ totalEP: totalEP, monthly: monthly, retirementYear: retirementYear, usedOverride: usedOverride });
-    persist();
+    // Gross -> net-of-insurance -> net monthly.
+    var grossMonthly = totalEP * C.AKTUELLER_RENTENWERT;
+    var netOfInsuranceMonthly = grossMonthly * (1 - C.KRANKEN_PFLEGE_RATE);
+    var annualTax = window.estimateIncomeTax(netOfInsuranceMonthly * 12);
+    var monthlyTax = annualTax / 12;
+    var netMonthly = netOfInsuranceMonthly - monthlyTax;
+
+    var monthlyGrossSalary = v.salary / 12;
+    var coveragePct = monthlyGrossSalary > 0 ? (netMonthly / monthlyGrossSalary) * 100 : null;
+
+    lastNetEUR = netMonthly;
+
+    var r = {
+      totalEP: totalEP,
+      grossMonthly: grossMonthly,
+      netOfInsuranceMonthly: netOfInsuranceMonthly,
+      netMonthly: netMonthly,
+      retirementYear: retirementYear,
+      usedOverride: usedOverride,
+      monthlyGrossSalary: monthlyGrossSalary,
+      coveragePct: coveragePct
+    };
+    render(r);
+    persist(r);
   }
 
   function render(r) {
     if (!r) {
-      lastMonthlyEUR = null;
-      els.points.textContent = '—';
-      els.monthly.textContent = '—';
+      lastNetEUR = null;
+      els.points.textContent = '–';
+      els.gross.textContent = '–';
+      els.netins.textContent = '–';
+      els.net.textContent = '–';
       els.inr.textContent = '';
       els.meta.textContent = 'Fill in your birth year, retirement age, salary and career start to see an estimate.';
       return;
     }
     els.points.textContent = r.totalEP.toFixed(2);
-    els.monthly.textContent = AIO.formatEUR(r.monthly);
+    els.gross.textContent = AIO.formatEUR(r.grossMonthly);
+    els.netins.textContent = AIO.formatEUR(r.netOfInsuranceMonthly);
+    els.net.textContent = AIO.formatEUR(r.netMonthly);
     renderINR();
     els.meta.textContent = 'Assumes retirement in ' + r.retirementYear +
-      (r.usedOverride ? ' · using your stated Entgeltpunkte plus estimated future years.' : '.');
+      (r.usedOverride ? ', using your stated Entgeltpunkte plus estimated future years.' : '.');
   }
 
   function renderINR() {
-    if (lastMonthlyEUR == null) { els.inr.textContent = ''; return; }
+    if (lastNetEUR == null) { els.inr.textContent = ''; return; }
     var rate = AIO.getRate();
     if (rate == null) { els.inr.textContent = '≈ ₹… (loading rate)'; return; }
-    els.inr.textContent = '≈ ' + AIO.formatINR(lastMonthlyEUR * rate) + ' / month';
+    els.inr.textContent = '≈ ' + AIO.formatINR(lastNetEUR * rate) + ' / month';
   }
 
-  function persist() {
+  // Save inputs (so the form restores) plus the computed result (so the homepage
+  // dashboard can read it). result is null when inputs are incomplete.
+  function persist(result) {
     var s = {};
     FIELDS.forEach(function (k) { s[k] = els[k].value; });
+    s.result = result ? {
+      grossMonthly: result.grossMonthly,
+      netOfInsuranceMonthly: result.netOfInsuranceMonthly,
+      netMonthly: result.netMonthly,
+      monthlyGrossSalary: result.monthlyGrossSalary,
+      coveragePct: result.coveragePct,
+      totalEP: result.totalEP
+    } : null;
     AIO.save(KEY, s);
   }
   function restore() {
@@ -106,7 +140,7 @@
   }
 
   function init() {
-    FIELDS.concat(['points', 'monthly', 'inr', 'meta']).forEach(function (id) { els[id] = $(id); });
+    FIELDS.concat(['points', 'gross', 'netins', 'net', 'inr', 'meta']).forEach(function (id) { els[id] = $(id); });
     var rw = $('rw'); if (rw) rw.textContent = C.AKTUELLER_RENTENWERT.toFixed(2);
     restore();
     FIELDS.forEach(function (k) { els[k].addEventListener('input', compute); });

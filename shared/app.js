@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-   All-in-One — shared runtime: header, footer, EUR/INR rate widget, helpers.
+   All-in-One: shared runtime: header, footer, EUR/INR rate widget, helpers.
    Plain ES5-ish vanilla JS, no build step. Loaded with `defer` on every page.
 
    Pages declare their directory depth via <body data-depth="0|1"> so links and
@@ -90,7 +90,7 @@
     var cached = load(RATE_KEY);
     var now = Date.now();
     if (cached && typeof cached.rate === 'number' && cached.fetchedAt && (now - cached.fetchedAt) < RATE_TTL_MS) {
-      // fresh enough — reuse without re-fetching
+      // fresh enough, reuse without re-fetching
       setRate(cached.rate, cached.updated || cached.fetchedAt, cached.offline);
       return;
     }
@@ -128,7 +128,7 @@
       '<header class="site-header"><div class="wrap">' +
         '<a class="brand" href="' + HOME + '">All-in-One<span class="dot">.</span></a>' +
         '<div class="rate-pill loading" id="ratePill" aria-live="polite" title="Live EUR to INR exchange rate">' +
-          '<div class="rate-main">1 € = ₹—</div>' +
+          '<div class="rate-main">1 € = ₹–</div>' +
           '<div class="rate-sub">Loading rate…</div>' +
         '</div>' +
       '</div></header>';

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>All-in-One — financial calculators</title>
-<meta name="description" content="A small, growing suite of clean financial calculators. No accounts, no backend — everything runs in your browser.">
+<title>All-in-One · financial calculators</title>
+<meta name="description" content="A small, growing suite of clean financial calculators. No accounts, no backend. Everything runs in your browser.">
 <meta name="theme-color" content="#0b0b0c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,20 +14,26 @@
 <body data-depth="0">
 <main>
   <div class="wrap">
-    <section class="hero">
-      <h1>All-in-One<span class="accent">.</span></h1>
-      <p>A small, growing suite of clean financial calculators. No accounts, no backend — everything runs in your browser and stays there.</p>
+    <p class="intro">A small, growing suite of clean financial calculators. No accounts, no backend. Everything runs in your browser and stays there.</p>
+
+    <!-- Dashboard: shown by home.js only once a calculator has been run -->
+    <section class="dashboard" id="dashboard" hidden aria-label="Your snapshot">
+      <h2 class="section-kicker">Your snapshot</h2>
+      <div class="dash-cards" id="dashCards"></div>
+      <div class="synthesis" id="synthesis" hidden></div>
     </section>
 
+    <h2 class="section-kicker" id="gridHeading" hidden>More calculators</h2>
+
     <section class="card-grid" aria-label="Calculators">
-      <a class="calc-card" href="pension/">
+      <a class="calc-card" data-calc="pension" href="pension/">
         <span class="calc-icon" aria-hidden="true">🇩🇪</span>
         <h3>German Pension Calculator</h3>
-        <p>Estimate your statutory monthly gross pension from your salary history and Entgeltpunkte.</p>
+        <p>Estimate your statutory monthly pension from your salary history and Entgeltpunkte.</p>
         <span class="go">Open calculator →</span>
       </a>
 
-      <a class="calc-card" href="emergency-fund/">
+      <a class="calc-card" data-calc="emergency" href="emergency-fund/">
         <span class="calc-icon" aria-hidden="true">🛟</span>
         <h3>Emergency Fund Calculator</h3>
         <p>Work out how big your safety net should be and how far along you already are.</p>
@@ -44,7 +50,7 @@
       <div class="calc-card soon" aria-disabled="true">
         <span class="tag">Coming soon</span>
         <span class="calc-icon" aria-hidden="true">🏦</span>
-        <h3>Loan & EMI Calculator</h3>
+        <h3>Loan &amp; EMI Calculator</h3>
         <p>Monthly instalments, total interest and a full repayment schedule for any loan.</p>
       </div>
 
@@ -58,5 +64,6 @@
   </div>
 </main>
 <script src="shared/app.js" defer></script>
+<script src="home.js" defer></script>
 </body>
 </html>

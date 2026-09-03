@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>German Pension Calculator — All-in-One</title>
+<title>German Pension Calculator · All-in-One</title>
 <meta name="description" content="Estimate your German statutory monthly gross pension from your salary history and Entgeltpunkte. Runs entirely in your browser.">
 <meta name="theme-color" content="#0b0b0c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -54,9 +54,9 @@
         </div>
 
         <div class="field">
-          <label for="override">Known pension points <span class="de-term">Entgeltpunkte — optional, from your official Renteninformation letter</span></label>
+          <label for="override">Known pension points <span class="de-term">Entgeltpunkte, optional, from your official Renteninformation letter</span></label>
           <input type="number" id="override" inputmode="decimal" placeholder="e.g. 18.4" min="0" step="0.01">
-          <span class="hint">If filled, we use this as your points so far and add estimated points for future years until retirement — instead of estimating your whole career from the career start year.</span>
+          <span class="hint">If filled, we use this as your points so far and add estimated points for future years until retirement, instead of estimating your whole career from the career start year.</span>
         </div>
       </section>
 
@@ -66,15 +66,28 @@
 
         <div class="result-block">
           <p class="result-label">Total pension points <span class="de-term">Entgeltpunkte</span></p>
-          <div class="result-mid" id="points">—</div>
+          <div class="result-mid" id="points">–</div>
         </div>
 
         <hr class="result-sep">
 
         <div class="result-block">
-          <p class="result-label">Estimated monthly gross pension <span class="de-term">monatliche Bruttorente</span></p>
-          <div class="result-big" id="monthly">—</div>
+          <div class="receipt">
+            <div class="receipt-row">
+              <span class="receipt-label">Gross monthly pension <span class="de-term">monatliche Bruttorente</span></span>
+              <span class="receipt-amt" id="gross">–</span>
+            </div>
+            <div class="receipt-row">
+              <span class="receipt-label">Net of insurance <span class="de-term">after 11.5% health + care (KVdR + Pflege)</span></span>
+              <span class="receipt-amt" id="netins">–</span>
+            </div>
+          </div>
+
+          <p class="result-label" style="margin-top:18px">Net monthly pension <span class="de-term">after estimated income tax</span></p>
+          <div class="result-big" id="net">–</div>
           <div class="result-inr" id="inr"></div>
+
+          <p class="caveat">Assumes the pension is your only income and you file as single (no Splittingtarif). Other income, marital status, or church tax will change this. Simplified tax approximation, not the exact BMF formula. For planning direction, not filing.</p>
         </div>
 
         <p class="hint" id="meta" style="margin-top:14px">Fill in your birth year, retirement age, salary and career start to see an estimate.</p>
@@ -82,12 +95,15 @@
     </div>
 
     <div class="disclaimer">
-      <strong>This is a rough, simplified estimate — not an official forecast.</strong>
+      <strong>This is a rough, simplified estimate, not an official forecast.</strong>
       It multiplies your accumulated pension points (Entgeltpunkte) by today's pension value
       (aktueller Rentenwert, €<span id="rw"></span>) and assumes a constant salary (adjusted only by any growth rate you enter)
-      and a constant average wage. It does <em>not</em> account for future changes to the Rentenwert or average wage,
-      contribution gaps, part-time periods, child-rearing credits (Kindererziehungszeiten), disability, voluntary
-      contributions, or deductions for retiring early. For real numbers, use your official
+      and a constant average wage. The net figures apply a flat 11.5% health and care deduction and a
+      simplified, piecewise-linear approximation of the 2026 income tax tariff (§32a EStG), not the exact BMF formula.
+      It does <em>not</em> account for future changes to the Rentenwert or average wage,
+      contribution gaps, part-time periods, child-rearing credits (Kindererziehungszeiten), disability, the pension
+      tax-free portion (Rentenfreibetrag), voluntary contributions, or deductions for retiring early. For real numbers,
+      use your official
       <a href="https://www.deutsche-rentenversicherung.de" target="_blank" rel="noopener noreferrer">Renteninformation</a>
       from Deutsche Rentenversicherung.
     </div>
@@ -95,6 +111,7 @@
 </main>
 <script src="../shared/app.js" defer></script>
 <script src="constants.js" defer></script>
+<script src="tax.js" defer></script>
 <script src="pension.js" defer></script>
 </body>
 </html>
