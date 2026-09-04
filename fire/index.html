@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FIRE Calculator · All-in-One</title>
+<meta name="description" content="Estimate your FIRE number and how many years until financial independence, based on your savings and expected return. Runs entirely in your browser.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/tokens.css">
+</head>
+<body data-depth="1">
+<main>
+  <div class="wrap">
+    <a class="back-link" href="../">← All calculators</a>
+
+    <div class="calc-head">
+      <h1>FIRE Calculator</h1>
+      <p>Financial Independence, Retire Early: your FIRE number is the pot that funds your expenses indefinitely. See how many years of saving and compounding it takes to get there. All figures are in today's euros, no inflation applied.</p>
+    </div>
+
+    <div class="calc-layout">
+      <!-- Inputs -->
+      <section class="panel" aria-label="Your details">
+        <h2>Your details</h2>
+
+        <div class="field">
+          <label for="fireCurrentAge">Current age</label>
+          <input type="number" id="fireCurrentAge" inputmode="numeric" placeholder="30" min="14" max="100">
+        </div>
+        <div class="field">
+          <label for="fireTargetAge">Target FIRE age</label>
+          <input type="number" id="fireTargetAge" inputmode="numeric" placeholder="50" min="18" max="100">
+        </div>
+        <div class="field">
+          <label for="fireExpenses">Current annual expenses (€)</label>
+          <input type="number" id="fireExpenses" inputmode="numeric" placeholder="30000" min="0" step="500">
+        </div>
+        <div class="field">
+          <label for="fireNetWorth">Current net worth / invested assets (€)</label>
+          <input type="number" id="fireNetWorth" inputmode="numeric" placeholder="50000" min="0" step="1000">
+          <span class="hint" id="fireNwHint">What you already have invested and working for you.</span>
+        </div>
+        <div class="field">
+          <label for="fireSavings">Monthly savings / investment (€)</label>
+          <input type="number" id="fireSavings" inputmode="numeric" placeholder="1000" min="0" step="50">
+        </div>
+        <div class="field">
+          <label for="fireReturn">Expected annual return (%)</label>
+          <input type="number" id="fireReturn" inputmode="decimal" value="6.5" step="0.1" min="0">
+        </div>
+        <div class="field">
+          <label for="fireWithdrawal">Withdrawal rate at retirement (%)</label>
+          <input type="number" id="fireWithdrawal" inputmode="decimal" value="4" step="0.1" min="0.1">
+          <span class="hint">The 4% rule is a common starting point.</span>
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section class="panel" aria-label="Your FIRE plan" aria-live="polite">
+        <h2>Your FIRE plan</h2>
+
+        <div class="result-block">
+          <p class="result-label">Years to FIRE</p>
+          <div class="result-big" id="fireYears">–</div>
+          <p class="result-sub-real" id="fireYearMeta"></p>
+        </div>
+
+        <hr class="result-sep">
+
+        <div class="receipt">
+          <div class="receipt-row">
+            <span class="receipt-label">Your FIRE number <span class="de-term">annual expenses ÷ withdrawal rate</span></span>
+            <span class="receipt-amt" id="fireNumber">–</span>
+          </div>
+          <div class="receipt-row">
+            <span class="receipt-label">Projected FIRE year</span>
+            <span class="receipt-amt" id="fireYear">–</span>
+          </div>
+        </div>
+
+        <p class="hint" id="fireMeta" style="margin-top:14px">Fill in your expenses and withdrawal rate to see your FIRE number.</p>
+
+        <!-- Cross-calculator: India rupee view, reusing the pension "leave Germany" assumptions -->
+        <div id="fireIndiaBlock" hidden>
+          <hr class="result-sep">
+          <p class="result-label">If you leave Germany <span class="de-term">your FIRE number in Indian rupees</span></p>
+          <div class="result-mid" id="fireIndiaNominal">–</div>
+          <p class="result-sub-real" id="fireIndiaReal"></p>
+        </div>
+        <div id="fireIndiaNote" hidden>
+          <hr class="result-sep">
+          <p class="hint">Set your "leave Germany" assumptions on the <a href="../pension/">Pension calculator</a> to see this in Indian rupee terms.</p>
+        </div>
+      </section>
+    </div>
+
+    <div class="disclaimer">
+      A simplified projection in today's euros, with no inflation applied to expenses or the target. It assumes a constant
+      return every year (real markets are volatile), that your savings and expenses stay flat, and that the withdrawal rate
+      you choose is sustainable. The 4% rule is a rule of thumb, not a guarantee. For direction, not a plan.
+    </div>
+  </div>
+</main>
+<script src="../shared/app.js" defer></script>
+<script src="fire.js" defer></script>
+</body>
+</html>

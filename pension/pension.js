@@ -25,6 +25,7 @@
   function $(id) { return document.getElementById(id); }
   function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
   function show(el, on) { el.hidden = !on; }
+  function setPreview(el, text, empty) { el.textContent = text; el.classList.toggle('empty', !!empty); }
 
   /* ---------------- shared model ---------------- */
   function salaryAt(year, current, g, currentYear) {
@@ -120,6 +121,7 @@
     show(els.leavePrompt, true);
     show(els.leaveVested, false);
     show(els.leaveUnvested, false);
+    setPreview(els.leavePreview, 'Tap to calculate', true);
   }
 
   function computeLeaving() {
@@ -145,6 +147,7 @@
     if (yearsContrib < 5) {
       els.leaveYearsNote.textContent = '(' + Math.max(0, Math.floor(yearsContrib)) + ' of 5 years)';
       show(els.leaveUnvested, true); show(els.leaveVested, false);
+      setPreview(els.leavePreview, 'Not vested', true);
       return;
     }
 
@@ -160,13 +163,14 @@
     var grossMonthly = frozenEP * C.AKTUELLER_RENTENWERT;
     var yearsUntilRet = Math.max(0, main.retirementYear - main.currentYear);
 
-    leaveState = { grossMonthly: grossMonthly, infl: infl, yearsUntilRet: yearsUntilRet };
+    leaveState = { grossMonthly: grossMonthly, infl: infl, yearsUntilRet: yearsUntilRet, year: leaveYear };
 
     els.leaveEP.textContent = frozenEP.toFixed(2);
     els.leaveGross.textContent = AIO.formatEUR(grossMonthly) + ' / mo';
     renderLeaveINR();
 
     show(els.leaveUnvested, false); show(els.leaveVested, true);
+    setPreview(els.leavePreview, AIO.formatEUR(grossMonthly) + '/mo', false);
   }
 
   function renderLeaveINR() {
@@ -190,13 +194,18 @@
     if (!main) {
       els.privateYears.textContent = '–';
       show(els.privatePrompt, true); show(els.privateResults, false);
+      setPreview(els.privatePreview, 'Tap to calculate', true);
       return;
     }
     var yrs = Math.max(0, main.retirementYear - main.currentYear);
     els.privateYears.textContent = yrs + (yrs === 1 ? ' year' : ' years');
 
     var monthly = num(els.privateMonthly.value);
-    if (!isFinite(monthly) || monthly <= 0) { show(els.privatePrompt, true); show(els.privateResults, false); return; }
+    if (!isFinite(monthly) || monthly <= 0) {
+      show(els.privatePrompt, true); show(els.privateResults, false);
+      setPreview(els.privatePreview, 'Tap to calculate', true);
+      return;
+    }
 
     var ret = els.privateReturn.value.trim() === '' ? 6 : num(els.privateReturn.value);
     if (!isFinite(ret) || ret < 0) ret = 0;
@@ -218,6 +227,7 @@
     renderPrivateINR();
 
     show(els.privatePrompt, false); show(els.privateResults, true);
+    setPreview(els.privatePreview, '+' + AIO.formatEUR(payout) + '/mo → ' + AIO.formatEUR(combined) + '/mo combined', false);
   }
 
   function renderPrivateINR() {
@@ -242,7 +252,9 @@
     s.result = main ? {
       grossMonthly: main.grossMonthly, netOfInsuranceMonthly: main.netOfInsuranceMonthly,
       netMonthly: main.netMonthly, monthlyGrossSalary: main.monthlyGrossSalary,
-      coveragePct: main.coveragePct, totalEP: main.totalEP
+      coveragePct: main.coveragePct, totalEP: main.totalEP,
+      // for the dashboard card: the leave-Germany scenario figure, if vested
+      leave: leaveState ? { year: leaveState.year, grossMonthly: leaveState.grossMonthly } : null
     } : null;
     AIO.save(KEY, s);
   }
@@ -255,8 +267,8 @@
   function init() {
     var ids = MAIN_FIELDS.concat(EXTRA_FIELDS, [
       'points', 'gross', 'netins', 'net', 'inr', 'meta',
-      'leavePrompt', 'leaveVested', 'leaveUnvested', 'leaveYearsNote', 'leaveEP', 'leaveGross', 'leaveNominalInr', 'leaveRealInr',
-      'privatePrompt', 'privateResults', 'privateYears', 'privateLump', 'privatePayout', 'privateCombined', 'privateCombinedInr', 'privateCompare'
+      'leavePrompt', 'leaveVested', 'leaveUnvested', 'leaveYearsNote', 'leaveEP', 'leaveGross', 'leaveNominalInr', 'leaveRealInr', 'leavePreview',
+      'privatePrompt', 'privateResults', 'privateYears', 'privateLump', 'privatePayout', 'privateCombined', 'privateCombinedInr', 'privateCompare', 'privatePreview'
     ]);
     ids.forEach(function (id) { els[id] = $(id); });
     var rw = $('rw'); if (rw) rw.textContent = C.AKTUELLER_RENTENWERT.toFixed(2);

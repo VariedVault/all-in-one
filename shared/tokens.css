@@ -347,4 +347,42 @@ input::placeholder{color:var(--muted-2);}
 .split-legend .dot.liquid{background:var(--accent);}
 .split-legend .dot.illiquid{background:var(--muted-2);}
 
+/* ---------- dashboard: pension sublabel + secondary leave line ---------- */
+.dash-label .dash-sublabel{font-weight:400;color:var(--muted);font-size:12px;}
+.dash-card .dash-leave{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;}
+
+/* ---------- pension scenario preview cards ---------- */
+.scenario-card{background:var(--panel);border-radius:var(--radius);margin-top:20px;overflow:hidden;}
+.scenario-card > summary{
+  list-style:none;cursor:pointer;padding:20px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+}
+.scenario-card > summary::-webkit-details-marker{display:none;}
+.scenario-card > summary:hover .scenario-title{color:var(--accent);}
+.scenario-title{font-weight:700;font-size:17px;letter-spacing:-0.01em;}
+.scenario-right{display:flex;align-items:center;gap:14px;}
+.scenario-preview{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent);font-size:16px;text-align:right;}
+.scenario-preview.empty{color:var(--muted);font-weight:600;font-size:14px;}
+.scenario-cta{color:var(--muted);font-size:13px;white-space:nowrap;}
+.scenario-card > summary .chev{color:var(--muted);transition:transform .2s ease;font-size:20px;line-height:1;}
+.scenario-card[open] > summary .chev{transform:rotate(90deg);}
+.scenario-card[open] > summary{border-bottom:1px solid var(--line);}
+.scenario-card .expando-body{padding:24px;}
+
+/* ---------- net worth: dynamic custom categories ---------- */
+.nw-cat-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);}
+.nw-cat-row input[type="text"]{flex:1 1 auto;min-width:0;padding:8px 11px;}
+.nw-cat-row input[type="number"]{width:130px;text-align:right;padding:8px 11px;}
+.nw-cat-remove{
+  background:none;border:0;color:var(--muted);cursor:pointer;font-size:22px;line-height:1;
+  padding:2px 6px;border-radius:8px;flex:0 0 auto;
+}
+.nw-cat-remove:hover{color:var(--accent);}
+.nw-add-btn{
+  margin-top:12px;background:none;border:1px dashed var(--line);color:var(--muted);
+  font-family:inherit;font-size:14px;font-weight:600;padding:9px 14px;border-radius:10px;cursor:pointer;
+  transition:border-color .15s ease,color .15s ease;
+}
+.nw-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}

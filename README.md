@@ -8,7 +8,8 @@ A small, growing suite of clean financial calculators. Vanilla HTML/CSS/JS, no b
 
 - **German Pension Calculator** (`/pension/`): estimates your statutory monthly pension (gesetzliche Rente) from your salary history and Entgeltpunkte, with a net-of-insurance and net-of-tax breakdown, plus two optional scenarios: "What if I leave Germany?" (frozen points, vesting, real rupee value) and "Add a private pension" (annuity future value + 4% rule top-up).
 - **Emergency Fund Calculator** (`/emergency-fund/`): your target safety net and how far along you already are.
-- **Net Worth Calculator** (`/net-worth/`): total and liquid net worth from your assets and liabilities, with a liquid-versus-illiquid split.
+- **Net Worth Calculator** (`/net-worth/`): your net worth from preset and custom asset categories minus liabilities.
+- **FIRE Calculator** (`/fire/`): your FIRE number and years to financial independence, with an optional Indian-rupee view.
 - More coming (compound interest, loan/EMI).
 
 ## How it works
@@ -24,6 +25,7 @@ A small, growing suite of clean financial calculators. Vanilla HTML/CSS/JS, no b
 /pension/         German Pension Calculator (+ constants.js, tax.js, pension.js)
 /emergency-fund/  Emergency Fund Calculator (+ emergency.js)
 /net-worth/       Net Worth Calculator (+ networth.js)
+/fire/            FIRE Calculator (+ fire.js)
 /shared/          shared design tokens (tokens.css) + runtime (app.js)
 /impressum/       Impressum
 /datenschutz/     Datenschutzerklärung / Privacy Policy

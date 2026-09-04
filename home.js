@@ -10,12 +10,18 @@
   function pctOf(pen) { return Math.round(pen.coveragePct); }
 
   function penCard(pen) {
-    return '<div class="dash-card">' +
-      '<p class="dash-label">Net monthly pension</p>' +
+    var html = '<div class="dash-card">' +
+      '<p class="dash-label">Net monthly pension <span class="dash-sublabel">(full career)</span></p>' +
       '<div class="dash-big">' + AIO.formatEUR(pen.netMonthly) + '</div>' +
-      '<p class="dash-sub">' + AIO.formatEUR(pen.grossMonthly) + ' gross → ' + AIO.formatEUR(pen.netMonthly) + ' net</p>' +
-      '<a class="recalc" href="pension/">Recalculate →</a>' +
-      '</div>';
+      '<p class="dash-sub">Assumes working to retirement age with no relocation.</p>';
+    // If the "leave Germany" scenario was calculated, show it alongside so neither
+    // number is ever read in isolation.
+    if (pen.leave && isFinite(pen.leave.grossMonthly)) {
+      html += '<p class="dash-leave">If you leave in ' + pen.leave.year + ': ' +
+        AIO.formatEUR(pen.leave.grossMonthly) + '/mo</p>';
+    }
+    html += '<a class="recalc" href="pension/">Recalculate →</a></div>';
+    return html;
   }
 
   function emCard(em) {
@@ -33,8 +39,19 @@
     return '<div class="dash-card">' +
       '<p class="dash-label">Net worth</p>' +
       '<div class="dash-big">' + AIO.formatEUR(nw.totalNetWorth) + '</div>' +
-      '<p class="dash-sub">' + AIO.formatEUR(nw.liquidNetWorth) + ' liquid</p>' +
+      '<p class="dash-sub">' + AIO.formatEUR(nw.totalAssets) + ' assets, ' + AIO.formatEUR(nw.totalLiabilities) + ' liabilities</p>' +
       '<a class="recalc" href="net-worth/">Recalculate →</a>' +
+      '</div>';
+  }
+
+  function fireCard(f) {
+    var big = (f.yearsToFire == null) ? 'Over 100 yrs'
+            : (f.yearsToFire <= 0 ? 'At FIRE' : f.yearsToFire.toFixed(1) + ' yrs');
+    return '<div class="dash-card">' +
+      '<p class="dash-label">Years to FIRE</p>' +
+      '<div class="dash-big">' + big + '</div>' +
+      '<p class="dash-sub">FIRE number ' + AIO.formatEUR(f.fireNumber) + '</p>' +
+      '<a class="recalc" href="fire/">Recalculate →</a>' +
       '</div>';
   }
 
@@ -83,20 +100,24 @@
     var penSaved = AIO.load('aio:pension') || {};
     var emSaved = AIO.load('aio:emergency') || {};
     var nwSaved = AIO.load('aio:networth') || {};
+    var fireSaved = AIO.load('aio:fire') || {};
     var pen = penSaved.result || null;
     var em = emSaved.result || null;
     var nw = nwSaved.result || null;
+    var fire = fireSaved.result || null;
 
     var penDone = !!(pen && isFinite(pen.netMonthly));
     var emDone = !!(em && isFinite(em.target));
     var nwDone = !!(nw && isFinite(nw.totalNetWorth));
+    var fireDone = !!(fire && isFinite(fire.fireNumber));
 
-    if (!penDone && !emDone && !nwDone) return; // nothing run: leave the plain card grid
+    if (!penDone && !emDone && !nwDone && !fireDone) return; // nothing run: plain card grid
 
     var cardsHTML = '';
     if (penDone) cardsHTML += penCard(pen);
     if (emDone) cardsHTML += emCard(em);
-    if (nwDone) cardsHTML += nwCard(nw); // net worth sits alongside as a third card
+    if (nwDone) cardsHTML += nwCard(nw);   // net worth sits alongside as another card
+    if (fireDone) cardsHTML += fireCard(fire);
     document.getElementById('dashCards').innerHTML = cardsHTML;
 
     // Existing emergency-first / pension-gap priority messaging, unchanged.
@@ -109,11 +130,11 @@
       synthEl.hidden = false;
     }
 
-    // Separate net-worth nudge: liquid assets known but no emergency fund target yet.
+    // Separate net-worth nudge: net worth known but no emergency fund target yet.
     if (nwDone && !emDone) {
       var nudge = document.getElementById('nwNudge');
-      nudge.innerHTML = '<p class="lead">You have <span class="accent">' + AIO.formatEUR(nw.liquidAssets) +
-        '</span> in liquid assets. Have you calculated your emergency fund target?</p>' +
+      nudge.innerHTML = '<p class="lead">You\'ve mapped a net worth of <span class="accent">' + AIO.formatEUR(nw.totalNetWorth) +
+        '</span>. Have you calculated your emergency fund target?</p>' +
         '<p class="secondary"><a href="emergency-fund/">Open the Emergency Fund Calculator →</a></p>';
       nudge.hidden = false;
     }
@@ -125,6 +146,7 @@
     if (penDone) hideCard('pension');
     if (emDone) hideCard('emergency');
     if (nwDone) hideCard('networth');
+    if (fireDone) hideCard('fire');
     document.getElementById('gridHeading').hidden = false;
   }
 
