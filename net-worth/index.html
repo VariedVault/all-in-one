@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Net Worth Calculator · All-in-One</title>
+<meta name="description" content="Add up your assets and liabilities to see your total and liquid net worth, with a liquid-versus-illiquid split. Runs entirely in your browser.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/tokens.css">
+</head>
+<body data-depth="1">
+<main>
+  <div class="wrap">
+    <a class="back-link" href="../">← All calculators</a>
+
+    <div class="calc-head">
+      <h1>Net Worth Calculator</h1>
+      <p>Add up what you own and what you owe. See your total net worth, how much of it is actually liquid, and whether you're rich on paper but cash-poor.</p>
+    </div>
+
+    <div class="calc-layout">
+      <!-- Inputs -->
+      <section class="panel" aria-label="Your assets and liabilities">
+        <div class="nw-group">
+          <h3>Liquid assets</h3>
+          <div class="nw-row"><label for="nwCash">Cash &amp; bank accounts</label><input type="number" id="nwCash" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwInvest">Investments (stocks, ETFs, brokerage)</label><input type="number" id="nwInvest" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwCrypto">Crypto</label><input type="number" id="nwCrypto" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwGold">Gold &amp; precious metals</label><input type="number" id="nwGold" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwOtherLiquid">Other (liquid)</label><input type="number" id="nwOtherLiquid" inputmode="numeric" placeholder="0" step="100"></div>
+        </div>
+
+        <div class="nw-group">
+          <h3>Illiquid assets</h3>
+          <div class="nw-row"><label for="nwRealEstate">Real estate (market value)</label><input type="number" id="nwRealEstate" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwRetirement">Retirement / pension value</label><input type="number" id="nwRetirement" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwVehicle">Vehicle(s)</label><input type="number" id="nwVehicle" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwBusiness">Business equity</label><input type="number" id="nwBusiness" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwOtherIlliquid">Other (illiquid)</label><input type="number" id="nwOtherIlliquid" inputmode="numeric" placeholder="0" step="100"></div>
+        </div>
+
+        <div class="nw-group">
+          <h3>Liabilities</h3>
+          <div class="nw-row"><label for="nwMortgage">Mortgage / home loan</label><input type="number" id="nwMortgage" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwCarLoan">Car loan</label><input type="number" id="nwCarLoan" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwCreditCard">Credit card debt</label><input type="number" id="nwCreditCard" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwOtherLoans">Other loans</label><input type="number" id="nwOtherLoans" inputmode="numeric" placeholder="0" step="100"></div>
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section class="panel" aria-label="Your net worth" aria-live="polite">
+        <h2>Your net worth</h2>
+
+        <div class="result-block">
+          <p class="result-label">Total net worth <span class="de-term">all assets minus all liabilities</span></p>
+          <div class="result-big" id="nwTotal">–</div>
+          <div class="result-inr" id="nwTotalInr"></div>
+        </div>
+
+        <hr class="result-sep">
+
+        <div class="result-block">
+          <p class="result-label">Liquid net worth <span class="de-term">liquid assets minus all liabilities</span></p>
+          <div class="result-mid" id="nwLiquid">–</div>
+          <div class="result-inr" id="nwLiquidInr"></div>
+        </div>
+
+        <hr class="result-sep">
+
+        <div class="result-block">
+          <p class="result-label">Asset mix <span class="de-term">liquid vs illiquid</span></p>
+          <div class="split-bar" role="img" aria-label="Liquid versus illiquid asset split">
+            <div class="seg-liquid" id="nwSplitLiquid" style="width:0%"></div>
+            <div class="seg-illiquid" id="nwSplitIlliquid" style="width:0%"></div>
+          </div>
+          <div class="split-legend">
+            <span><span class="dot liquid"></span>Liquid <span id="nwLiquidPct">–</span> · <span id="nwLiquidAssets">–</span></span>
+            <span><span class="dot illiquid"></span>Illiquid <span id="nwIlliquidPct">–</span> · <span id="nwIlliquidAssets">–</span></span>
+          </div>
+        </div>
+
+        <div class="nw-subtotal"><span>Total assets</span><span class="amt" id="nwAssets">–</span></div>
+        <div class="nw-subtotal"><span>Total liabilities</span><span class="amt" id="nwLiabilities">–</span></div>
+
+        <p class="hint" id="nwMeta" style="margin-top:14px">Enter your assets and liabilities to see your net worth.</p>
+      </section>
+    </div>
+
+    <div class="disclaimer">
+      A snapshot based on the values you enter. Asset values (especially property, vehicles, business equity and crypto)
+      are estimates and move over time. ₹ figures use the live exchange rate shown in the header and are for reference only.
+      Nothing here leaves your browser.
+    </div>
+  </div>
+</main>
+<script src="../shared/app.js" defer></script>
+<script src="networth.js" defer></script>
+</body>
+</html>

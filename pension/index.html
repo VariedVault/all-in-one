@@ -107,6 +107,111 @@
       <a href="https://www.deutsche-rentenversicherung.de" target="_blank" rel="noopener noreferrer">Renteninformation</a>
       from Deutsche Rentenversicherung.
     </div>
+
+    <!-- Scenario: leaving Germany -->
+    <details class="expando" id="leaveSection">
+      <summary>What if I leave Germany? <span class="chev" aria-hidden="true">›</span></summary>
+      <div class="expando-body">
+        <p class="expando-sub">If you move away before retiring, your contributions stop and your collected pension points freeze. If you're vested, they still pay out at retirement in today's euros.</p>
+        <div class="expando-grid">
+          <div>
+            <div class="field">
+              <label for="leaveYear">Year you plan to leave Germany</label>
+              <input type="number" id="leaveYear" inputmode="numeric" placeholder="2030" min="1950" max="2100">
+            </div>
+            <div class="field">
+              <label for="indiaInflation">Expected India inflation rate (%)</label>
+              <input type="number" id="indiaInflation" inputmode="decimal" value="7" step="0.1" min="0">
+              <span class="hint">Used to discount the future rupee value to today's purchasing power.</span>
+            </div>
+          </div>
+          <div aria-live="polite">
+            <p class="hint" id="leavePrompt">Fill in the main calculator above, then enter the year you plan to leave.</p>
+
+            <div id="leaveUnvested" hidden>
+              <p class="result-label" style="color:var(--text);font-weight:700;font-size:16px">Not vested yet <span id="leaveYearsNote"></span></p>
+              <p class="unvested-note">
+                German statutory pension normally requires <strong>at least 5 years</strong> of contributions
+                (the Wartezeit) before it pays out anything. Below that, you may be able to claim a
+                <strong>contribution refund (Beitragserstattung)</strong>, but note the rules:
+              </p>
+              <ul class="unvested-note" style="margin:10px 0;padding-left:20px;line-height:1.7">
+                <li>You must wait <strong>24 months</strong> after your last mandatory contribution.</li>
+                <li>You must have <strong>left Germany</strong> (and the EU/agreement area for full refunds).</li>
+                <li>You must <strong>not be eligible for voluntary insurance</strong> in the German system.</li>
+                <li>A refund covers only <strong>your own employee contribution share</strong>, not the employer's half.</li>
+              </ul>
+              <p class="unvested-note">
+                Germany and India have a <strong>social security agreement (since 2017)</strong> that can total your
+                German and Indian contribution years toward the 5-year threshold, which may affect whether a refund
+                applies at all. Confirm your exact case directly with
+                <a href="https://www.deutsche-rentenversicherung.de" target="_blank" rel="noopener noreferrer">Deutsche Rentenversicherung</a>.
+                This is informational only, no refund amount is estimated here.
+              </p>
+            </div>
+
+            <div id="leaveVested" hidden>
+              <p class="result-label">Frozen pension points <span class="de-term">Entgeltpunkte at leave year</span></p>
+              <div class="result-mid" id="leaveEP">–</div>
+
+              <p class="result-label" style="margin-top:16px">Monthly gross pension at retirement <span class="de-term">frozen, in today's euros</span></p>
+              <div class="result-big" id="leaveGross">–</div>
+              <p class="result-inr" id="leaveNominalInr"></p>
+              <p class="result-sub-real" id="leaveRealInr"></p>
+
+              <p class="caveat">Assumes today's Rentenwert stays flat in EUR terms until retirement; in reality it typically rises. Inflation is a flat constant assumption, not a forecast. The EUR/INR rate will drift over decades; shown for direction, not prediction.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <!-- Scenario: private pension top-up -->
+    <details class="expando" id="privateSection">
+      <summary>Add a private pension <span class="chev" aria-hidden="true">›</span></summary>
+      <div class="expando-body">
+        <p class="expando-sub">See how regular private contributions (for example an ETF savings plan, Riester or Rürup) could top up your state pension.</p>
+        <div class="expando-grid">
+          <div>
+            <div class="field">
+              <label for="privateMonthly">Monthly contribution (€)</label>
+              <input type="number" id="privateMonthly" inputmode="numeric" placeholder="200" min="0" step="10">
+            </div>
+            <div class="field">
+              <label for="privateReturn">Expected annual return (%)</label>
+              <input type="number" id="privateReturn" inputmode="decimal" value="6" step="0.1" min="0">
+            </div>
+            <div class="field">
+              <label>Years until retirement</label>
+              <div class="readout-static" id="privateYears">–</div>
+              <span class="hint">Taken from the main calculator (retirement year minus this year).</span>
+            </div>
+          </div>
+          <div aria-live="polite">
+            <p class="hint" id="privatePrompt">Fill in the main calculator above, then enter a monthly contribution.</p>
+            <div id="privateResults" hidden>
+              <div class="receipt">
+                <div class="receipt-row">
+                  <span class="receipt-label">Lump sum at retirement <span class="de-term">future value of your contributions</span></span>
+                  <span class="receipt-amt" id="privateLump">–</span>
+                </div>
+                <div class="receipt-row">
+                  <span class="receipt-label">Monthly payout <span class="de-term">via the 4% rule</span></span>
+                  <span class="receipt-amt" id="privatePayout">–</span>
+                </div>
+              </div>
+
+              <p class="result-label" style="margin-top:18px">Combined monthly pension <span class="de-term">state net + private payout</span></p>
+              <div class="result-big" id="privateCombined">–</div>
+              <p class="result-inr" id="privateCombinedInr"></p>
+              <p class="caveat" id="privateCompare" style="color:var(--text);font-size:13.5px"></p>
+
+              <p class="caveat">The 4% rule is a rule of thumb for a sustainable withdrawal; real safe rates vary with markets and lifespan. Returns are not guaranteed and this ignores fees, taxes on gains, and inflation.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
   </div>
 </main>
 <script src="../shared/app.js" defer></script>

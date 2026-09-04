@@ -29,6 +29,15 @@
       '</div>';
   }
 
+  function nwCard(nw) {
+    return '<div class="dash-card">' +
+      '<p class="dash-label">Net worth</p>' +
+      '<div class="dash-big">' + AIO.formatEUR(nw.totalNetWorth) + '</div>' +
+      '<p class="dash-sub">' + AIO.formatEUR(nw.liquidNetWorth) + ' liquid</p>' +
+      '<a class="recalc" href="net-worth/">Recalculate →</a>' +
+      '</div>';
+  }
+
   // Decide the single synthesis message from the priority logic. Returns
   // { cls, lead(HTML), secondary(text) } or null for "no synthesis line".
   function synthesise(pen, em, penDone, emDone) {
@@ -73,19 +82,24 @@
   function init() {
     var penSaved = AIO.load('aio:pension') || {};
     var emSaved = AIO.load('aio:emergency') || {};
+    var nwSaved = AIO.load('aio:networth') || {};
     var pen = penSaved.result || null;
     var em = emSaved.result || null;
+    var nw = nwSaved.result || null;
 
     var penDone = !!(pen && isFinite(pen.netMonthly));
     var emDone = !!(em && isFinite(em.target));
+    var nwDone = !!(nw && isFinite(nw.totalNetWorth));
 
-    if (!penDone && !emDone) return; // nothing run: leave the plain card grid
+    if (!penDone && !emDone && !nwDone) return; // nothing run: leave the plain card grid
 
     var cardsHTML = '';
     if (penDone) cardsHTML += penCard(pen);
     if (emDone) cardsHTML += emCard(em);
+    if (nwDone) cardsHTML += nwCard(nw); // net worth sits alongside as a third card
     document.getElementById('dashCards').innerHTML = cardsHTML;
 
+    // Existing emergency-first / pension-gap priority messaging, unchanged.
     var synth = synthesise(pen, em, penDone, emDone);
     var synthEl = document.getElementById('synthesis');
     if (synth) {
@@ -95,12 +109,22 @@
       synthEl.hidden = false;
     }
 
+    // Separate net-worth nudge: liquid assets known but no emergency fund target yet.
+    if (nwDone && !emDone) {
+      var nudge = document.getElementById('nwNudge');
+      nudge.innerHTML = '<p class="lead">You have <span class="accent">' + AIO.formatEUR(nw.liquidAssets) +
+        '</span> in liquid assets. Have you calculated your emergency fund target?</p>' +
+        '<p class="secondary"><a href="emergency-fund/">Open the Emergency Fund Calculator →</a></p>';
+      nudge.hidden = false;
+    }
+
     document.getElementById('dashboard').hidden = false;
 
     // A calculator shown in the dashboard drops out of the grid below; the grid
     // keeps the not-yet-run calculators (and the coming-soon cards) as prompts.
     if (penDone) hideCard('pension');
     if (emDone) hideCard('emergency');
+    if (nwDone) hideCard('networth');
     document.getElementById('gridHeading').hidden = false;
   }
 
