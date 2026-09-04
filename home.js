@@ -10,15 +10,27 @@
   function pctOf(pen) { return Math.round(pen.coveragePct); }
 
   function penCard(pen) {
+    // When a private pension is filled in, the card reflects the combined
+    // (state + private) figures; otherwise state-only, as before. The full-career
+    // combined number here is the same one the synthesis coverage % uses.
+    var hasPrivate = pen.private && isFinite(pen.private.fullCombined);
+    var fullNum = hasPrivate ? pen.private.fullCombined : pen.netMonthly;
+    var sub = hasPrivate
+      ? 'State + private pension, working to retirement age with no relocation.'
+      : 'Assumes working to retirement age with no relocation.';
+
     var html = '<div class="dash-card">' +
       '<p class="dash-label">Net monthly pension <span class="dash-sublabel">(full career)</span></p>' +
-      '<div class="dash-big">' + AIO.formatEUR(pen.netMonthly) + '</div>' +
-      '<p class="dash-sub">Assumes working to retirement age with no relocation.</p>';
+      '<div class="dash-big">' + AIO.formatEUR(fullNum) + '</div>' +
+      '<p class="dash-sub">' + sub + '</p>';
     // If the "leave Germany" scenario was calculated, show it alongside so neither
-    // number is ever read in isolation.
+    // number is ever read in isolation. Use the combined figure when private exists.
     if (pen.leave && isFinite(pen.leave.grossMonthly)) {
+      var leaveNum = (hasPrivate && pen.private.leaveCombined != null && isFinite(pen.private.leaveCombined))
+        ? pen.private.leaveCombined
+        : pen.leave.grossMonthly;
       html += '<p class="dash-leave">If you leave in ' + pen.leave.year + ': ' +
-        AIO.formatEUR(pen.leave.grossMonthly) + '/mo</p>';
+        AIO.formatEUR(leaveNum) + '/mo</p>';
     }
     html += '<a class="recalc" href="pension/">Recalculate →</a></div>';
     return html;

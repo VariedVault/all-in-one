@@ -213,17 +213,29 @@
 
     var n = yrs * 12;
     var i = ret / 100 / 12;
+    // Full-career: contribute monthly all the way to retirement (unchanged).
     var fv = i > 0 ? monthly * ((Math.pow(1 + i, n) - 1) / i) : monthly * n;
     var payout = fv * 0.04 / 12;
     var stateNet = main.netMonthly;
     var fullCombined = stateNet + payout;
 
-    // The private pension keeps compounding regardless of German employment, so
-    // the payout is the same. Only the state-pension base differs: net full-career
-    // vs the frozen gross figure from the leave-Germany scenario (when vested).
-    var leaveCombined = leaveState ? leaveState.grossMonthly + payout : null;
+    // Leave-Germany scenario: private contributions realistically stop at the leave
+    // year (Riester/Rürup need German tax residency; ETF-Sparpläne get disrupted by
+    // relocation). Two-phase: contribute until leave, then let the balance keep
+    // compounding with NO further contributions until retirement.
+    var leaveCombined = null;
+    var leaveLump = null;
+    if (leaveState) {
+      var effLeave = Math.min(leaveState.year, main.retirementYear);
+      var n1 = Math.max(0, effLeave - main.currentYear) * 12;    // contributing months
+      var n2 = Math.max(0, main.retirementYear - effLeave) * 12; // growth-only months
+      var phase1 = i > 0 ? monthly * ((Math.pow(1 + i, n1) - 1) / i) : monthly * n1;
+      leaveLump = phase1 * Math.pow(1 + i, n2);
+      var leavePayout = leaveLump * 0.04 / 12;
+      leaveCombined = leaveState.grossMonthly + leavePayout;
+    }
 
-    privateState = { fullCombinedEUR: fullCombined, leaveCombinedEUR: leaveCombined, payout: payout };
+    privateState = { fullCombinedEUR: fullCombined, leaveCombinedEUR: leaveCombined, payout: payout, leaveLump: leaveLump };
 
     els.privateLump.textContent = AIO.formatEUR(fv);
     els.privatePayout.textContent = AIO.formatEUR(payout) + ' / mo';
@@ -231,7 +243,7 @@
 
     if (leaveCombined != null) {
       els.privateCombinedLeaveLabel.innerHTML = 'If you leave in ' + leaveState.year +
-        ' + private pension <span class="combo-sub">frozen gross state pension</span>';
+        ' + private pension <span class="combo-sub">frozen gross state pension; private contributions stop at ' + leaveState.year + ', balance keeps growing</span>';
       els.privateCombinedLeave.textContent = AIO.formatEUR(leaveCombined) + ' / mo';
       show(els.privateCombinedLeaveWrap, true);
     } else {
@@ -277,8 +289,8 @@
       coveragePct: main.coveragePct, totalEP: main.totalEP,
       // for the dashboard card: the leave-Germany scenario figure, if vested
       leave: leaveState ? { year: leaveState.year, grossMonthly: leaveState.grossMonthly } : null,
-      // for the dashboard synthesis: private pension payout + full-career combined
-      private: privateState ? { payout: privateState.payout, fullCombined: privateState.fullCombinedEUR } : null
+      // for the dashboard: private payout + full-career combined + leave-Germany combined
+      private: privateState ? { payout: privateState.payout, fullCombined: privateState.fullCombinedEUR, leaveCombined: privateState.leaveCombinedEUR } : null
     } : null;
     s.touched = userTouched;
     AIO.save(KEY, s);
