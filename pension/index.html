@@ -85,7 +85,6 @@
 
           <p class="result-label" style="margin-top:18px">Net monthly pension <span class="de-term">after estimated income tax</span></p>
           <div class="result-big" id="net">–</div>
-          <div class="result-inr" id="inr"></div>
 
           <p class="caveat">Assumes the pension is your only income and you file as single (no Splittingtarif). Other income, marital status, or church tax will change this. Simplified tax approximation, not the exact BMF formula. For planning direction, not filing.</p>
         </div>
@@ -127,9 +126,9 @@
               <input type="number" id="leaveYear" inputmode="numeric" placeholder="2030" min="1950" max="2100">
             </div>
             <div class="field">
-              <label for="indiaInflation">Expected India inflation rate (%)</label>
+              <label for="indiaInflation">Inflation rate (%)</label>
               <input type="number" id="indiaInflation" inputmode="decimal" value="7" step="0.1" min="0">
-              <span class="hint">Used to discount the future rupee value to today's purchasing power.</span>
+              <span class="hint">Used to discount the future value to today's purchasing power.</span>
             </div>
           </div>
           <div aria-live="polite">
@@ -166,7 +165,7 @@
               <p class="result-inr" id="leaveNominalInr"></p>
               <p class="result-sub-real" id="leaveRealInr"></p>
 
-              <p class="caveat">Assumes today's Rentenwert stays flat in EUR terms until retirement; in reality it typically rises. Inflation is a flat constant assumption, not a forecast. The EUR/INR rate will drift over decades; shown for direction, not prediction.</p>
+              <p class="caveat">Converted using the currency selected in the header. Assumes today's Rentenwert stays flat in EUR terms until retirement; in reality it typically rises. Inflation is a flat constant assumption, not a forecast. The exchange rate will drift over decades; shown for direction, not prediction.</p>
             </div>
           </div>
         </div>
@@ -220,13 +219,11 @@
               <div class="combo">
                 <p class="combo-label">Full career + private pension <span class="combo-sub">net state pension</span></p>
                 <div class="result-big" id="privateCombinedFull">–</div>
-                <p class="result-inr" id="privateCombinedFullInr"></p>
               </div>
 
               <div class="combo" id="privateCombinedLeaveWrap" hidden>
                 <p class="combo-label" id="privateCombinedLeaveLabel">If you leave Germany + private pension <span class="combo-sub">frozen gross state pension</span></p>
                 <div class="result-mid" id="privateCombinedLeave">–</div>
-                <p class="result-inr" id="privateCombinedLeaveInr"></p>
               </div>
 
               <p class="caveat" id="privateCompare" style="color:var(--text);font-size:13.5px"></p>

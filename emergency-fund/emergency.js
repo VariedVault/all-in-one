@@ -105,12 +105,12 @@
     var rate = AIO.getRate();
     if (lastTargetEUR == null) { els.targetInr.textContent = ''; els.gapInr.textContent = ''; return; }
     if (rate == null) {
-      els.targetInr.textContent = '≈ ₹… (loading rate)';
-      els.gapInr.textContent = reached ? '' : '≈ ₹… (loading rate)';
+      els.targetInr.textContent = '≈ … (loading rate)';
+      els.gapInr.textContent = reached ? '' : '≈ … (loading rate)';
       return;
     }
-    els.targetInr.textContent = '≈ ' + AIO.formatINR(lastTargetEUR * rate);
-    els.gapInr.textContent = reached ? '' : '≈ ' + AIO.formatINR(lastGapEUR * rate);
+    els.targetInr.textContent = '≈ ' + AIO.formatAmount(lastTargetEUR * rate);
+    els.gapInr.textContent = reached ? '' : '≈ ' + AIO.formatAmount(lastGapEUR * rate);
   }
 
   // Save inputs (so the form restores) plus the computed result (so the homepage

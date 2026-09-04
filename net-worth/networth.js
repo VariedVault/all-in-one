@@ -119,8 +119,8 @@
   function renderINR() {
     if (!lastResult) { els.nwTotalInr.textContent = ''; return; }
     var rate = AIO.getRate();
-    els.nwTotalInr.textContent = rate == null ? '≈ ₹… (loading rate)'
-      : '≈ ' + AIO.formatINR(lastResult.totalNetWorth * rate);
+    els.nwTotalInr.textContent = rate == null ? '≈ … (loading rate)'
+      : '≈ ' + AIO.formatAmount(lastResult.totalNetWorth * rate);
   }
 
   /* ---------------- persistence ---------------- */

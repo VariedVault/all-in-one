@@ -148,6 +148,7 @@
     var hasLeave = isFinite(leaveYear);
     els.fireIndiaBlock.hidden = !hasLeave;
     els.fireIndiaNote.hidden = hasLeave;
+    if (els.fireCurCode) els.fireCurCode.textContent = AIO.getCurrency();
 
     if (!hasLeave || lastFireNumber == null || lastYears == null) {
       els.fireIndiaNominal.textContent = '–';
@@ -156,14 +157,14 @@
     }
     var rate = AIO.getRate();
     if (rate == null) {
-      els.fireIndiaNominal.textContent = '≈ ₹… (loading rate)';
+      els.fireIndiaNominal.textContent = '≈ … (loading rate)';
       els.fireIndiaReal.textContent = '';
       return;
     }
     var nominalINR = lastFireNumber * rate;
     var realINR = nominalINR / Math.pow(1 + infl / 100, lastYears);
-    els.fireIndiaNominal.textContent = '≈ ' + AIO.formatINR(nominalINR);
-    els.fireIndiaReal.textContent = 'Real value in today\'s purchasing power: ≈ ' + AIO.formatINR(realINR) +
+    els.fireIndiaNominal.textContent = '≈ ' + AIO.formatAmount(nominalINR);
+    els.fireIndiaReal.textContent = 'Real value in today\'s purchasing power: ≈ ' + AIO.formatAmount(realINR) +
       ' (after ' + lastYears.toFixed(1) + ' years at ' + infl + '% inflation)';
   }
 
@@ -187,7 +188,7 @@
   function init() {
     FIELDS.concat(['fireYears', 'fireYearMeta', 'fireNumber', 'fireYear', 'fireMeta', 'fireNwHint',
                    'fireMultiples', 'fire25', 'fire30', 'fire35',
-                   'fireIndiaBlock', 'fireIndiaNote', 'fireIndiaNominal', 'fireIndiaReal']).forEach(function (id) { els[id] = $(id); });
+                   'fireIndiaBlock', 'fireIndiaNote', 'fireIndiaNominal', 'fireIndiaReal', 'fireCurCode']).forEach(function (id) { els[id] = $(id); });
 
     var firstVisit = !AIO.load(KEY);
     restore();

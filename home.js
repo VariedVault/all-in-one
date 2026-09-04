@@ -130,7 +130,10 @@
   }
 
   /* ---------------- data tools: export / import / clear / image ---------------- */
-  var RATE_KEY = 'aio:eurinr';
+  // Cached exchange rates are not user data, so they are excluded from export/import.
+  // ('aio:eurinr' is the pre-multi-currency cache key, kept here for older backups.)
+  var RATE_KEYS = { 'aio:rates': 1, 'aio:eurinr': 1 };
+  function isRateKey(k) { return RATE_KEYS[k] === 1; }
 
   function allAioKeys() {
     var keys = [];
@@ -163,7 +166,7 @@
   function exportData() {
     var data = {};
     allAioKeys().forEach(function (k) {
-      if (k === RATE_KEY) return;
+      if (isRateKey(k)) return;
       var raw = localStorage.getItem(k);
       try { data[k] = JSON.parse(raw); } catch (e) { data[k] = raw; }
     });
@@ -187,7 +190,7 @@
 
       var written = 0;
       Object.keys(payload.data).forEach(function (k) {
-        if (k.indexOf('aio:') === 0 && k !== RATE_KEY) {
+        if (k.indexOf('aio:') === 0 && !isRateKey(k)) {
           try { localStorage.setItem(k, JSON.stringify(payload.data[k])); written++; } catch (e) {}
         }
       });

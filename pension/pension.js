@@ -95,7 +95,6 @@
       els.gross.textContent = '–';
       els.netins.textContent = '–';
       els.net.textContent = '–';
-      els.inr.textContent = '';
       els.meta.textContent = 'Fill in your birth year, retirement age, salary and career start to see an estimate.';
       return;
     }
@@ -103,15 +102,9 @@
     els.gross.textContent = AIO.formatEUR(r.grossMonthly);
     els.netins.textContent = AIO.formatEUR(r.netOfInsuranceMonthly);
     els.net.textContent = AIO.formatEUR(r.netMonthly);
-    renderMainINR();
+    // Core state pension (gross/net/breakdown) always stays in EUR: no conversion.
     els.meta.textContent = 'Assumes retirement in ' + r.retirementYear +
       (r.usedOverride ? ', using your stated Entgeltpunkte plus estimated future years.' : '.');
-  }
-  function renderMainINR() {
-    if (!main) { els.inr.textContent = ''; return; }
-    var rate = AIO.getRate();
-    els.inr.textContent = rate == null ? '≈ ₹… (loading rate)'
-      : '≈ ' + AIO.formatINR(main.netMonthly * rate) + ' / month';
   }
 
   /* ---------------- scenario: leaving Germany ---------------- */
@@ -178,14 +171,14 @@
     if (!leaveState) { els.leaveNominalInr.textContent = ''; els.leaveRealInr.textContent = ''; return; }
     var rate = AIO.getRate();
     if (rate == null) {
-      els.leaveNominalInr.textContent = 'Nominal ₹ value at retirement: ≈ ₹… (loading rate)';
+      els.leaveNominalInr.textContent = 'Nominal value at retirement: ≈ … (loading rate)';
       els.leaveRealInr.textContent = '';
       return;
     }
-    var nominalINR = leaveState.grossMonthly * rate;
-    var realINR = nominalINR / Math.pow(1 + leaveState.infl / 100, leaveState.yearsUntilRet);
-    els.leaveNominalInr.textContent = 'Nominal ₹ value at retirement: ≈ ' + AIO.formatINR(nominalINR) + ' / mo';
-    els.leaveRealInr.textContent = 'Real value in today\'s purchasing power: ≈ ' + AIO.formatINR(realINR) +
+    var nominal = leaveState.grossMonthly * rate;
+    var real = nominal / Math.pow(1 + leaveState.infl / 100, leaveState.yearsUntilRet);
+    els.leaveNominalInr.textContent = 'Nominal value at retirement: ≈ ' + AIO.formatAmount(nominal) + ' / mo';
+    els.leaveRealInr.textContent = 'Real value in today\'s purchasing power: ≈ ' + AIO.formatAmount(real) +
       ' / mo (after ' + leaveState.yearsUntilRet + ' years at ' + leaveState.infl + '% inflation)';
   }
 
@@ -252,23 +245,9 @@
 
     els.privateCompare.textContent = 'State pension alone (net, full career): ' + AIO.formatEUR(stateNet) +
       ' / mo → with private top-up: ' + AIO.formatEUR(fullCombined) + ' / mo';
-    renderPrivateINR();
 
     show(els.privatePrompt, false); show(els.privateResults, true);
     setPreview(els.privatePreview, '+' + AIO.formatEUR(payout) + '/mo → ' + AIO.formatEUR(fullCombined) + '/mo combined', false);
-  }
-
-  function renderPrivateINR() {
-    if (!privateState) { els.privateCombinedFullInr.textContent = ''; els.privateCombinedLeaveInr.textContent = ''; return; }
-    var rate = AIO.getRate();
-    if (rate == null) {
-      els.privateCombinedFullInr.textContent = '≈ ₹… (loading rate)';
-      els.privateCombinedLeaveInr.textContent = privateState.leaveCombinedEUR != null ? '≈ ₹… (loading rate)' : '';
-      return;
-    }
-    els.privateCombinedFullInr.textContent = '≈ ' + AIO.formatINR(privateState.fullCombinedEUR * rate) + ' / month';
-    els.privateCombinedLeaveInr.textContent = privateState.leaveCombinedEUR != null
-      ? '≈ ' + AIO.formatINR(privateState.leaveCombinedEUR * rate) + ' / month' : '';
   }
 
   /* ---------------- orchestration ---------------- */
@@ -278,7 +257,9 @@
     computePrivate();
     persist();
   }
-  function renderAllINR() { renderMainINR(); renderLeaveINR(); renderPrivateINR(); }
+  // Only the leave-Germany section converts to the selected currency; the core
+  // state pension and the private-pension figures always stay in EUR.
+  function renderAllINR() { renderLeaveINR(); }
 
   function persist() {
     var s = {};
@@ -304,10 +285,10 @@
 
   function init() {
     var ids = MAIN_FIELDS.concat(EXTRA_FIELDS, [
-      'points', 'gross', 'netins', 'net', 'inr', 'meta',
+      'points', 'gross', 'netins', 'net', 'meta',
       'leavePrompt', 'leaveVested', 'leaveUnvested', 'leaveYearsNote', 'leaveEP', 'leaveGross', 'leaveNominalInr', 'leaveRealInr', 'leavePreview',
       'privatePrompt', 'privateResults', 'privateYears', 'privateLump', 'privatePayout',
-      'privateCombinedFull', 'privateCombinedFullInr', 'privateCombinedLeaveWrap', 'privateCombinedLeave', 'privateCombinedLeaveInr', 'privateCombinedLeaveLabel', 'privateCompare', 'privatePreview'
+      'privateCombinedFull', 'privateCombinedLeaveWrap', 'privateCombinedLeave', 'privateCombinedLeaveLabel', 'privateCompare', 'privatePreview'
     ]);
     ids.forEach(function (id) { els[id] = $(id); });
     var rw = $('rw'); if (rw) rw.textContent = C.AKTUELLER_RENTENWERT.toFixed(2);
