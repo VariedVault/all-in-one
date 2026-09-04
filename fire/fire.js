@@ -52,17 +52,29 @@
     var valid = isFinite(expenses) && expenses > 0 && isFinite(wr) && wr > 0;
     if (!valid) { render(null); return; }
 
-    var fireNumber = expenses / (wr / 100);
+    var annualExpenses = expenses * 12; // input is monthly
+    var fireNumber = annualExpenses / (wr / 100);
     var years = yearsToReach(netWorth, savings, ret, fireNumber);
     var currentYear = new Date().getFullYear();
 
     render({
       fireNumber: fireNumber,
+      annualExpenses: annualExpenses,
       years: years,
       currentAge: isFinite(currentAge) ? currentAge : null,
       targetAge: isFinite(targetAge) ? targetAge : null,
       currentYear: currentYear
     });
+  }
+
+  // 25x / 30x / 35x of annual expenses: an informational range, independent of
+  // the user's chosen withdrawal rate. Does not affect any other figure.
+  function renderMultiples(annualExpenses) {
+    if (annualExpenses == null) { els.fireMultiples.hidden = true; return; }
+    els.fire25.textContent = AIO.formatEUR(annualExpenses * 25);
+    els.fire30.textContent = AIO.formatEUR(annualExpenses * 30);
+    els.fire35.textContent = AIO.formatEUR(annualExpenses * 35);
+    els.fireMultiples.hidden = false;
   }
 
   function render(r) {
@@ -73,6 +85,7 @@
       els.fireNumber.textContent = '–';
       els.fireYear.textContent = '–';
       els.fireMeta.textContent = 'Fill in your expenses and withdrawal rate to see your FIRE number.';
+      renderMultiples(null);
       persistNull();
       renderIndia();
       return;
@@ -81,6 +94,7 @@
     els.fireNumber.textContent = AIO.formatEUR(r.fireNumber);
     lastFireNumber = r.fireNumber;
     lastYears = r.years;
+    renderMultiples(r.annualExpenses);
 
     if (r.years === null) {
       els.fireYears.textContent = 'Over 100';
@@ -170,6 +184,7 @@
 
   function init() {
     FIELDS.concat(['fireYears', 'fireYearMeta', 'fireNumber', 'fireYear', 'fireMeta', 'fireNwHint',
+                   'fireMultiples', 'fire25', 'fire30', 'fire35',
                    'fireIndiaBlock', 'fireIndiaNote', 'fireIndiaNominal', 'fireIndiaReal']).forEach(function (id) { els[id] = $(id); });
 
     var firstVisit = !AIO.load(KEY);

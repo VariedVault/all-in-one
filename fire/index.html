@@ -35,8 +35,8 @@
           <input type="number" id="fireTargetAge" inputmode="numeric" placeholder="50" min="18" max="100">
         </div>
         <div class="field">
-          <label for="fireExpenses">Current annual expenses (€)</label>
-          <input type="number" id="fireExpenses" inputmode="numeric" placeholder="30000" min="0" step="500">
+          <label for="fireExpenses">Current monthly expenses (€)</label>
+          <input type="number" id="fireExpenses" inputmode="numeric" placeholder="2500" min="0" step="100">
         </div>
         <div class="field">
           <label for="fireNetWorth">Current net worth / invested assets (€)</label>
@@ -79,6 +79,14 @@
             <span class="receipt-label">Projected FIRE year</span>
             <span class="receipt-amt" id="fireYear">–</span>
           </div>
+        </div>
+
+        <div id="fireMultiples" hidden>
+          <hr class="result-sep">
+          <p class="result-label">The same target at different multiples <span class="de-term">of annual expenses, whatever your withdrawal rate</span></p>
+          <div class="nw-subtotal"><span>25× (4% rule)</span><span class="amt" id="fire25">–</span></div>
+          <div class="nw-subtotal"><span>30× (safer)</span><span class="amt" id="fire30">–</span></div>
+          <div class="nw-subtotal"><span>35× (very safe)</span><span class="amt" id="fire35">–</span></div>
         </div>
 
         <p class="hint" id="fireMeta" style="margin-top:14px">Fill in your expenses and withdrawal rate to see your FIRE number.</p>

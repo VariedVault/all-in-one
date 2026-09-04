@@ -26,10 +26,13 @@
       <section class="panel" aria-label="Your assets and liabilities">
         <div class="nw-group">
           <h3>Assets</h3>
-          <div class="nw-row"><label for="nwCash">Cash &amp; bank accounts</label><input type="number" id="nwCash" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwCash">Cash</label><input type="number" id="nwCash" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwBank">Bank accounts</label><input type="number" id="nwBank" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwFixedDeposits">Fixed deposits</label><input type="number" id="nwFixedDeposits" inputmode="numeric" placeholder="0" step="100"></div>
           <div class="nw-row"><label for="nwInvest">Investments (stocks, ETFs, brokerage)</label><input type="number" id="nwInvest" inputmode="numeric" placeholder="0" step="100"></div>
           <div class="nw-row"><label for="nwCrypto">Crypto</label><input type="number" id="nwCrypto" inputmode="numeric" placeholder="0" step="100"></div>
           <div class="nw-row"><label for="nwGold">Gold &amp; precious metals</label><input type="number" id="nwGold" inputmode="numeric" placeholder="0" step="100"></div>
+          <div class="nw-row"><label for="nwRealEstate">Real estate</label><input type="number" id="nwRealEstate" inputmode="numeric" placeholder="0" step="100"></div>
 
           <div id="nwCustom"></div>
           <button type="button" class="nw-add-btn" id="nwAddBtn">+ Add category</button>
@@ -41,6 +44,9 @@
           <div class="nw-row"><label for="nwCarLoan">Car loan</label><input type="number" id="nwCarLoan" inputmode="numeric" placeholder="0" step="100"></div>
           <div class="nw-row"><label for="nwCreditCard">Credit card debt</label><input type="number" id="nwCreditCard" inputmode="numeric" placeholder="0" step="100"></div>
           <div class="nw-row"><label for="nwOtherLoans">Other loans</label><input type="number" id="nwOtherLoans" inputmode="numeric" placeholder="0" step="100"></div>
+
+          <div id="nwLiabCustom"></div>
+          <button type="button" class="nw-add-btn" id="nwLiabAddBtn">+ Add category</button>
         </div>
       </section>
 

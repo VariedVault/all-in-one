@@ -1,17 +1,19 @@
 /* ---------------------------------------------------------------------------
    Net Worth Calculator: live net worth = assets (presets + custom categories)
-   minus liabilities. Uses the shared window.AIO helpers (formatting, rate, storage).
+   minus liabilities (presets + custom categories). Uses the shared window.AIO
+   helpers (formatting, rate, storage).
 --------------------------------------------------------------------------- */
 (function () {
   'use strict';
 
   var KEY = 'aio:networth';
-  var ASSETS = ['nwCash', 'nwInvest', 'nwCrypto', 'nwGold'];
+  var ASSETS = ['nwCash', 'nwBank', 'nwFixedDeposits', 'nwInvest', 'nwCrypto', 'nwGold', 'nwRealEstate'];
   var LIABILITIES = ['nwMortgage', 'nwCarLoan', 'nwCreditCard', 'nwOtherLoans'];
   var FIXED = ASSETS.concat(LIABILITIES);
   var OUT = ['nwTotal', 'nwTotalInr', 'nwAssets', 'nwLiabilities', 'nwMeta'];
   var els = {};
-  var custom = [];           // [{ labelEl, amtEl, row }]
+  var customAssets = [];     // [{ labelEl, amtEl, row }]
+  var customLiabs = [];
   var lastResult = null;
 
   function $(id) { return document.getElementById(id); }
@@ -22,25 +24,29 @@
     return isFinite(n) ? n : 0;
   }
   function sumFixed(ids) { var t = 0; for (var i = 0; i < ids.length; i++) t += numVal(els[ids[i]]); return t; }
-  function sumCustom() { var t = 0; for (var i = 0; i < custom.length; i++) t += numVal(custom[i].amtEl); return t; }
+  function sumCustom(list) { var t = 0; for (var i = 0; i < list.length; i++) t += numVal(list[i].amtEl); return t; }
 
-  function anyEntered() {
-    for (var i = 0; i < FIXED.length; i++) if (els[FIXED[i]].value.trim() !== '') return true;
-    for (var j = 0; j < custom.length; j++) {
-      if (custom[j].amtEl.value.trim() !== '' || custom[j].labelEl.value.trim() !== '') return true;
+  function customHasEntry(list) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].amtEl.value.trim() !== '' || list[i].labelEl.value.trim() !== '') return true;
     }
     return false;
   }
+  function anyEntered() {
+    for (var i = 0; i < FIXED.length; i++) if (els[FIXED[i]].value.trim() !== '') return true;
+    return customHasEntry(customAssets) || customHasEntry(customLiabs);
+  }
 
   /* ---------------- dynamic custom categories ---------------- */
-  function addCustom(label, amount) {
+  // A custom row reuses the .nw-row grid: name (col 1), amount (col 2), remove (col 3).
+  function addCustom(container, list, label, amount) {
     var row = document.createElement('div');
-    row.className = 'nw-cat-row';
+    row.className = 'nw-row';
 
     var labelEl = document.createElement('input');
     labelEl.type = 'text';
     labelEl.placeholder = 'Category name';
-    labelEl.setAttribute('aria-label', 'Custom asset category name');
+    labelEl.setAttribute('aria-label', 'Custom category name');
     if (label != null) labelEl.value = label;
 
     var amtEl = document.createElement('input');
@@ -48,7 +54,7 @@
     amtEl.inputMode = 'numeric';
     amtEl.placeholder = '0';
     amtEl.step = '100';
-    amtEl.setAttribute('aria-label', 'Custom asset amount (euros)');
+    amtEl.setAttribute('aria-label', 'Custom amount (euros)');
     if (amount != null && amount !== '') amtEl.value = amount;
 
     var removeBtn = document.createElement('button');
@@ -59,8 +65,8 @@
 
     var entry = { labelEl: labelEl, amtEl: amtEl, row: row };
     removeBtn.addEventListener('click', function () {
-      var i = custom.indexOf(entry);
-      if (i > -1) custom.splice(i, 1);
+      var i = list.indexOf(entry);
+      if (i > -1) list.splice(i, 1);
       row.parentNode.removeChild(row);
       compute();
     });
@@ -70,8 +76,8 @@
     row.appendChild(labelEl);
     row.appendChild(amtEl);
     row.appendChild(removeBtn);
-    els.nwCustom.appendChild(row);
-    custom.push(entry);
+    container.appendChild(row);
+    list.push(entry);
     return entry;
   }
 
@@ -79,8 +85,8 @@
   function compute() {
     if (!anyEntered()) { render(null); persist(null); return; }
 
-    var totalAssets = sumFixed(ASSETS) + sumCustom();
-    var totalLiabilities = sumFixed(LIABILITIES);
+    var totalAssets = sumFixed(ASSETS) + sumCustom(customAssets);
+    var totalLiabilities = sumFixed(LIABILITIES) + sumCustom(customLiabs);
     var totalNetWorth = totalAssets - totalLiabilities;
 
     var r = { totalNetWorth: totalNetWorth, totalAssets: totalAssets, totalLiabilities: totalLiabilities };
@@ -116,30 +122,37 @@
   }
 
   /* ---------------- persistence ---------------- */
+  function serializeCustom(list) {
+    var out = [];
+    for (var i = 0; i < list.length; i++) out.push({ label: list[i].labelEl.value, amount: list[i].amtEl.value });
+    return out;
+  }
   function persist(result) {
-    var s = { result: result, custom: [] };
+    var s = { result: result, customAssets: serializeCustom(customAssets), customLiabs: serializeCustom(customLiabs) };
     FIXED.forEach(function (k) { s[k] = els[k].value; });
-    for (var i = 0; i < custom.length; i++) {
-      s.custom.push({ label: custom[i].labelEl.value, amount: custom[i].amtEl.value });
-    }
     AIO.save(KEY, s);
   }
   function restore() {
     var s = AIO.load(KEY);
     if (!s) return;
     FIXED.forEach(function (k) { if (s[k] != null && s[k] !== '') els[k].value = s[k]; });
-    if (Array.isArray(s.custom)) {
-      for (var i = 0; i < s.custom.length; i++) addCustom(s.custom[i].label, s.custom[i].amount);
+    // customAssets is the current key; `custom` is the pre-liabilities-split legacy key.
+    var savedAssets = Array.isArray(s.customAssets) ? s.customAssets : (Array.isArray(s.custom) ? s.custom : []);
+    for (var i = 0; i < savedAssets.length; i++) addCustom(els.nwCustom, customAssets, savedAssets[i].label, savedAssets[i].amount);
+    if (Array.isArray(s.customLiabs)) {
+      for (var j = 0; j < s.customLiabs.length; j++) addCustom(els.nwLiabCustom, customLiabs, s.customLiabs[j].label, s.customLiabs[j].amount);
     }
   }
 
   function init() {
-    FIXED.concat(OUT, ['nwCustom', 'nwAddBtn']).forEach(function (id) { els[id] = $(id); });
+    FIXED.concat(OUT, ['nwCustom', 'nwAddBtn', 'nwLiabCustom', 'nwLiabAddBtn']).forEach(function (id) { els[id] = $(id); });
     restore();
     FIXED.forEach(function (k) { els[k].addEventListener('input', compute); });
     els.nwAddBtn.addEventListener('click', function () {
-      var entry = addCustom('', '');
-      entry.labelEl.focus();
+      addCustom(els.nwCustom, customAssets, '', '').labelEl.focus();
+    });
+    els.nwLiabAddBtn.addEventListener('click', function () {
+      addCustom(els.nwLiabCustom, customLiabs, '', '').labelEl.focus();
     });
     AIO.onRate(renderINR);
     compute();
