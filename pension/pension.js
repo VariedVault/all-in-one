@@ -223,7 +223,7 @@
     // vs the frozen gross figure from the leave-Germany scenario (when vested).
     var leaveCombined = leaveState ? leaveState.grossMonthly + payout : null;
 
-    privateState = { fullCombinedEUR: fullCombined, leaveCombinedEUR: leaveCombined };
+    privateState = { fullCombinedEUR: fullCombined, leaveCombinedEUR: leaveCombined, payout: payout };
 
     els.privateLump.textContent = AIO.formatEUR(fv);
     els.privatePayout.textContent = AIO.formatEUR(payout) + ' / mo';
@@ -276,7 +276,9 @@
       netMonthly: main.netMonthly, monthlyGrossSalary: main.monthlyGrossSalary,
       coveragePct: main.coveragePct, totalEP: main.totalEP,
       // for the dashboard card: the leave-Germany scenario figure, if vested
-      leave: leaveState ? { year: leaveState.year, grossMonthly: leaveState.grossMonthly } : null
+      leave: leaveState ? { year: leaveState.year, grossMonthly: leaveState.grossMonthly } : null,
+      // for the dashboard synthesis: private pension payout + full-career combined
+      private: privateState ? { payout: privateState.payout, fullCombined: privateState.fullCombinedEUR } : null
     } : null;
     s.touched = userTouched;
     AIO.save(KEY, s);

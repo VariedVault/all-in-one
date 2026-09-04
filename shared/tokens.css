@@ -297,14 +297,15 @@ input::placeholder{color:var(--muted-2);}
 .data-tools-msg.ok{color:var(--accent);}
 .data-tools-msg.err{color:#ff6b6b;}
 .dash-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
-.dash-card{background:var(--panel);border-radius:var(--radius);padding:24px;}
+.dash-card{background:var(--panel);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;}
 .dash-card .dash-label{font-size:13px;color:var(--muted);margin:0 0 8px;}
 .dash-card .dash-big{
   font-size:clamp(27px,4.5vw,38px);font-weight:800;letter-spacing:-0.02em;
   color:var(--accent);line-height:1.05;font-variant-numeric:tabular-nums;
 }
 .dash-card .dash-sub{margin:10px 0 0;color:var(--muted);font-size:13.5px;font-variant-numeric:tabular-nums;}
-.dash-card .recalc{display:inline-block;margin-top:14px;font-size:13.5px;font-weight:600;color:var(--accent);}
+/* margin-top:auto pins Recalculate to the bottom so links align across cards of unequal height */
+.dash-card .recalc{align-self:flex-start;margin-top:auto;padding-top:16px;font-size:13.5px;font-weight:600;color:var(--accent);}
 .dash-card .recalc:hover{text-decoration:none;color:var(--accent-dim);}
 
 .synthesis{

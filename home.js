@@ -73,17 +73,38 @@
 
     // Emergency fund fully funded.
     if (penDone) {
-      var cov = pctOf(pen);
-      if (cov >= 50) {
+      var stateCov = pctOf(pen);
+      var hasPrivate = pen.private && isFinite(pen.private.fullCombined) &&
+                       isFinite(pen.monthlyGrossSalary) && pen.monthlyGrossSalary > 0;
+
+      if (hasPrivate) {
+        // Combined % = (net state pension + private payout) / current monthly gross salary.
+        var combinedCov = Math.round((pen.private.fullCombined / pen.monthlyGrossSalary) * 100);
+        if (combinedCov >= 50) {
+          return {
+            cls: 'ok',
+            lead: 'Your state pension alone covers about <span class="accent">' + stateCov + '%</span> of your current income. With your private pension included, that rises to <span class="accent">' + combinedCov + '%</span>.',
+            secondary: 'A solid base. Keep it up, and top up further if you want more cushion.'
+          };
+        }
+        return {
+          cls: 'warn',
+          lead: 'Your state pension alone covers about <span class="accent">' + stateCov + '%</span> of your current income. With your private pension, that rises to <span class="accent">' + combinedCov + '%</span>, still under half.',
+          secondary: 'Consider increasing your monthly contribution or ETF investing to close the gap.'
+        };
+      }
+
+      // No private pension yet: state-only coverage.
+      if (stateCov >= 50) {
         return {
           cls: 'ok',
-          lead: 'You\'re on track. Your projected pension covers about <span class="accent">' + cov + '%</span> of your current income, a reasonable base.',
+          lead: 'You\'re on track. Your projected pension covers about <span class="accent">' + stateCov + '%</span> of your current income, a reasonable base.',
           secondary: 'Consider topping up if you want more cushion.'
         };
       }
       return {
         cls: 'warn',
-        lead: 'Your projected pension covers only about <span class="accent">' + cov + '%</span> of your current income.',
+        lead: 'Your projected pension covers only about <span class="accent">' + stateCov + '%</span> of your current income.',
         secondary: 'Consider a private pension (Riester or Rürup) or ETF investing to close the gap.'
       };
     }

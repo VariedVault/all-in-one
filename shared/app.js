@@ -148,6 +148,18 @@
     document.body.insertAdjacentHTML('beforeend', footerHTML);
   }
 
+  /* ---------------- analytics (GoatCounter, site-wide) ---------------- */
+  // Equivalent to placing this before </body> on every page:
+  // <script data-goatcounter="https://all-in-one.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+  // (injected as a real element so the script actually executes).
+  function injectAnalytics() {
+    var s = document.createElement('script');
+    s.setAttribute('data-goatcounter', 'https://all-in-one.goatcounter.com/count');
+    s.async = true;
+    s.src = '//gc.zgo.at/count.js';
+    document.body.appendChild(s);
+  }
+
   /* ---------------- public API ---------------- */
   window.AIO = {
     prefix: PREFIX,
@@ -160,5 +172,6 @@
   };
 
   injectChrome();
+  injectAnalytics();
   initRate();
 })();
