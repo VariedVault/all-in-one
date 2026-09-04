@@ -96,7 +96,117 @@
     };
   }
 
+  /* ---------------- data tools: export / import / clear / image ---------------- */
+  var RATE_KEY = 'aio:eurinr';
+
+  function allAioKeys() {
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('aio:') === 0) keys.push(k);
+    }
+    return keys;
+  }
+  function todayStr() {
+    var d = new Date();
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+  function downloadBlob(blob, filename) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+  function setMsg(text, cls) {
+    var m = document.getElementById('dataMsg');
+    if (!m) return;
+    m.textContent = text;
+    m.className = 'data-tools-msg' + (cls ? ' ' + cls : '');
+  }
+
+  // Export all calculator data (but not the cached exchange rate) as one JSON file.
+  function exportData() {
+    var data = {};
+    allAioKeys().forEach(function (k) {
+      if (k === RATE_KEY) return;
+      var raw = localStorage.getItem(k);
+      try { data[k] = JSON.parse(raw); } catch (e) { data[k] = raw; }
+    });
+    if (Object.keys(data).length === 0) { setMsg('Nothing to export yet.', 'err'); return; }
+    var payload = { app: 'all-in-one', type: 'all-in-one-data', version: 1, exportedAt: new Date().toISOString(), data: data };
+    downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), 'all-in-one-data-' + todayStr() + '.json');
+    setMsg('Exported your data.', 'ok');
+  }
+
+  // Import a previously exported file. Validates structure; never wipes existing data on failure.
+  function importData(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var payload;
+      try { payload = JSON.parse(reader.result); }
+      catch (e) { setMsg('That file is not valid JSON.', 'err'); return; }
+      var looksRight = payload && typeof payload === 'object' &&
+        (payload.app === 'all-in-one' || payload.type === 'all-in-one-data') &&
+        payload.data && typeof payload.data === 'object';
+      if (!looksRight) { setMsg('That does not look like an All-in-One backup file.', 'err'); return; }
+
+      var written = 0;
+      Object.keys(payload.data).forEach(function (k) {
+        if (k.indexOf('aio:') === 0 && k !== RATE_KEY) {
+          try { localStorage.setItem(k, JSON.stringify(payload.data[k])); written++; } catch (e) {}
+        }
+      });
+      if (written === 0) { setMsg('No calculator data found in that file.', 'err'); return; }
+      setMsg('Imported ' + written + ' item' + (written === 1 ? '' : 's') + '. Refreshing…', 'ok');
+      setTimeout(function () { location.reload(); }, 500);
+    };
+    reader.onerror = function () { setMsg('Could not read that file.', 'err'); };
+    reader.readAsText(file);
+  }
+
+  function clearAllData() {
+    if (!window.confirm('This will erase all calculator data. Continue?')) return;
+    allAioKeys().forEach(function (k) { localStorage.removeItem(k); });
+    location.reload(); // back to the empty homepage state
+  }
+
+  function exportImage() {
+    var target = document.getElementById('dashCapture');
+    var btn = document.getElementById('exportImgBtn');
+    if (!target || typeof html2canvas === 'undefined') { setMsg('Image export is unavailable.', 'err'); return; }
+    if (btn) { btn.disabled = true; btn.textContent = 'Rendering…'; }
+    html2canvas(target, { backgroundColor: '#0b0b0c', scale: 2, logging: false }).then(function (canvas) {
+      canvas.toBlob(function (blob) {
+        if (blob) downloadBlob(blob, 'all-in-one-dashboard-' + todayStr() + '.png');
+        if (btn) { btn.disabled = false; btn.textContent = 'Export as image'; }
+      }, 'image/png');
+    }).catch(function () {
+      if (btn) { btn.disabled = false; btn.textContent = 'Export as image'; }
+      setMsg('Could not render the image.', 'err');
+    });
+  }
+
+  function wireDataTools() {
+    var ex = document.getElementById('exportDataBtn');
+    var im = document.getElementById('importDataBtn');
+    var fileIn = document.getElementById('importFileInput');
+    var clr = document.getElementById('clearDataBtn');
+    if (ex) ex.addEventListener('click', exportData);
+    if (im && fileIn) {
+      im.addEventListener('click', function () { fileIn.click(); });
+      fileIn.addEventListener('change', function () {
+        if (fileIn.files && fileIn.files[0]) importData(fileIn.files[0]);
+        fileIn.value = '';
+      });
+    }
+    if (clr) clr.addEventListener('click', clearAllData);
+  }
+
   function init() {
+    wireDataTools(); // export / import / clear are always available on the homepage
+
     var penSaved = AIO.load('aio:pension') || {};
     var emSaved = AIO.load('aio:emergency') || {};
     var nwSaved = AIO.load('aio:networth') || {};
@@ -106,10 +216,13 @@
     var nw = nwSaved.result || null;
     var fire = fireSaved.result || null;
 
-    var penDone = !!(pen && isFinite(pen.netMonthly));
-    var emDone = !!(em && isFinite(em.target));
-    var nwDone = !!(nw && isFinite(nw.totalNetWorth));
-    var fireDone = !!(fire && isFinite(fire.fireNumber));
+    // A calculator only counts as "calculated" once the user has actually changed
+    // a field (touched flag), so an untouched calculator (or one left at 0/default)
+    // never triggers a dashboard card.
+    var penDone = penSaved.touched === true && !!(pen && isFinite(pen.netMonthly));
+    var emDone = emSaved.touched === true && !!(em && isFinite(em.target));
+    var nwDone = nwSaved.touched === true && !!(nw && isFinite(nw.totalNetWorth));
+    var fireDone = fireSaved.touched === true && !!(fire && isFinite(fire.fireNumber));
 
     if (!penDone && !emDone && !nwDone && !fireDone) return; // nothing run: plain card grid
 
@@ -148,6 +261,10 @@
     if (nwDone) hideCard('networth');
     if (fireDone) hideCard('fire');
     document.getElementById('gridHeading').hidden = false;
+
+    // Export-as-image is only relevant once the dashboard is showing.
+    var eb = document.getElementById('exportImgBtn');
+    if (eb) eb.addEventListener('click', exportImage);
   }
 
   function hideCard(calc) {

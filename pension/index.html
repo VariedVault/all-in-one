@@ -215,12 +215,22 @@
                 </div>
               </div>
 
-              <p class="result-label" style="margin-top:18px">Combined monthly pension <span class="de-term">state net + private payout</span></p>
-              <div class="result-big" id="privateCombined">–</div>
-              <p class="result-inr" id="privateCombinedInr"></p>
-              <p class="caveat" id="privateCompare" style="color:var(--text);font-size:13.5px"></p>
+              <p class="result-label" style="margin-top:18px">Combined monthly pension <span class="de-term">state pension + private payout</span></p>
 
-              <p class="caveat">The 4% rule is a rule of thumb for a sustainable withdrawal; real safe rates vary with markets and lifespan. Returns are not guaranteed and this ignores fees, taxes on gains, and inflation.</p>
+              <div class="combo">
+                <p class="combo-label">Full career + private pension <span class="combo-sub">net state pension</span></p>
+                <div class="result-big" id="privateCombinedFull">–</div>
+                <p class="result-inr" id="privateCombinedFullInr"></p>
+              </div>
+
+              <div class="combo" id="privateCombinedLeaveWrap" hidden>
+                <p class="combo-label" id="privateCombinedLeaveLabel">If you leave Germany + private pension <span class="combo-sub">frozen gross state pension</span></p>
+                <div class="result-mid" id="privateCombinedLeave">–</div>
+                <p class="result-inr" id="privateCombinedLeaveInr"></p>
+              </div>
+
+              <p class="caveat" id="privateCompare" style="color:var(--text);font-size:13.5px"></p>
+              <p class="caveat">The full-career figure adds the private payout to your net state pension; the leave-Germany figure adds it to the frozen gross pension from that scenario, so the two are not directly comparable. The 4% rule is a rule of thumb; returns are not guaranteed and this ignores fees, taxes on gains, and inflation.</p>
             </div>
           </div>
         </div>

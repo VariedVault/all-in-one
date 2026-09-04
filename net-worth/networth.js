@@ -15,6 +15,7 @@
   var customAssets = [];     // [{ labelEl, amtEl, row }]
   var customLiabs = [];
   var lastResult = null;
+  var userTouched = false;   // set once the user changes anything; gates the homepage dashboard
 
   function $(id) { return document.getElementById(id); }
   function numVal(el) {
@@ -65,13 +66,14 @@
 
     var entry = { labelEl: labelEl, amtEl: amtEl, row: row };
     removeBtn.addEventListener('click', function () {
+      userTouched = true;
       var i = list.indexOf(entry);
       if (i > -1) list.splice(i, 1);
       row.parentNode.removeChild(row);
       compute();
     });
-    labelEl.addEventListener('input', compute);
-    amtEl.addEventListener('input', compute);
+    labelEl.addEventListener('input', function () { userTouched = true; compute(); });
+    amtEl.addEventListener('input', function () { userTouched = true; compute(); });
 
     row.appendChild(labelEl);
     row.appendChild(amtEl);
@@ -128,13 +130,14 @@
     return out;
   }
   function persist(result) {
-    var s = { result: result, customAssets: serializeCustom(customAssets), customLiabs: serializeCustom(customLiabs) };
+    var s = { result: result, customAssets: serializeCustom(customAssets), customLiabs: serializeCustom(customLiabs), touched: userTouched };
     FIXED.forEach(function (k) { s[k] = els[k].value; });
     AIO.save(KEY, s);
   }
   function restore() {
     var s = AIO.load(KEY);
     if (!s) return;
+    if (s.touched) userTouched = true;
     FIXED.forEach(function (k) { if (s[k] != null && s[k] !== '') els[k].value = s[k]; });
     // customAssets is the current key; `custom` is the pre-liabilities-split legacy key.
     var savedAssets = Array.isArray(s.customAssets) ? s.customAssets : (Array.isArray(s.custom) ? s.custom : []);
@@ -147,11 +150,13 @@
   function init() {
     FIXED.concat(OUT, ['nwCustom', 'nwAddBtn', 'nwLiabCustom', 'nwLiabAddBtn']).forEach(function (id) { els[id] = $(id); });
     restore();
-    FIXED.forEach(function (k) { els[k].addEventListener('input', compute); });
+    FIXED.forEach(function (k) { els[k].addEventListener('input', function () { userTouched = true; compute(); }); });
     els.nwAddBtn.addEventListener('click', function () {
+      userTouched = true;
       addCustom(els.nwCustom, customAssets, '', '').labelEl.focus();
     });
     els.nwLiabAddBtn.addEventListener('click', function () {
+      userTouched = true;
       addCustom(els.nwLiabCustom, customLiabs, '', '').labelEl.focus();
     });
     AIO.onRate(renderINR);

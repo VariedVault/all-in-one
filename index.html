@@ -18,10 +18,15 @@
 
     <!-- Dashboard: shown by home.js only once a calculator has been run -->
     <section class="dashboard" id="dashboard" hidden aria-label="Your snapshot">
-      <h2 class="section-kicker">Your snapshot</h2>
-      <div class="dash-cards" id="dashCards"></div>
-      <div class="synthesis" id="synthesis" hidden></div>
-      <div class="synthesis info" id="nwNudge" hidden></div>
+      <div class="dash-head">
+        <h2 class="section-kicker" style="margin:0">Your snapshot</h2>
+        <button type="button" class="tool-btn" id="exportImgBtn">Export as image</button>
+      </div>
+      <div id="dashCapture">
+        <div class="dash-cards" id="dashCards"></div>
+        <div class="synthesis" id="synthesis" hidden></div>
+        <div class="synthesis info" id="nwNudge" hidden></div>
+      </div>
     </section>
 
     <h2 class="section-kicker" id="gridHeading" hidden>More calculators</h2>
@@ -57,14 +62,27 @@
 
       <div class="calc-card soon" aria-disabled="true">
         <span class="tag">Coming soon</span>
-        <span class="calc-icon" aria-hidden="true">🏦</span>
-        <h3>Loan &amp; EMI Calculator</h3>
-        <p>Monthly instalments, total interest and a full repayment schedule for any loan.</p>
+        <span class="calc-icon" aria-hidden="true">✨</span>
+        <h3>More calculators</h3>
+        <p>More tools are on the way.</p>
       </div>
+    </section>
+
+    <section class="data-tools" aria-label="Your data">
+      <h2 class="section-kicker">Your data</h2>
+      <p class="data-tools-note">Everything you enter stays in this browser. Export a backup to move it to another device, or clear it all.</p>
+      <div class="data-tools-row">
+        <button type="button" class="tool-btn" id="exportDataBtn">Export data</button>
+        <button type="button" class="tool-btn" id="importDataBtn">Import data</button>
+        <input type="file" id="importFileInput" accept="application/json,.json" hidden>
+        <button type="button" class="tool-btn danger" id="clearDataBtn">Clear all data</button>
+      </div>
+      <p class="data-tools-msg" id="dataMsg" role="status" aria-live="polite"></p>
     </section>
   </div>
 </main>
 <script src="shared/app.js" defer></script>
+<script src="shared/html2canvas.min.js" defer></script>
 <script src="home.js" defer></script>
 </body>
 </html>

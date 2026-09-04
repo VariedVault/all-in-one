@@ -13,6 +13,7 @@
   var lastTargetEUR = null;
   var lastGapEUR = null;
   var reached = false;
+  var userTouched = false;  // set once the user changes any field; gates the homepage dashboard
 
   function $(id) { return document.getElementById(id); }
   function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
@@ -26,6 +27,7 @@
   }
 
   function selectPreset(m) {
+    userTouched = true;
     months = m;
     isCustom = false;
     els.custom.value = '';
@@ -34,6 +36,7 @@
   }
 
   function onCustom() {
+    userTouched = true;
     var m = parseInt(els.custom.value, 10);
     if (els.custom.value.trim() !== '' && isFinite(m) && m > 0) {
       months = m;
@@ -118,12 +121,14 @@
       current: els.current.value,
       months: months,
       isCustom: isCustom,
-      result: result
+      result: result,
+      touched: userTouched
     });
   }
   function restore() {
     var s = AIO.load(KEY);
     if (!s) { updateActive(); return; }
+    if (s.touched) userTouched = true;
     if (s.expenses != null) els.expenses.value = s.expenses;
     if (s.current != null) els.current.value = s.current;
     if (typeof s.months === 'number' && s.months > 0) {
@@ -141,8 +146,8 @@
 
     restore();
 
-    els.expenses.addEventListener('input', compute);
-    els.current.addEventListener('input', compute);
+    els.expenses.addEventListener('input', function () { userTouched = true; compute(); });
+    els.current.addEventListener('input', function () { userTouched = true; compute(); });
     els.custom.addEventListener('input', onCustom);
     var btns = els.seg.querySelectorAll('.seg-btn');
     for (var i = 0; i < btns.length; i++) {

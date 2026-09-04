@@ -15,6 +15,8 @@ A small, growing suite of clean financial calculators. Vanilla HTML/CSS/JS, no b
 ## How it works
 
 - **No backend.** All calculations run client-side. Inputs are saved to `localStorage` per calculator so they persist between visits. Nothing is ever sent to a server.
+- **Your data, portable.** The homepage has Export data / Import data (a single JSON backup you can move between devices) and Clear all data. The dashboard can also be exported as a PNG image (rendered locally with a self-hosted [html2canvas](https://html2canvas.hertzen.com)).
+- A calculator only shows on the dashboard once you have actually changed a field (a "touched" flag), so an untouched or all-zero calculator never appears as a card.
 - **Live EUR → INR** rate is fetched once from [ExchangeRate-API](https://www.exchangerate-api.com) (`open.er-api.com`, no key) and cached in `localStorage` for an hour; it falls back to a fixed estimate offline.
 - **Yearly constants** for the pension calculator live in one dated file, [`pension/constants.js`](pension/constants.js), so annual updates are a one-line change.
 

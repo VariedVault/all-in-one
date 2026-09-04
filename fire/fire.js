@@ -13,6 +13,7 @@
   var els = {};
   var lastFireNumber = null; // for the INR conversion
   var lastYears = null;
+  var userTouched = false;   // set once the user changes any field; gates the homepage dashboard
 
   function $(id) { return document.getElementById(id); }
   function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
@@ -167,18 +168,19 @@
   }
 
   function persist(result) {
-    var s = { result: result };
+    var s = { result: result, touched: userTouched };
     FIELDS.forEach(function (k) { s[k] = els[k].value; });
     AIO.save(KEY, s);
   }
   function persistNull() {
-    var s = { result: null };
+    var s = { result: null, touched: userTouched };
     FIELDS.forEach(function (k) { s[k] = els[k].value; });
     AIO.save(KEY, s);
   }
   function restore() {
     var s = AIO.load(KEY);
     if (!s) return;
+    if (s.touched) userTouched = true;
     FIELDS.forEach(function (k) { if (s[k] != null && s[k] !== '') els[k].value = s[k]; });
   }
 
@@ -199,7 +201,7 @@
       }
     }
 
-    FIELDS.forEach(function (k) { els[k].addEventListener('input', compute); });
+    FIELDS.forEach(function (k) { els[k].addEventListener('input', function () { userTouched = true; compute(); }); });
     AIO.onRate(renderIndia);
     compute();
   }

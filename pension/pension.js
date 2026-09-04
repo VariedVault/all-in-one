@@ -21,6 +21,7 @@
   var main = null;          // valid main result + the inputs the scenarios need, or null
   var leaveState = null;    // { grossMonthly, infl, yearsUntilRet } for INR re-render, or null
   var privateState = null;  // { combinedEUR } for INR re-render, or null
+  var userTouched = false;  // set once the user changes any field; gates the homepage dashboard
 
   function $(id) { return document.getElementById(id); }
   function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
@@ -215,26 +216,47 @@
     var fv = i > 0 ? monthly * ((Math.pow(1 + i, n) - 1) / i) : monthly * n;
     var payout = fv * 0.04 / 12;
     var stateNet = main.netMonthly;
-    var combined = stateNet + payout;
+    var fullCombined = stateNet + payout;
 
-    privateState = { combinedEUR: combined };
+    // The private pension keeps compounding regardless of German employment, so
+    // the payout is the same. Only the state-pension base differs: net full-career
+    // vs the frozen gross figure from the leave-Germany scenario (when vested).
+    var leaveCombined = leaveState ? leaveState.grossMonthly + payout : null;
+
+    privateState = { fullCombinedEUR: fullCombined, leaveCombinedEUR: leaveCombined };
 
     els.privateLump.textContent = AIO.formatEUR(fv);
     els.privatePayout.textContent = AIO.formatEUR(payout) + ' / mo';
-    els.privateCombined.textContent = AIO.formatEUR(combined) + ' / mo';
-    els.privateCompare.textContent = 'State pension alone: ' + AIO.formatEUR(stateNet) +
-      ' / mo → with private top-up: ' + AIO.formatEUR(combined) + ' / mo';
+    els.privateCombinedFull.textContent = AIO.formatEUR(fullCombined) + ' / mo';
+
+    if (leaveCombined != null) {
+      els.privateCombinedLeaveLabel.innerHTML = 'If you leave in ' + leaveState.year +
+        ' + private pension <span class="combo-sub">frozen gross state pension</span>';
+      els.privateCombinedLeave.textContent = AIO.formatEUR(leaveCombined) + ' / mo';
+      show(els.privateCombinedLeaveWrap, true);
+    } else {
+      show(els.privateCombinedLeaveWrap, false);
+    }
+
+    els.privateCompare.textContent = 'State pension alone (net, full career): ' + AIO.formatEUR(stateNet) +
+      ' / mo → with private top-up: ' + AIO.formatEUR(fullCombined) + ' / mo';
     renderPrivateINR();
 
     show(els.privatePrompt, false); show(els.privateResults, true);
-    setPreview(els.privatePreview, '+' + AIO.formatEUR(payout) + '/mo → ' + AIO.formatEUR(combined) + '/mo combined', false);
+    setPreview(els.privatePreview, '+' + AIO.formatEUR(payout) + '/mo → ' + AIO.formatEUR(fullCombined) + '/mo combined', false);
   }
 
   function renderPrivateINR() {
-    if (!privateState) { els.privateCombinedInr.textContent = ''; return; }
+    if (!privateState) { els.privateCombinedFullInr.textContent = ''; els.privateCombinedLeaveInr.textContent = ''; return; }
     var rate = AIO.getRate();
-    els.privateCombinedInr.textContent = rate == null ? '≈ ₹… (loading rate)'
-      : '≈ ' + AIO.formatINR(privateState.combinedEUR * rate) + ' / month';
+    if (rate == null) {
+      els.privateCombinedFullInr.textContent = '≈ ₹… (loading rate)';
+      els.privateCombinedLeaveInr.textContent = privateState.leaveCombinedEUR != null ? '≈ ₹… (loading rate)' : '';
+      return;
+    }
+    els.privateCombinedFullInr.textContent = '≈ ' + AIO.formatINR(privateState.fullCombinedEUR * rate) + ' / month';
+    els.privateCombinedLeaveInr.textContent = privateState.leaveCombinedEUR != null
+      ? '≈ ' + AIO.formatINR(privateState.leaveCombinedEUR * rate) + ' / month' : '';
   }
 
   /* ---------------- orchestration ---------------- */
@@ -256,11 +278,13 @@
       // for the dashboard card: the leave-Germany scenario figure, if vested
       leave: leaveState ? { year: leaveState.year, grossMonthly: leaveState.grossMonthly } : null
     } : null;
+    s.touched = userTouched;
     AIO.save(KEY, s);
   }
   function restore() {
     var s = AIO.load(KEY);
     if (!s) return;
+    if (s.touched) userTouched = true;
     MAIN_FIELDS.concat(EXTRA_FIELDS).forEach(function (k) { if (s[k] != null && s[k] !== '') els[k].value = s[k]; });
   }
 
@@ -268,13 +292,16 @@
     var ids = MAIN_FIELDS.concat(EXTRA_FIELDS, [
       'points', 'gross', 'netins', 'net', 'inr', 'meta',
       'leavePrompt', 'leaveVested', 'leaveUnvested', 'leaveYearsNote', 'leaveEP', 'leaveGross', 'leaveNominalInr', 'leaveRealInr', 'leavePreview',
-      'privatePrompt', 'privateResults', 'privateYears', 'privateLump', 'privatePayout', 'privateCombined', 'privateCombinedInr', 'privateCompare', 'privatePreview'
+      'privatePrompt', 'privateResults', 'privateYears', 'privateLump', 'privatePayout',
+      'privateCombinedFull', 'privateCombinedFullInr', 'privateCombinedLeaveWrap', 'privateCombinedLeave', 'privateCombinedLeaveInr', 'privateCombinedLeaveLabel', 'privateCompare', 'privatePreview'
     ]);
     ids.forEach(function (id) { els[id] = $(id); });
     var rw = $('rw'); if (rw) rw.textContent = C.AKTUELLER_RENTENWERT.toFixed(2);
 
     restore();
-    MAIN_FIELDS.concat(EXTRA_FIELDS).forEach(function (k) { els[k].addEventListener('input', recompute); });
+    MAIN_FIELDS.concat(EXTRA_FIELDS).forEach(function (k) {
+      els[k].addEventListener('input', function () { userTouched = true; recompute(); });
+    });
     AIO.onRate(renderAllINR);
     recompute();
   }

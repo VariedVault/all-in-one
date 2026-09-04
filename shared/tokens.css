@@ -278,6 +278,24 @@ input::placeholder{color:var(--muted-2);}
 
 /* ---------- homepage dashboard ---------- */
 .dashboard{margin-bottom:44px;}
+.dash-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;flex-wrap:wrap;}
+
+/* utility buttons (export image / data tools) */
+.tool-btn{
+  background:var(--panel);border:1px solid var(--line);color:var(--text);
+  font-family:inherit;font-size:13.5px;font-weight:600;padding:9px 15px;border-radius:10px;cursor:pointer;
+  transition:border-color .15s ease,color .15s ease;
+}
+.tool-btn:hover{border-color:var(--accent);color:var(--accent);}
+.tool-btn:disabled{opacity:.6;cursor:default;}
+.tool-btn.danger:hover{border-color:#ff6b6b;color:#ff6b6b;}
+
+.data-tools{margin-top:52px;border-top:1px solid var(--line);padding-top:30px;}
+.data-tools-note{color:var(--muted);font-size:14px;margin:0 0 16px;max-width:60ch;}
+.data-tools-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+.data-tools-msg{margin:14px 0 0;font-size:13.5px;min-height:1.2em;}
+.data-tools-msg.ok{color:var(--accent);}
+.data-tools-msg.err{color:#ff6b6b;}
 .dash-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
 .dash-card{background:var(--panel);border-radius:var(--radius);padding:24px;}
 .dash-card .dash-label{font-size:13px;color:var(--muted);margin:0 0 8px;}
@@ -360,6 +378,12 @@ input::placeholder{color:var(--muted-2);}
 /* ---------- dashboard: pension sublabel + secondary leave line ---------- */
 .dash-label .dash-sublabel{font-weight:400;color:var(--muted);font-size:12px;}
 .dash-card .dash-leave{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;}
+
+/* ---------- pension: two combined totals ---------- */
+.combo{margin-top:8px;}
+.combo + .combo{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);}
+.combo-label{font-size:13px;color:var(--muted);margin:0 0 3px;}
+.combo-label .combo-sub{display:block;font-size:11.5px;color:var(--muted-2);}
 
 /* ---------- pension scenario preview cards ---------- */
 .scenario-card{background:var(--panel);border-radius:var(--radius);margin-top:20px;overflow:hidden;}
