@@ -237,6 +237,33 @@
     document.body.appendChild(s);
   }
 
+  /* ---------------- info tooltips (click to toggle; hover/focus via CSS) ---------------- */
+  function closeAllInfo(except) {
+    var open = document.querySelectorAll('.info.open');
+    for (var i = 0; i < open.length; i++) {
+      if (open[i] === except) continue;
+      open[i].classList.remove('open');
+      var btn = open[i].querySelector('.info-icon');
+      if (btn) btn.setAttribute('aria-expanded', 'false');
+    }
+  }
+  function initInfoTips() {
+    document.addEventListener('click', function (e) {
+      var icon = e.target && e.target.closest ? e.target.closest('.info-icon') : null;
+      if (icon) {
+        e.preventDefault();
+        var info = icon.parentNode;
+        var wasOpen = info.classList.contains('open');
+        closeAllInfo(info);
+        info.classList.toggle('open', !wasOpen);
+        icon.setAttribute('aria-expanded', wasOpen ? 'false' : 'true');
+        return;
+      }
+      closeAllInfo(null); // click elsewhere closes any open tooltip
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAllInfo(null); });
+  }
+
   /* ---------------- public API ---------------- */
   window.AIO = {
     prefix: PREFIX,
@@ -253,5 +280,6 @@
 
   injectChrome();
   injectAnalytics();
+  initInfoTips();
   initRate();
 })();

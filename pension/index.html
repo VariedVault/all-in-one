@@ -38,7 +38,7 @@
         </div>
 
         <div class="field">
-          <label for="salary">Current gross annual salary (€)</label>
+          <label for="salary">Current gross annual salary (€) <span class="info"><button type="button" class="info-icon" aria-label="About the contribution ceiling" aria-expanded="false">i</button><span class="info-pop" role="tooltip">The maximum yearly salary that counts toward your pension points (Beitragsbemessungsgrenze); earning more than this doesn't earn additional points.</span></span></label>
           <input type="number" id="salary" inputmode="numeric" placeholder="55000" min="0" step="100">
         </div>
 
@@ -54,7 +54,7 @@
         </div>
 
         <div class="field">
-          <label for="override">Known pension points <span class="de-term">Entgeltpunkte, optional, from your official Renteninformation letter</span></label>
+          <label for="override">Known pension points <span class="info"><button type="button" class="info-icon" aria-label="About pension points" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Germany's state pension is calculated in points, not currency (Entgeltpunkte). Earning the average national salary in a year = 1 point. Your total points times the current point value determines your pension.</span></span> <span class="de-term">optional, from your official Renteninformation letter</span></label>
           <input type="number" id="override" inputmode="decimal" placeholder="e.g. 18.4" min="0" step="0.01">
           <span class="hint">If filled, we use this as your points so far and add estimated points for future years until retirement, instead of estimating your whole career from the career start year.</span>
         </div>
@@ -65,7 +65,7 @@
         <h2>Your estimate</h2>
 
         <div class="result-block">
-          <p class="result-label">Total pension points <span class="de-term">Entgeltpunkte</span></p>
+          <p class="result-label">Total pension points <span class="info"><button type="button" class="info-icon" aria-label="About pension points" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Germany's state pension is calculated in points, not currency (Entgeltpunkte). Earning the average national salary in a year = 1 point. Your total points times the current point value determines your pension.</span></span></p>
           <div class="result-mid" id="points">–</div>
         </div>
 
@@ -74,11 +74,11 @@
         <div class="result-block">
           <div class="receipt">
             <div class="receipt-row">
-              <span class="receipt-label">Gross monthly pension <span class="de-term">monatliche Bruttorente</span></span>
+              <span class="receipt-label">Gross monthly pension <span class="info"><button type="button" class="info-icon" aria-label="About the pension point value" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Your total pension points times the current pension point value (Rentenwert): the euro value of one point, set by the government and updated every July 1st.</span></span></span>
               <span class="receipt-amt" id="gross">–</span>
             </div>
             <div class="receipt-row">
-              <span class="receipt-label">Net of insurance <span class="de-term">after 11.5% health + care (KVdR + Pflege)</span></span>
+              <span class="receipt-label">Net of insurance <span class="de-term">after 11.5% health <span class="info"><button type="button" class="info-icon" aria-label="About retiree health insurance" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Statutory health insurance contribution deducted from pension income in retirement (KVdR).</span></span> and care <span class="info"><button type="button" class="info-icon" aria-label="About long-term care insurance" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Mandatory long-term care insurance contribution (Pflegeversicherung), deducted alongside health insurance.</span></span></span></span>
               <span class="receipt-amt" id="netins">–</span>
             </div>
           </div>
@@ -157,7 +157,7 @@
             </div>
 
             <div id="leaveVested" hidden>
-              <p class="result-label">Frozen pension points <span class="de-term">Entgeltpunkte at leave year</span></p>
+              <p class="result-label">Frozen pension points <span class="info"><button type="button" class="info-icon" aria-label="About pension points" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Germany's state pension is calculated in points, not currency (Entgeltpunkte). Earning the average national salary in a year = 1 point. Your total points times the current point value determines your pension.</span></span> <span class="de-term">at leave year</span></p>
               <div class="result-mid" id="leaveEP">–</div>
 
               <p class="result-label" style="margin-top:16px">Monthly gross pension at retirement <span class="de-term">frozen, in today's euros</span></p>

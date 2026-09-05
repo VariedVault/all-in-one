@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Loan &amp; EMI Calculator · All-in-One</title>
-<meta name="description" content="Calculate loan EMIs and German Annuitätendarlehen mortgages: monthly payment, total interest, amortization schedule, extra payments and side-by-side comparison. Runs entirely in your browser.">
+<meta name="description" content="Calculate a loan's monthly EMI, total interest and amortization schedule, model extra payments, and compare two loans side by side. Runs entirely in your browser.">
 <meta name="theme-color" content="#0b0b0c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,62 +18,30 @@
 
     <div class="calc-head">
       <h1>Loan &amp; EMI Calculator</h1>
-      <p>Work out a loan's monthly payment and total interest, or model a German fixed-rate mortgage (Annuitätendarlehen) with its remaining balance at the end of the fixed period. Amounts are shown in the currency selected in the header.</p>
-    </div>
-
-    <div class="mode-tabs" role="tablist" aria-label="Calculator mode">
-      <button type="button" class="mode-tab active" data-mode="standard" role="tab">Standard Loan</button>
-      <button type="button" class="mode-tab" data-mode="german" role="tab">German Mortgage <span class="mode-sub">Annuitätendarlehen</span></button>
+      <p>Work out a loan's monthly payment (EMI) and how much of it is interest, see the year-by-year breakdown, model overpayments, and compare two loans. Amounts are shown in the currency selected in the header.</p>
     </div>
 
     <div class="calc-layout">
       <!-- Inputs -->
       <section class="panel" aria-label="Loan details">
-        <!-- STANDARD inputs -->
-        <div data-mode-panel="standard">
-          <h2>Loan details</h2>
-          <div class="field">
-            <label for="stdAmount">Loan amount</label>
-            <input type="number" id="stdAmount" inputmode="numeric" placeholder="20000" min="0" step="100">
-          </div>
-          <div class="field">
-            <label for="stdRate">Interest rate (annual %)</label>
-            <input type="number" id="stdRate" inputmode="decimal" placeholder="8" min="0" step="0.1">
-          </div>
-          <div class="field">
-            <label for="stdTenure">Tenure</label>
-            <div class="tenure-row">
-              <input type="number" id="stdTenure" inputmode="numeric" placeholder="5" min="0" step="1">
-              <div class="seg" id="stdUnitSeg" role="group" aria-label="Tenure unit">
-                <button type="button" class="seg-btn active" data-unit="years">Years</button>
-                <button type="button" class="seg-btn" data-unit="months">Months</button>
-              </div>
-            </div>
-          </div>
+        <h2>Loan details</h2>
+        <div class="field">
+          <label for="stdAmount">Loan amount</label>
+          <input type="number" id="stdAmount" inputmode="numeric" placeholder="20000" min="0" step="100">
         </div>
-
-        <!-- GERMAN inputs -->
-        <div data-mode-panel="german" hidden>
-          <h2>Mortgage details</h2>
-          <div class="field">
-            <label for="gerAmount">Loan amount <span class="de-term">Darlehenssumme</span></label>
-            <input type="number" id="gerAmount" inputmode="numeric" placeholder="300000" min="0" step="1000">
-          </div>
-          <div class="field">
-            <label for="gerSollzins">Interest rate (annual %) <span class="de-term">Sollzins</span></label>
-            <input type="number" id="gerSollzins" inputmode="decimal" placeholder="3.5" min="0" step="0.01">
-          </div>
-          <div class="field">
-            <label for="gerTilgung">Initial repayment rate (%) <span class="de-term">anfängliche Tilgung</span></label>
-            <input type="number" id="gerTilgung" inputmode="decimal" value="2" min="0.1" step="0.1">
-          </div>
-          <div class="field">
-            <label>Fixed-rate period <span class="de-term">Zinsbindung (years)</span></label>
-            <div class="seg" id="gerZinsSeg" role="group" aria-label="Fixed-rate period in years">
-              <button type="button" class="seg-btn" data-zins="10">10</button>
-              <button type="button" class="seg-btn" data-zins="15">15</button>
-              <button type="button" class="seg-btn" data-zins="20">20</button>
-              <input type="number" class="custom" id="gerZinsCustom" inputmode="numeric" placeholder="Custom" min="1" max="40" step="1" aria-label="Custom fixed-rate period in years">
+        <div class="field">
+          <label for="stdRate">Effective interest rate (%)
+            <span class="info"><button type="button" class="info-icon" aria-label="What is the effective interest rate?" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Includes all fees and costs, unlike the base rate some banks quote separately (Sollzins in German). Use this figure to directly compare loan offers.</span></span>
+          </label>
+          <input type="number" id="stdRate" inputmode="decimal" placeholder="8" min="0" step="0.1">
+        </div>
+        <div class="field">
+          <label for="stdTenure">Tenure</label>
+          <div class="tenure-row">
+            <input type="number" id="stdTenure" inputmode="numeric" placeholder="5" min="0" step="1">
+            <div class="seg" id="stdUnitSeg" role="group" aria-label="Tenure unit">
+              <button type="button" class="seg-btn active" data-unit="years">Years</button>
+              <button type="button" class="seg-btn" data-unit="months">Months</button>
             </div>
           </div>
         </div>
@@ -81,43 +49,25 @@
 
       <!-- Results -->
       <section class="panel" aria-live="polite" aria-label="Results">
-        <!-- STANDARD results -->
-        <div data-mode-panel="standard">
-          <h2>Your loan</h2>
-          <div class="result-block">
-            <p class="result-label">Monthly EMI</p>
-            <div class="result-big" id="emi">–</div>
-          </div>
-          <div class="receipt" style="margin-top:16px">
-            <div class="receipt-row"><span class="receipt-label">Total interest paid</span><span class="receipt-amt" id="stdInterest">–</span></div>
-            <div class="receipt-row"><span class="receipt-label">Total amount paid</span><span class="receipt-amt" id="stdTotal">–</span></div>
-          </div>
-          <p class="result-label" style="margin-top:18px">Principal vs interest</p>
-          <div class="split-bar" role="img" aria-label="Principal versus interest split">
-            <div class="seg-liquid" id="stdSplitP" style="width:0%"></div>
-            <div class="seg-illiquid" id="stdSplitI" style="width:0%"></div>
-          </div>
-          <div class="split-legend">
-            <span><span class="dot liquid"></span>Principal <span id="stdPPct">–</span> · <span id="stdPAmt">–</span></span>
-            <span><span class="dot illiquid"></span>Interest <span id="stdIPct">–</span> · <span id="stdIAmt">–</span></span>
-          </div>
-          <p class="hint" id="stdMeta" style="margin-top:14px">Enter a loan amount, interest rate and tenure to see your EMI.</p>
+        <h2>Your loan</h2>
+        <div class="result-block">
+          <p class="result-label">Monthly EMI</p>
+          <div class="result-big" id="emi">–</div>
         </div>
-
-        <!-- GERMAN results -->
-        <div data-mode-panel="german" hidden>
-          <h2>Your mortgage</h2>
-          <div class="result-block">
-            <p class="result-label">Monthly payment <span class="de-term">Monatliche Rate, flat for the Zinsbindung</span></p>
-            <div class="result-big" id="gerMonthly">–</div>
-          </div>
-          <div class="receipt" style="margin-top:16px">
-            <div class="receipt-row"><span class="receipt-label">Remaining balance at end of Zinsbindung <span class="de-term">Restschuld</span></span><span class="receipt-amt" id="gerRest">–</span></div>
-            <div class="receipt-row"><span class="receipt-label">Interest paid during Zinsbindung</span><span class="receipt-amt" id="gerInterest">–</span></div>
-          </div>
-          <p class="caveat" id="gerNote" hidden></p>
-          <p class="hint" id="gerPrompt" style="margin-top:14px">Enter your Darlehenssumme, Sollzins and Tilgung to see your monthly payment.</p>
+        <div class="receipt" style="margin-top:16px">
+          <div class="receipt-row"><span class="receipt-label">Total interest paid</span><span class="receipt-amt" id="stdInterest">–</span></div>
+          <div class="receipt-row"><span class="receipt-label">Total amount paid</span><span class="receipt-amt" id="stdTotal">–</span></div>
         </div>
+        <p class="result-label" style="margin-top:18px">Principal vs interest</p>
+        <div class="split-bar" role="img" aria-label="Principal versus interest split">
+          <div class="seg-liquid" id="stdSplitP" style="width:0%"></div>
+          <div class="seg-illiquid" id="stdSplitI" style="width:0%"></div>
+        </div>
+        <div class="split-legend">
+          <span><span class="dot liquid"></span>Principal <span id="stdPPct">–</span> · <span id="stdPAmt">–</span></span>
+          <span><span class="dot illiquid"></span>Interest <span id="stdIPct">–</span> · <span id="stdIAmt">–</span></span>
+        </div>
+        <p class="hint" id="stdMeta" style="margin-top:14px">Enter a loan amount, interest rate and tenure to see your EMI.</p>
       </section>
     </div>
 
@@ -132,7 +82,7 @@
         </span>
       </summary>
       <div class="expando-body">
-        <p class="expando-sub" id="amortSub">One row per year.</p>
+        <p class="expando-sub">One row per year, for the full tenure.</p>
         <div class="amort-scroll">
           <table class="amort-table" id="amortTable">
             <thead>
@@ -158,41 +108,20 @@
       <div class="expando-body">
         <div class="expando-grid">
           <div>
-            <div data-mode-panel="standard">
-              <div class="field">
-                <label for="xtraStdMonthly">Extra payment per month</label>
-                <input type="number" id="xtraStdMonthly" inputmode="numeric" placeholder="100" min="0" step="10">
-              </div>
-            </div>
-            <div data-mode-panel="german" hidden>
-              <div class="field">
-                <label for="xtraGerPct">Annual Sondertilgung (% of loan)</label>
-                <input type="number" id="xtraGerPct" inputmode="decimal" value="5" min="0" step="0.5">
-                <span class="hint">Most German mortgage contracts cap penalty-free Sondertilgung at around 5% of the loan amount per year; check your contract terms.</span>
-              </div>
+            <div class="field">
+              <label for="xtraStdMonthly">Extra payment per month</label>
+              <input type="number" id="xtraStdMonthly" inputmode="numeric" placeholder="100" min="0" step="10">
             </div>
           </div>
           <div aria-live="polite">
-            <div data-mode-panel="standard">
-              <p class="hint" id="xtraStdPrompt">Fill in the loan above, then enter an extra monthly payment.</p>
-              <div id="xtraStdResults" hidden>
-                <div class="receipt">
-                  <div class="receipt-row"><span class="receipt-label">New payoff time</span><span class="receipt-amt" id="xtraStdTenure">–</span></div>
-                  <div class="receipt-row"><span class="receipt-label">Finishes earlier by</span><span class="receipt-amt" id="xtraStdEarlier">–</span></div>
-                </div>
-                <p class="result-label" style="margin-top:16px">Interest saved</p>
-                <div class="result-mid" id="xtraStdSaved">–</div>
+            <p class="hint" id="xtraStdPrompt">Fill in the loan above, then enter an extra monthly payment.</p>
+            <div id="xtraStdResults" hidden>
+              <div class="receipt">
+                <div class="receipt-row"><span class="receipt-label">New payoff time</span><span class="receipt-amt" id="xtraStdTenure">–</span></div>
+                <div class="receipt-row"><span class="receipt-label">Finishes earlier by</span><span class="receipt-amt" id="xtraStdEarlier">–</span></div>
               </div>
-            </div>
-            <div data-mode-panel="german" hidden>
-              <p class="hint" id="xtraGerPrompt">Fill in the mortgage above, then enter a Sondertilgung rate.</p>
-              <div id="xtraGerResults" hidden>
-                <div class="receipt">
-                  <div class="receipt-row"><span class="receipt-label">New Restschuld at end of Zinsbindung</span><span class="receipt-amt" id="xtraGerRest">–</span></div>
-                  <div class="receipt-row"><span class="receipt-label">Interest saved during Zinsbindung</span><span class="receipt-amt" id="xtraGerSaved">–</span></div>
-                </div>
-                <p class="caveat">Assumes the full Sondertilgung is paid once a year, on top of the regular annuity, for every year of the Zinsbindung.</p>
-              </div>
+              <p class="result-label" style="margin-top:16px">Interest saved</p>
+              <div class="result-mid" id="xtraStdSaved">–</div>
             </div>
           </div>
         </div>
@@ -213,42 +142,22 @@
         <p class="expando-sub">Loan A is the loan entered above. Enter a second loan (B) to compare.</p>
         <div class="expando-grid">
           <div>
-            <div data-mode-panel="standard">
-              <div class="field">
-                <label for="cmpStdAmount">Loan B amount</label>
-                <input type="number" id="cmpStdAmount" inputmode="numeric" placeholder="20000" min="0" step="100">
-              </div>
-              <div class="field">
-                <label for="cmpStdRate">Loan B interest rate (annual %)</label>
-                <input type="number" id="cmpStdRate" inputmode="decimal" placeholder="7" min="0" step="0.1">
-              </div>
-              <div class="field">
-                <label for="cmpStdTenure">Loan B tenure</label>
-                <div class="tenure-row">
-                  <input type="number" id="cmpStdTenure" inputmode="numeric" placeholder="5" min="0" step="1">
-                  <div class="seg" id="cmpStdUnitSeg" role="group" aria-label="Loan B tenure unit">
-                    <button type="button" class="seg-btn active" data-unit="years">Years</button>
-                    <button type="button" class="seg-btn" data-unit="months">Months</button>
-                  </div>
-                </div>
-              </div>
+            <div class="field">
+              <label for="cmpStdAmount">Loan B amount</label>
+              <input type="number" id="cmpStdAmount" inputmode="numeric" placeholder="20000" min="0" step="100">
             </div>
-            <div data-mode-panel="german" hidden>
-              <div class="field">
-                <label for="cmpGerAmount">Loan B amount <span class="de-term">Darlehenssumme</span></label>
-                <input type="number" id="cmpGerAmount" inputmode="numeric" placeholder="300000" min="0" step="1000">
-              </div>
-              <div class="field">
-                <label for="cmpGerSollzins">Loan B interest rate (annual %) <span class="de-term">Sollzins</span></label>
-                <input type="number" id="cmpGerSollzins" inputmode="decimal" placeholder="3.2" min="0" step="0.01">
-              </div>
-              <div class="field">
-                <label for="cmpGerTilgung">Loan B initial repayment (%) <span class="de-term">Tilgung</span></label>
-                <input type="number" id="cmpGerTilgung" inputmode="decimal" value="2" min="0.1" step="0.1">
-              </div>
-              <div class="field">
-                <label for="cmpGerZins">Loan B fixed-rate period (years) <span class="de-term">Zinsbindung</span></label>
-                <input type="number" id="cmpGerZins" inputmode="numeric" placeholder="15" min="1" max="40" step="1">
+            <div class="field">
+              <label for="cmpStdRate">Loan B effective interest rate (%)</label>
+              <input type="number" id="cmpStdRate" inputmode="decimal" placeholder="7" min="0" step="0.1">
+            </div>
+            <div class="field">
+              <label for="cmpStdTenure">Loan B tenure</label>
+              <div class="tenure-row">
+                <input type="number" id="cmpStdTenure" inputmode="numeric" placeholder="5" min="0" step="1">
+                <div class="seg" id="cmpStdUnitSeg" role="group" aria-label="Loan B tenure unit">
+                  <button type="button" class="seg-btn active" data-unit="years">Years</button>
+                  <button type="button" class="seg-btn" data-unit="months">Months</button>
+                </div>
               </div>
             </div>
           </div>
@@ -269,9 +178,8 @@
     </details>
 
     <div class="disclaimer">
-      Simplified projections based on the values you enter. Interest is assumed constant for the whole period; real loans may
-      vary. For the German mortgage, only the fixed-rate period (Zinsbindung) is calculated: the remaining balance afterwards
-      needs Anschlussfinanzierung at future rates, which is not modelled here. For direction, not a binding quote.
+      Simplified projections based on the values you enter. The interest rate is assumed constant for the whole term;
+      real loans may vary. Figures are shown in the currency selected in the header. For direction, not a binding quote.
     </div>
   </div>
 </main>
