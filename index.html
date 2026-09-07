@@ -16,6 +16,11 @@
   <div class="wrap">
     <p class="intro">A small, growing suite of clean financial calculators. No accounts, no backend. Everything runs in your browser and stays there.</p>
 
+    <div class="region-toggle">
+      <label class="check-row"><input type="checkbox" id="inGermanyToggle" checked> I live in Germany</label>
+      <span class="hint">Turn off to hide the Germany-specific calculators.</span>
+    </div>
+
     <!-- Dashboard: shown by home.js only once a calculator has been run -->
     <section class="dashboard" id="dashboard" hidden aria-label="Your snapshot">
       <div class="dash-head">
@@ -23,50 +28,72 @@
         <button type="button" class="tool-btn" id="exportImgBtn">Export as image</button>
       </div>
       <div id="dashCapture">
-        <div class="dash-cards" id="dashCards"></div>
+        <div class="dash-group" id="dashGrpGermany" hidden>
+          <h3 class="dash-group-label">Germany</h3>
+          <div class="dash-cards" id="dashCardsGermany"></div>
+        </div>
+        <div class="dash-group" id="dashGrpGeneral" hidden>
+          <h3 class="dash-group-label">General</h3>
+          <div class="dash-cards" id="dashCardsGeneral"></div>
+        </div>
         <div class="synthesis" id="synthesis" hidden></div>
         <div class="synthesis info" id="nwNudge" hidden></div>
       </div>
     </section>
 
-    <h2 class="section-kicker" id="gridHeading" hidden>More calculators</h2>
+    <div class="calc-group" id="grpGermany">
+      <h2 class="section-kicker">Germany</h2>
+      <section class="card-grid" aria-label="Germany calculators">
+        <a class="calc-card" data-calc="pension" href="pension/">
+          <span class="calc-icon" aria-hidden="true">🇩🇪</span>
+          <h3>German Pension Calculator</h3>
+          <p>Estimate your statutory monthly pension from your salary history and Entgeltpunkte.</p>
+          <span class="go">Open calculator →</span>
+        </a>
+        <a class="calc-card" data-calc="bruttonetto" href="brutto-netto/">
+          <span class="calc-icon" aria-hidden="true">🧾</span>
+          <h3>Brutto/Netto Calculator</h3>
+          <p>See your German net salary after tax and social insurance, single or married.</p>
+          <span class="go">Open calculator →</span>
+        </a>
+        <a class="calc-card" data-calc="secondjob" href="second-job/">
+          <span class="calc-icon" aria-hidden="true">👔</span>
+          <h3>Second Job Tax Calculator</h3>
+          <p>How a Minijob or Steuerklasse VI second job is taxed, and your likely refund.</p>
+          <span class="go">Open calculator →</span>
+        </a>
+      </section>
+    </div>
 
-    <section class="card-grid" aria-label="Calculators">
-      <a class="calc-card" data-calc="pension" href="pension/">
-        <span class="calc-icon" aria-hidden="true">🇩🇪</span>
-        <h3>German Pension Calculator</h3>
-        <p>Estimate your statutory monthly pension from your salary history and Entgeltpunkte.</p>
-        <span class="go">Open calculator →</span>
-      </a>
-
-      <a class="calc-card" data-calc="emergency" href="emergency-fund/">
-        <span class="calc-icon" aria-hidden="true">🛟</span>
-        <h3>Emergency Fund Calculator</h3>
-        <p>Work out how big your safety net should be and how far along you already are.</p>
-        <span class="go">Open calculator →</span>
-      </a>
-
-      <a class="calc-card" data-calc="networth" href="net-worth/">
-        <span class="calc-icon" aria-hidden="true">💰</span>
-        <h3>Net Worth Calculator</h3>
-        <p>Tally your assets and liabilities to see your net worth in one number.</p>
-        <span class="go">Open calculator →</span>
-      </a>
-
-      <a class="calc-card" data-calc="fire" href="fire/">
-        <span class="calc-icon" aria-hidden="true">🔥</span>
-        <h3>FIRE Calculator</h3>
-        <p>Find your FIRE number and how many years until financial independence.</p>
-        <span class="go">Open calculator →</span>
-      </a>
-
-      <a class="calc-card" data-calc="loan" href="loan/">
-        <span class="calc-icon" aria-hidden="true">🏦</span>
-        <h3>Loan &amp; EMI Calculator</h3>
-        <p>Monthly payments and total interest for any loan, or a German fixed-rate mortgage.</p>
-        <span class="go">Open calculator →</span>
-      </a>
-    </section>
+    <div class="calc-group" id="grpGeneral">
+      <h2 class="section-kicker">General</h2>
+      <section class="card-grid" aria-label="General calculators">
+        <a class="calc-card" data-calc="networth" href="net-worth/">
+          <span class="calc-icon" aria-hidden="true">💰</span>
+          <h3>Net Worth Calculator</h3>
+          <p>Tally your assets and liabilities to see your net worth in one number.</p>
+          <span class="go">Open calculator →</span>
+        </a>
+        <a class="calc-card" data-calc="emergency" href="emergency-fund/">
+          <span class="calc-icon" aria-hidden="true">🛟</span>
+          <h3>Emergency Fund Calculator</h3>
+          <p>Work out how big your safety net should be and how far along you already are.</p>
+          <span class="go">Open calculator →</span>
+        </a>
+        <a class="calc-card" data-calc="fire" href="fire/">
+          <span class="calc-icon" aria-hidden="true">🔥</span>
+          <h3>FIRE Calculator</h3>
+          <p>Find your FIRE number and how many years until financial independence.</p>
+          <span class="go">Open calculator →</span>
+        </a>
+        <a class="calc-card" data-calc="loan" href="loan/">
+          <span class="calc-icon" aria-hidden="true">🏦</span>
+          <h3>Loan &amp; EMI Calculator</h3>
+          <p>Monthly payments, total interest and an amortization schedule for any loan.</p>
+          <span class="go">Open calculator →</span>
+        </a>
+      </section>
+    </div>
 
     <section class="data-tools" aria-label="Your data">
       <h2 class="section-kicker">Your data</h2>

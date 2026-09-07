@@ -67,6 +67,25 @@
       '</div>';
   }
 
+  function bnCard(bn) {
+    return '<div class="dash-card">' +
+      '<p class="dash-label">Net monthly salary <span class="dash-sublabel">(' + bn.label + ')</span></p>' +
+      '<div class="dash-big">' + AIO.formatEUR(bn.netto) + '</div>' +
+      '<p class="dash-sub">' + AIO.formatEUR(bn.brutto) + ' gross → ' + AIO.formatEUR(bn.netto) + ' net</p>' +
+      '<a class="recalc" href="brutto-netto/">Recalculate →</a>' +
+      '</div>';
+  }
+  function sjCard(sj) {
+    var sub = sj.refund == null ? 'Second job is a tax-free Minijob'
+            : (sj.refund > 0 ? 'Est. refund at filing ' + AIO.formatEUR(sj.refund) : 'No refund expected');
+    return '<div class="dash-card">' +
+      '<p class="dash-label">Combined monthly net <span class="dash-sublabel">(both jobs)</span></p>' +
+      '<div class="dash-big">' + AIO.formatEUR(sj.combinedNet) + '</div>' +
+      '<p class="dash-sub">' + sub + '</p>' +
+      '<a class="recalc" href="second-job/">Recalculate →</a>' +
+      '</div>';
+  }
+
   // Decide the single synthesis message from the priority logic. Returns
   // { cls, lead(HTML), secondary(text) } or null for "no synthesis line".
   function synthesise(pen, em, penDone, emDone) {
@@ -240,67 +259,101 @@
     if (clr) clr.addEventListener('click', clearAllData);
   }
 
+  function loadInGermany() { return AIO.load('aio:inGermany') === false ? false : true; } // default ON
+
   function init() {
     wireDataTools(); // export / import / clear are always available on the homepage
+    var eb = document.getElementById('exportImgBtn');
+    if (eb) eb.addEventListener('click', exportImage);
 
+    var inGermany = loadInGermany();
+    var toggle = document.getElementById('inGermanyToggle');
+    if (toggle) {
+      toggle.checked = inGermany;
+      toggle.addEventListener('change', function () {
+        inGermany = toggle.checked;
+        AIO.save('aio:inGermany', inGermany);
+        renderAll(inGermany);
+      });
+    }
+    renderAll(inGermany);
+  }
+
+  function resetGridCards() {
+    var cards = document.querySelectorAll('.card-grid .calc-card');
+    for (var i = 0; i < cards.length; i++) cards[i].hidden = false;
+  }
+
+  function renderAll(inGermany) {
+    document.getElementById('grpGermany').hidden = !inGermany;
+    renderDashboard(inGermany);
+  }
+
+  function renderDashboard(inGermany) {
     var penSaved = AIO.load('aio:pension') || {};
     var emSaved = AIO.load('aio:emergency') || {};
     var nwSaved = AIO.load('aio:networth') || {};
     var fireSaved = AIO.load('aio:fire') || {};
-    var pen = penSaved.result || null;
-    var em = emSaved.result || null;
-    var nw = nwSaved.result || null;
-    var fire = fireSaved.result || null;
+    var bnSaved = AIO.load('aio:bruttonetto') || {};
+    var sjSaved = AIO.load('aio:secondjob') || {};
+    var pen = penSaved.result || null, em = emSaved.result || null, nw = nwSaved.result || null,
+        fire = fireSaved.result || null, bn = bnSaved.result || null, sj = sjSaved.result || null;
 
-    // A calculator only counts as "calculated" once the user has actually changed
-    // a field (touched flag), so an untouched calculator (or one left at 0/default)
-    // never triggers a dashboard card.
+    // A calculator counts as "calculated" only once the user touched a field.
     var penDone = penSaved.touched === true && !!(pen && isFinite(pen.netMonthly));
     var emDone = emSaved.touched === true && !!(em && isFinite(em.target));
     var nwDone = nwSaved.touched === true && !!(nw && isFinite(nw.totalNetWorth));
     var fireDone = fireSaved.touched === true && !!(fire && isFinite(fire.fireNumber));
+    var bnDone = bnSaved.touched === true && !!(bn && isFinite(bn.netto));
+    var sjDone = sjSaved.touched === true && !!(sj && isFinite(sj.combinedNet));
 
-    if (!penDone && !emDone && !nwDone && !fireDone) return; // nothing run: plain card grid
+    // Germany-group results only show when the region toggle is on.
+    var penInc = penDone && inGermany, bnInc = bnDone && inGermany, sjInc = sjDone && inGermany;
+    var emInc = emDone, nwInc = nwDone, fireInc = fireDone;
 
-    var cardsHTML = '';
-    if (penDone) cardsHTML += penCard(pen);
-    if (emDone) cardsHTML += emCard(em);
-    if (nwDone) cardsHTML += nwCard(nw);   // net worth sits alongside as another card
-    if (fireDone) cardsHTML += fireCard(fire);
-    document.getElementById('dashCards').innerHTML = cardsHTML;
+    resetGridCards();
 
-    // Existing emergency-first / pension-gap priority messaging, unchanged.
-    var synth = synthesise(pen, em, penDone, emDone);
+    var gerHTML = '';
+    if (penInc) gerHTML += penCard(pen);
+    if (bnInc) gerHTML += bnCard(bn);
+    if (sjInc) gerHTML += sjCard(sj);
+    document.getElementById('dashCardsGermany').innerHTML = gerHTML;
+    document.getElementById('dashGrpGermany').hidden = (gerHTML === '');
+
+    var genHTML = '';
+    if (nwInc) genHTML += nwCard(nw);
+    if (emInc) genHTML += emCard(em);
+    if (fireInc) genHTML += fireCard(fire);
+    document.getElementById('dashCardsGeneral').innerHTML = genHTML;
+    document.getElementById('dashGrpGeneral').hidden = (genHTML === '');
+
+    // Emergency-first / pension-gap synthesis (pension only when in the Germany view).
+    var synth = synthesise(pen, em, penInc, emInc);
     var synthEl = document.getElementById('synthesis');
     if (synth) {
       synthEl.className = 'synthesis ' + synth.cls;
       synthEl.innerHTML = '<p class="lead">' + synth.lead + '</p>' +
         (synth.secondary ? '<p class="secondary">' + synth.secondary + '</p>' : '');
       synthEl.hidden = false;
-    }
+    } else { synthEl.hidden = true; }
 
-    // Separate net-worth nudge: net worth known but no emergency fund target yet.
-    if (nwDone && !emDone) {
-      var nudge = document.getElementById('nwNudge');
+    var nudge = document.getElementById('nwNudge');
+    if (nwInc && !emInc) {
       nudge.innerHTML = '<p class="lead">You\'ve mapped a net worth of <span class="accent">' + AIO.formatEUR(nw.totalNetWorth) +
         '</span>. Have you calculated your emergency fund target?</p>' +
         '<p class="secondary"><a href="emergency-fund/">Open the Emergency Fund Calculator →</a></p>';
       nudge.hidden = false;
-    }
+    } else { nudge.hidden = true; }
 
-    document.getElementById('dashboard').hidden = false;
+    document.getElementById('dashboard').hidden = !(gerHTML !== '' || genHTML !== '');
 
-    // A calculator shown in the dashboard drops out of the grid below; the grid
-    // keeps the not-yet-run calculators (and the coming-soon cards) as prompts.
-    if (penDone) hideCard('pension');
-    if (emDone) hideCard('emergency');
-    if (nwDone) hideCard('networth');
-    if (fireDone) hideCard('fire');
-    document.getElementById('gridHeading').hidden = false;
-
-    // Export-as-image is only relevant once the dashboard is showing.
-    var eb = document.getElementById('exportImgBtn');
-    if (eb) eb.addEventListener('click', exportImage);
+    // Cards shown in the dashboard drop out of the grid below.
+    if (penInc) hideCard('pension');
+    if (bnInc) hideCard('bruttonetto');
+    if (sjInc) hideCard('secondjob');
+    if (nwInc) hideCard('networth');
+    if (emInc) hideCard('emergency');
+    if (fireInc) hideCard('fire');
   }
 
   function hideCard(calc) {
