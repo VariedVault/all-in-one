@@ -68,22 +68,15 @@
   }
 
   function bnCard(bn) {
-    return '<div class="dash-card">' +
+    var html = '<div class="dash-card">' +
       '<p class="dash-label">Net monthly salary <span class="dash-sublabel">(' + bn.label + ')</span></p>' +
       '<div class="dash-big">' + AIO.formatEUR(bn.netto) + '</div>' +
-      '<p class="dash-sub">' + AIO.formatEUR(bn.brutto) + ' gross → ' + AIO.formatEUR(bn.netto) + ' net</p>' +
-      '<a class="recalc" href="brutto-netto/">Recalculate →</a>' +
-      '</div>';
-  }
-  function sjCard(sj) {
-    var sub = sj.refund == null ? 'Second job is a tax-free Minijob'
-            : (sj.refund > 0 ? 'Est. refund at filing ' + AIO.formatEUR(sj.refund) : 'No refund expected');
-    return '<div class="dash-card">' +
-      '<p class="dash-label">Combined monthly net <span class="dash-sublabel">(both jobs)</span></p>' +
-      '<div class="dash-big">' + AIO.formatEUR(sj.combinedNet) + '</div>' +
-      '<p class="dash-sub">' + sub + '</p>' +
-      '<a class="recalc" href="second-job/">Recalculate →</a>' +
-      '</div>';
+      '<p class="dash-sub">' + AIO.formatEUR(bn.brutto) + ' gross → ' + AIO.formatEUR(bn.netto) + ' net</p>';
+    if (bn.household != null && isFinite(bn.household)) {
+      html += '<p class="dash-leave">Household combined: ' + AIO.formatEUR(bn.household) + '/mo</p>';
+    }
+    html += '<a class="recalc" href="brutto-netto/">Recalculate →</a></div>';
+    return html;
   }
 
   // Decide the single synthesis message from the priority logic. Returns
@@ -295,9 +288,8 @@
     var nwSaved = AIO.load('aio:networth') || {};
     var fireSaved = AIO.load('aio:fire') || {};
     var bnSaved = AIO.load('aio:bruttonetto') || {};
-    var sjSaved = AIO.load('aio:secondjob') || {};
     var pen = penSaved.result || null, em = emSaved.result || null, nw = nwSaved.result || null,
-        fire = fireSaved.result || null, bn = bnSaved.result || null, sj = sjSaved.result || null;
+        fire = fireSaved.result || null, bn = bnSaved.result || null;
 
     // A calculator counts as "calculated" only once the user touched a field.
     var penDone = penSaved.touched === true && !!(pen && isFinite(pen.netMonthly));
@@ -305,10 +297,9 @@
     var nwDone = nwSaved.touched === true && !!(nw && isFinite(nw.totalNetWorth));
     var fireDone = fireSaved.touched === true && !!(fire && isFinite(fire.fireNumber));
     var bnDone = bnSaved.touched === true && !!(bn && isFinite(bn.netto));
-    var sjDone = sjSaved.touched === true && !!(sj && isFinite(sj.combinedNet));
 
     // Germany-group results only show when the region toggle is on.
-    var penInc = penDone && inGermany, bnInc = bnDone && inGermany, sjInc = sjDone && inGermany;
+    var penInc = penDone && inGermany, bnInc = bnDone && inGermany;
     var emInc = emDone, nwInc = nwDone, fireInc = fireDone;
 
     resetGridCards();
@@ -316,7 +307,6 @@
     var gerHTML = '';
     if (penInc) gerHTML += penCard(pen);
     if (bnInc) gerHTML += bnCard(bn);
-    if (sjInc) gerHTML += sjCard(sj);
     document.getElementById('dashCardsGermany').innerHTML = gerHTML;
     document.getElementById('dashGrpGermany').hidden = (gerHTML === '');
 
@@ -350,7 +340,6 @@
     // Cards shown in the dashboard drop out of the grid below.
     if (penInc) hideCard('pension');
     if (bnInc) hideCard('bruttonetto');
-    if (sjInc) hideCard('secondjob');
     if (nwInc) hideCard('networth');
     if (emInc) hideCard('emergency');
     if (fireInc) hideCard('fire');

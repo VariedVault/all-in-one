@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Brutto/Netto Calculator · All-in-One</title>
-<meta name="description" content="Estimate your German net salary (Netto) from gross (Brutto): income tax, solidarity surcharge, church tax and social insurance, for single or married filing. Runs entirely in your browser.">
+<meta name="description" content="Estimate your German net salary (Netto) from gross (Brutto) for any Steuerklasse: income tax, solidarity surcharge, church tax and social insurance. Runs entirely in your browser.">
 <meta name="theme-color" content="#0b0b0c">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,93 +21,54 @@
       <p>Estimate your German net salary from gross: income tax (Lohnsteuer), solidarity surcharge, church tax and the four social insurance contributions. Core figures are always in euros.</p>
     </div>
 
-    <div class="mode-tabs" role="tablist" aria-label="Filing mode">
-      <button type="button" class="mode-tab active" data-mode="single" role="tab">Single</button>
-      <button type="button" class="mode-tab" data-mode="married" role="tab">Married</button>
-    </div>
-
     <div class="calc-layout">
       <!-- Inputs -->
-      <section class="panel" aria-label="Your details">
-        <!-- SINGLE -->
-        <div data-mode-panel="single">
-          <h2>Your details</h2>
-          <div class="field">
-            <label for="bnSalary">Gross salary (€)</label>
-            <div class="tenure-row">
-              <input type="number" id="bnSalary" inputmode="numeric" placeholder="4000" min="0" step="100">
-              <div class="seg" id="bnUnitSeg" role="group" aria-label="Salary period">
-                <button type="button" class="seg-btn active" data-unit="month">Monthly</button>
-                <button type="button" class="seg-btn" data-unit="year">Annual</button>
-              </div>
-            </div>
-          </div>
-          <div class="field">
-            <label for="bnClass">Tax class <span class="info"><button type="button" class="info-icon" aria-label="About tax classes" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Steuerklasse: your withholding class. I = single, II = single parent, III/V = married with unequal incomes, IV = married with similar incomes, VI = second job.</span></span></label>
-            <select id="bnClass" class="field-select">
-              <option value="I">I</option>
-              <option value="II">II</option>
-              <option value="III">III</option>
-              <option value="IV">IV</option>
-              <option value="V">V</option>
-              <option value="VI">VI</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="bnChildren">Number of children</label>
-            <input type="number" id="bnChildren" inputmode="numeric" value="0" min="0" max="12" step="1">
-            <span class="hint">Affects the long-term care insurance rate (discount from the 2nd child under 25).</span>
-          </div>
-          <div class="field">
-            <label class="check-row"><input type="checkbox" id="bnChildless"> Childless and aged 23 or older</label>
-            <span class="hint">Adds the 0.6% childless surcharge to long-term care insurance.</span>
-          </div>
-          <div class="field">
-            <label class="check-row"><input type="checkbox" id="bnChurch"> Church tax member</label>
-            <div id="bnStateWrap" hidden style="margin-top:10px">
-              <label for="bnState">Bundesland</label>
-              <select id="bnState" class="field-select"></select>
+      <section class="panel" aria-label="Your income">
+        <h2>Your income</h2>
+        <div class="field">
+          <label for="bnSalary">Gross salary (€)</label>
+          <div class="tenure-row">
+            <input type="number" id="bnSalary" inputmode="numeric" placeholder="4000" min="0" step="100">
+            <div class="seg" id="bnUnitSeg" role="group" aria-label="Salary period">
+              <button type="button" class="seg-btn active" data-unit="month">Monthly</button>
+              <button type="button" class="seg-btn" data-unit="year">Annual</button>
             </div>
           </div>
         </div>
-
-        <!-- MARRIED -->
-        <div data-mode-panel="married" hidden>
-          <h2>Your details</h2>
-          <div class="field">
-            <label for="bnCombo">Tax class combination</label>
-            <select id="bnCombo" class="field-select">
-              <option value="iiiv">III / V</option>
-              <option value="iviv">IV / IV</option>
-              <option value="faktor">IV with Faktor</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="bnGrossA">Partner A gross monthly (€)</label>
-            <input type="number" id="bnGrossA" inputmode="numeric" placeholder="4500" min="0" step="100">
-            <label class="check-row" style="margin-top:8px"><input type="checkbox" id="bnChildlessA"> Partner A childless and 23+</label>
-            <label class="check-row" style="margin-top:8px"><input type="checkbox" id="bnChurchA"> Partner A pays church tax</label>
-            <div id="bnStateAWrap" hidden style="margin-top:8px"><select id="bnStateA" class="field-select"></select></div>
-          </div>
-          <div class="field">
-            <label for="bnGrossB">Partner B gross monthly (€)</label>
-            <input type="number" id="bnGrossB" inputmode="numeric" placeholder="2500" min="0" step="100">
-            <label class="check-row" style="margin-top:8px"><input type="checkbox" id="bnChildlessB"> Partner B childless and 23+</label>
-            <label class="check-row" style="margin-top:8px"><input type="checkbox" id="bnChurchB"> Partner B pays church tax</label>
-            <div id="bnStateBWrap" hidden style="margin-top:8px"><select id="bnStateB" class="field-select"></select></div>
-          </div>
-          <div class="field">
-            <label for="bnMChildren">Number of children (shared)</label>
-            <input type="number" id="bnMChildren" inputmode="numeric" value="0" min="0" max="12" step="1">
+        <div class="field">
+          <label for="bnClass">Tax class <span class="info"><button type="button" class="info-icon" aria-label="About tax classes" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Steuerklasse: your withholding class. I = single, II = single parent, III and V = married with unequal incomes, IV = married with similar incomes, IV mit Faktor = married with a fair-share factor, VI = second job.</span></span></label>
+          <select id="bnClass" class="field-select">
+            <option value="I">I</option>
+            <option value="II">II</option>
+            <option value="III">III</option>
+            <option value="IV">IV</option>
+            <option value="faktor">IV mit Faktor</option>
+            <option value="V">V</option>
+            <option value="VI">VI</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="bnChildren">Number of children</label>
+          <input type="number" id="bnChildren" inputmode="numeric" value="0" min="0" max="12" step="1">
+          <span class="hint">Affects the long-term care insurance rate (discount from the 2nd child under 25).</span>
+        </div>
+        <div class="field">
+          <label class="check-row"><input type="checkbox" id="bnChildless"> Childless and aged 23 or older</label>
+          <span class="hint">Adds the 0.6% childless surcharge to long-term care insurance.</span>
+        </div>
+        <div class="field">
+          <label class="check-row"><input type="checkbox" id="bnChurch"> Church tax member</label>
+          <div id="bnStateWrap" hidden style="margin-top:10px">
+            <label for="bnState">Bundesland</label>
+            <select id="bnState" class="field-select"></select>
           </div>
         </div>
       </section>
 
       <!-- Results -->
       <section class="panel" aria-live="polite" aria-label="Your net salary">
-        <!-- SINGLE -->
-        <div data-mode-panel="single">
-          <h2>Your net salary</h2>
+        <h2>Your net salary</h2>
+        <div id="bnPrimaryOut">
           <div class="receipt">
             <div class="receipt-row"><span class="receipt-label">Gross <span class="de-term">Brutto</span></span><span class="receipt-amt" id="bnBrutto">–</span></div>
             <div class="receipt-row"><span class="receipt-label">Income tax <span class="de-term">Lohnsteuer</span></span><span class="receipt-amt" id="bnLohn">–</span></div>
@@ -123,32 +84,70 @@
           <p class="result-inr" id="bnNettoConv"></p>
           <p class="hint" id="bnMeta" style="margin-top:10px">Enter your gross salary and tax class to see your net.</p>
         </div>
-
-        <!-- MARRIED -->
-        <div data-mode-panel="married" hidden>
-          <h2>Your net salary</h2>
-          <p class="hint" id="bnMPrompt">Enter both partners' gross salaries to see your net.</p>
-          <div id="bnMResults" hidden>
-            <div class="amort-scroll">
-              <table class="amort-table cmp-table">
-                <thead><tr><th>Metric</th><th>Partner A</th><th>Partner B</th></tr></thead>
-                <tbody id="bnMBody"></tbody>
-              </table>
-            </div>
-            <p class="result-label" style="margin-top:18px">Household net monthly <span class="de-term">gemeinsames Netto</span></p>
-            <div class="result-big" id="bnHousehold">–</div>
-            <p class="result-inr" id="bnHouseholdConv"></p>
-          </div>
-        </div>
+        <p class="caveat" id="bnFaktorMsg" hidden>IV mit Faktor needs your partner's income to calculate the fair split. Add it in the "Add your partner's income" section below.</p>
       </section>
     </div>
 
+    <!-- Optional: partner's income -->
+    <details class="scenario-card" id="partnerCard">
+      <summary>
+        <span class="scenario-title">Add your partner's income</span>
+        <span class="scenario-right">
+          <span class="scenario-preview empty" id="partnerPreview">optional</span>
+          <span class="scenario-cta">explore</span>
+          <span class="chev" aria-hidden="true">›</span>
+        </span>
+      </summary>
+      <div class="expando-body">
+        <p class="expando-sub">Optional. Adds your partner's own net and your combined household net. Required for IV mit Faktor, which splits the joint tax by each partner's share of income.</p>
+        <div class="expando-grid">
+          <div>
+            <div class="field">
+              <label for="bnPGross">Partner gross monthly (€)</label>
+              <input type="number" id="bnPGross" inputmode="numeric" placeholder="2500" min="0" step="100">
+            </div>
+            <div class="field" id="partnerClassField">
+              <label for="bnPClass">Partner tax class</label>
+              <select id="bnPClass" class="field-select">
+                <option value="I">I</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV" selected>IV</option>
+                <option value="V">V</option>
+                <option value="VI">VI</option>
+              </select>
+            </div>
+            <div class="field">
+              <label class="check-row"><input type="checkbox" id="bnPChildless"> Partner childless and 23+</label>
+            </div>
+            <div class="field">
+              <label class="check-row"><input type="checkbox" id="bnPChurch"> Partner pays church tax</label>
+              <div id="bnPStateWrap" hidden style="margin-top:8px"><select id="bnPState" class="field-select"></select></div>
+            </div>
+          </div>
+          <div aria-live="polite">
+            <p class="hint" id="partnerPrompt">Enter your partner's gross to see their net and your combined household net.</p>
+            <div id="partnerResults" hidden>
+              <div class="receipt">
+                <div class="receipt-row"><span class="receipt-label" id="partnerNetLabel">Partner net <span class="de-term">Netto</span></span><span class="receipt-amt" id="partnerNet">–</span></div>
+                <div class="receipt-row"><span class="receipt-label">Your net</span><span class="receipt-amt" id="partnerYourNet">–</span></div>
+              </div>
+              <p class="result-label" style="margin-top:16px">Household combined net <span class="de-term">gemeinsames Netto</span></p>
+              <div class="result-big" id="bnHousehold">–</div>
+              <p class="result-inr" id="bnHouseholdConv"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+
     <div class="disclaimer">
       <strong>Simplified approximation, not the official Lohnsteuer PAP formula.</strong>
-      It uses the same piecewise-linear §32a tax approximation as the pension calculator, adjusted per tax class, and does
-      <em>not</em> account for the Kinderfreibetrag in the tax calculation itself, private health insurance (PKV), pension
-      contribution allowances (Vorsorgepauschale), or other individual circumstances. Social insurance uses the 2026
-      employee rates and ceilings. For planning direction, not payroll or filing accuracy.
+      It uses the same piecewise-linear §32a tax approximation as the pension calculator, applies the Grundfreibetrag per
+      tax class (doubled for III, none for V/VI) and a Vorsorgepauschale approximated by your social insurance contributions.
+      It does <em>not</em> account for the Kinderfreibetrag in the tax calculation itself, private health insurance (PKV), or
+      other individual circumstances. Social insurance uses the 2026 employee rates and ceilings. For planning direction, not
+      payroll or filing accuracy.
     </div>
   </div>
 </main>

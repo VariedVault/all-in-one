@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------------------
-   German payroll engine (Brutto -> Netto), shared by the Brutto/Netto and
-   Second Job calculators. Simplified approximation (see the on-page disclaimers),
-   not the official Lohnsteuer PAP formula. Uses window.estimateIncomeTax and
+   German payroll engine (Brutto -> Netto), used by the Brutto/Netto calculator.
+   Simplified approximation (see the on-page disclaimer), not the official
+   Lohnsteuer PAP formula. Uses window.estimateIncomeTax and
    window.DE_PAYROLL_CONSTANTS. All figures returned are MONTHLY.
 --------------------------------------------------------------------------- */
 (function () {
@@ -16,6 +16,17 @@
     return C.GRUNDFREIBETRAG; // I, II, IV
   }
 
+  // Vorsorgepauschale: the tariff is applied to income AFTER the mandatory pension,
+  // health and care contributions, not to raw gross. Approximated here by the
+  // employee social-insurance contributions (each capped at its BBG). Without this
+  // the simplified model overstates Lohnsteuer noticeably.
+  function vorsorgeAnnual(grossAnnual) {
+    var gm = grossAnnual / 12;
+    var rvav = Math.min(gm, C.BBG_RV_AV_MONTH);
+    var kvpv = Math.min(gm, C.BBG_KV_PV_MONTH);
+    return 12 * (rvav * C.RV_RATE + rvav * C.AV_RATE + kvpv * C.KV_RATE + kvpv * C.PV_BASE);
+  }
+
   // Pflegeversicherung employee rate given childless surcharge + number of children.
   function pflegeRate(childless23, children) {
     var rate = C.PV_BASE + (childless23 ? C.PV_CHILDLESS_SURCHARGE : 0);
@@ -26,10 +37,12 @@
     return Math.max(0, rate);
   }
 
-  // Annual Lohnsteuer for a given annual gross under a Steuerklasse (zvE approximated
-  // as gross, per the simplified model).
+  // Annual Lohnsteuer for a given annual gross under a Steuerklasse. The taxable
+  // income is gross minus the Vorsorgepauschale, then the §32a tariff with the
+  // class's Grundfreibetrag (doubled for III, none for V/VI) is applied.
   function annualLohnsteuer(grossAnnual, steuerklasse) {
-    return window.estimateIncomeTax(grossAnnual, gfForClass(steuerklasse));
+    var zvE = Math.max(0, grossAnnual - vorsorgeAnnual(grossAnnual));
+    return window.estimateIncomeTax(zvE, gfForClass(steuerklasse));
   }
 
   // Solidaritätszuschlag on an annual Lohnsteuer amount (Freigrenze doubled for III).
@@ -99,8 +112,11 @@
     var taxA4 = annualLohnsteuer(grossAnnualA, 'IV');
     var taxB4 = annualLohnsteuer(grossAnnualB, 'IV');
     var sum4 = taxA4 + taxB4;
-    // Splittingtarif: tax half the combined income, then double.
-    var jointTax = 2 * window.estimateIncomeTax((grossAnnualA + grossAnnualB) / 2, C.GRUNDFREIBETRAG);
+    // Splittingtarif on the combined taxable income (after Vorsorgepauschale):
+    // tax half the combined zvE, then double.
+    var zvA = Math.max(0, grossAnnualA - vorsorgeAnnual(grossAnnualA));
+    var zvB = Math.max(0, grossAnnualB - vorsorgeAnnual(grossAnnualB));
+    var jointTax = 2 * window.estimateIncomeTax((zvA + zvB) / 2, C.GRUNDFREIBETRAG);
     var factor = sum4 > 0 ? Math.min(1, jointTax / sum4) : 1;
     return { factor: factor, lohnsteuerA: taxA4 * factor, lohnsteuerB: taxB4 * factor };
   }
