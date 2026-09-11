@@ -314,7 +314,7 @@ input::placeholder{color:var(--muted-2);}
 .data-tools-msg.err{color:#ff6b6b;}
 .dash-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;}
 .dash-card{background:var(--panel);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;}
-.dash-card .dash-label{font-size:13px;color:var(--muted);margin:0 0 8px;}
+.dash-card .dash-label{font-size:16.5px;font-weight:600;color:var(--text);margin:0 0 8px;}
 .dash-card .dash-big{
   font-size:clamp(27px,4.5vw,38px);font-weight:800;letter-spacing:-0.02em;
   color:var(--accent);line-height:1.05;font-variant-numeric:tabular-nums;
@@ -392,7 +392,7 @@ input::placeholder{color:var(--muted-2);}
 .split-legend .dot.illiquid{background:var(--muted-2);}
 
 /* ---------- dashboard: pension sublabel + secondary leave line ---------- */
-.dash-label .dash-sublabel{font-weight:400;color:var(--muted);font-size:12px;}
+.dash-label .dash-sublabel{font-weight:400;color:var(--muted);font-size:13.5px;}
 .dash-card .dash-leave{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;}
 
 /* ---------- pension: two combined totals ---------- */
