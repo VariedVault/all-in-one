@@ -59,10 +59,16 @@
   function fireCard(f) {
     var big = (f.yearsToFire == null) ? 'Over 100 yrs'
             : (f.yearsToFire <= 0 ? 'At FIRE' : f.yearsToFire.toFixed(1) + ' yrs');
+    // Two key numbers only: years to FIRE + Freedom Number. The full per-category
+    // investment breakdown stays on the /fire/ page.
+    var sub = 'Freedom Number: ' + AIO.formatEUR(f.fireNumber);
+    if (f.yearsToFire == null) sub += ' — over 100 years away';
+    else if (f.yearsToFire <= 0) sub += ' — reached';
+    else if (f.projectedYear) sub += ' — on track for ' + f.projectedYear;
     return '<div class="dash-card">' +
       '<p class="dash-label">Years to FIRE</p>' +
       '<div class="dash-big">' + big + '</div>' +
-      '<p class="dash-sub">FIRE number ' + AIO.formatEUR(f.fireNumber) + '</p>' +
+      '<p class="dash-sub">' + sub + '</p>' +
       '<a class="recalc" href="fire/">Recalculate →</a>' +
       '</div>';
   }

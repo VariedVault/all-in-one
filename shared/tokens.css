@@ -433,6 +433,40 @@ input::placeholder{color:var(--muted-2);}
 }
 .nw-add-btn:hover{border-color:var(--accent);color:var(--accent);}
 
+/* ---------- plain-language explainer box (e.g. "What is FIRE?") ---------- */
+.explainer{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px 18px;margin:0 0 22px;color:var(--muted);font-size:14.5px;line-height:1.6;
+}
+.explainer strong{color:var(--text);font-weight:700;}
+
+/* ---------- FIRE: dynamic "Your Investments" rows ---------- */
+/* Four columns share one grid so name / monthly / return / remove line up
+   across every row (starter + user-added), same alignment approach as .nw-row. */
+.fire-inv-head,.fire-inv-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 104px 70px 26px;
+  align-items:center;
+  column-gap:10px;
+}
+.fire-inv-head{
+  padding:0 0 6px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.04em;
+}
+.fire-inv-head span:nth-child(2),.fire-inv-head span:nth-child(3){text-align:right;}
+.fire-inv-row{padding:9px 0;border-bottom:1px solid var(--line);}
+.fire-inv-row input{padding:8px 10px;min-width:0;width:100%;}
+.fire-inv-row input.amt,.fire-inv-row input.rate{text-align:right;font-variant-numeric:tabular-nums;}
+
+/* withdrawal-rate field sitting inline with the 4% explanation */
+.fire-wr-field{display:flex;align-items:center;gap:10px;margin:10px 0 2px;}
+.fire-wr-field label{font-size:14px;color:var(--text);}
+.fire-wr-field input{width:84px;text-align:right;font-variant-numeric:tabular-nums;}
+.fire-grounding{
+  background:var(--panel-2);border-left:3px solid var(--accent);border-radius:8px;
+  padding:12px 14px;margin:0 0 18px;color:var(--text);font-size:14.5px;line-height:1.55;
+}
+.fire-multi-mult{color:var(--muted-2);font-size:12px;font-weight:400;}
+
 /* ---------- mode tabs (Single/Married etc.) ---------- */
 .mode-tabs{display:inline-flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;margin:0 0 28px;flex-wrap:wrap;}
 .mode-tab{

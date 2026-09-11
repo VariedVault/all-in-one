@@ -18,7 +18,13 @@
 
     <div class="calc-head">
       <h1>FIRE Calculator</h1>
-      <p>Financial Independence, Retire Early: your FIRE number is the pot that funds your expenses indefinitely. See how many years of saving and compounding it takes to get there. All figures are in today's euros, no inflation applied.</p>
+      <p>Find out how many years until you could live off your savings, and the Freedom Number that gets you there. All figures are in today's euros, no inflation applied.</p>
+    </div>
+
+    <div class="explainer">
+      <strong>FIRE stands for Financial Independence, Retire Early.</strong> It's the idea of saving and
+      investing enough money that the returns alone can cover your living expenses, so working becomes
+      optional, whenever you choose.
     </div>
 
     <div class="calc-layout">
@@ -43,24 +49,23 @@
           <input type="text" id="fireNetWorth" inputmode="numeric" placeholder="50000" min="0" step="1000">
           <span class="hint" id="fireNwHint">What you already have invested and working for you.</span>
         </div>
+
         <div class="field">
-          <label for="fireSavings">Monthly savings / investment (€)</label>
-          <input type="text" id="fireSavings" inputmode="numeric" placeholder="1000" min="0" step="50">
-        </div>
-        <div class="field">
-          <label for="fireReturn">Expected annual return (%)</label>
-          <input type="number" id="fireReturn" inputmode="decimal" value="6.5" step="0.1" min="0">
-        </div>
-        <div class="field">
-          <label for="fireWithdrawal">Withdrawal rate at retirement (%)</label>
-          <input type="number" id="fireWithdrawal" inputmode="decimal" value="4" step="0.1" min="0.1">
-          <span class="hint">The 4% rule is a common starting point.</span>
+          <label>Your investments</label>
+          <span class="hint" style="margin-bottom:8px">What you invest each month, and the annual return you expect from each. Each one grows at its own rate.</span>
+          <div class="fire-inv-head" aria-hidden="true">
+            <span>Category</span><span>Monthly €</span><span>Return %</span><span></span>
+          </div>
+          <div id="fireInvList"></div>
+          <button type="button" class="nw-add-btn" id="fireAddBtn">+ Add category</button>
         </div>
       </section>
 
       <!-- Results -->
       <section class="panel" aria-label="Your FIRE plan" aria-live="polite">
         <h2>Your FIRE plan</h2>
+
+        <p class="fire-grounding" id="fireGrounding" hidden></p>
 
         <div class="result-block">
           <p class="result-label">Years to FIRE</p>
@@ -70,11 +75,20 @@
 
         <hr class="result-sep">
 
-        <div class="receipt">
-          <div class="receipt-row">
-            <span class="receipt-label">Your FIRE number <span class="de-term">annual expenses ÷ withdrawal rate</span></span>
-            <span class="receipt-amt" id="fireNumber">–</span>
-          </div>
+        <div class="result-block">
+          <p class="result-label">Your Freedom Number</p>
+          <div class="result-mid" id="fireNumber">–</div>
+          <p class="result-sub-real">The amount of savings that lets you stop working and live off it, forever.</p>
+        </div>
+
+        <p class="hint" style="margin-top:12px">This is based on research showing you can typically withdraw about 4% of your savings each year without running out, so your Freedom Number is roughly 25 times your annual expenses.</p>
+
+        <div class="fire-wr-field">
+          <label for="fireWithdrawal">Withdrawal rate (%)</label>
+          <input type="number" id="fireWithdrawal" inputmode="decimal" value="4" step="0.1" min="0.1">
+        </div>
+
+        <div class="receipt" style="margin-top:14px">
           <div class="receipt-row">
             <span class="receipt-label">Projected FIRE year</span>
             <span class="receipt-amt" id="fireYear">–</span>
@@ -83,13 +97,13 @@
 
         <div id="fireMultiples" hidden>
           <hr class="result-sep">
-          <p class="result-label">The same target at different multiples <span class="de-term">of annual expenses, whatever your withdrawal rate</span></p>
-          <div class="nw-subtotal"><span>25× (4% rule)</span><span class="amt" id="fire25">–</span></div>
-          <div class="nw-subtotal"><span>30× (safer)</span><span class="amt" id="fire30">–</span></div>
-          <div class="nw-subtotal"><span>35× (very safe)</span><span class="amt" id="fire35">–</span></div>
+          <p class="result-label">How safe is safe? <span class="de-term">the same target at more cautious multiples of annual expenses</span></p>
+          <div class="nw-subtotal"><span>Comfortable <span class="fire-multi-mult">25× annual expenses</span></span><span class="amt" id="fire25">–</span></div>
+          <div class="nw-subtotal"><span>Extra safe <span class="fire-multi-mult">30× annual expenses</span></span><span class="amt" id="fire30">–</span></div>
+          <div class="nw-subtotal"><span>Very safe <span class="fire-multi-mult">35× annual expenses</span></span><span class="amt" id="fire35">–</span></div>
         </div>
 
-        <p class="hint" id="fireMeta" style="margin-top:14px">Fill in your expenses and withdrawal rate to see your FIRE number.</p>
+        <p class="hint" id="fireMeta" style="margin-top:14px">Fill in your monthly expenses to see your Freedom Number.</p>
 
         <!-- Cross-calculator: converted view, reusing the pension "leave Germany" assumptions -->
         <div id="fireIndiaBlock" hidden>
@@ -106,9 +120,10 @@
     </div>
 
     <div class="disclaimer">
-      A simplified projection in today's euros, with no inflation applied to expenses or the target. It assumes a constant
-      return every year (real markets are volatile), that your savings and expenses stay flat, and that the withdrawal rate
-      you choose is sustainable. The 4% rule is a rule of thumb, not a guarantee. For direction, not a plan.
+      A simplified projection in today's euros, with no inflation applied to expenses or the target. Each investment
+      category compounds at the constant annual return you give it (real markets are volatile), and your existing net
+      worth grows at the average of those returns. It assumes your monthly amounts and expenses stay flat, and that the
+      withdrawal rate you choose is sustainable. The 4% rule is a rule of thumb, not a guarantee. For direction, not a plan.
     </div>
   </div>
 </main>
