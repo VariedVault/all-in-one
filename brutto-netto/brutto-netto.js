@@ -144,6 +144,25 @@
     var btns = els.bnUnitSeg.querySelectorAll('.seg-btn');
     for (var i = 0; i < btns.length; i++) btns[i].classList.toggle('active', btns[i].getAttribute('data-unit') === bnUnit);
   }
+  // Trim a converted salary to a clean field string (whole euro when possible).
+  function formatSalary(n) {
+    var r = Math.round(n * 100) / 100;
+    return (r % 1 === 0) ? String(r) : r.toFixed(2);
+  }
+  // Switch the salary input's unit, converting the entered figure so the real
+  // salary is preserved (5,250 / month <-> 63,000 / year). Results stay monthly.
+  function setUnit(newUnit) {
+    if (newUnit !== 'year' && newUnit !== 'month') return;
+    if (newUnit === bnUnit) return;
+    var v = num(els.bnSalary.value);
+    if (isFinite(v) && v > 0) {
+      var monthly = (bnUnit === 'year') ? v / 12 : v;
+      els.bnSalary.value = formatSalary(newUnit === 'year' ? monthly * 12 : monthly);
+    }
+    bnUnit = newUnit;
+    updateUnitSeg();
+    compute();
+  }
 
   /* ---------------- persistence ---------------- */
   function persist(result) {
@@ -196,7 +215,11 @@
     els.bnState.addEventListener('change', function () { userTouched = true; compute(); });
     els.bnPState.addEventListener('change', function () { userTouched = true; compute(); });
     els.bnUnitSeg.querySelectorAll('.seg-btn').forEach(function (b) {
-      b.addEventListener('click', function () { userTouched = true; bnUnit = b.getAttribute('data-unit'); updateUnitSeg(); compute(); });
+      b.addEventListener('click', function () {
+        if (b.getAttribute('data-unit') === bnUnit) return;
+        userTouched = true;
+        setUnit(b.getAttribute('data-unit'));
+      });
     });
 
     AIO.onRate(renderConvOnly);
