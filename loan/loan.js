@@ -15,7 +15,7 @@
   var baseStd = null; // { P, rate, r, nMonths, emi, totalPaid, totalInterest }
 
   function $(id) { return document.getElementById(id); }
-  function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
+  function num(v) { return AIO.parseNumber(v); } // sanitizes thousands separators
   function val(id) { return num(els[id].value); }
   function m(n) { return AIO.formatAmount(n); }
   function show(el, on) { if (el) el.hidden = !on; }

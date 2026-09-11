@@ -378,9 +378,8 @@ input::placeholder{color:var(--muted-2);}
   border-bottom:1px solid var(--line);
 }
 .nw-row label{font-size:14px;color:var(--text);min-width:0;}
-.nw-row input{padding:8px 11px;min-width:0;}
-.nw-row input[type="number"]{width:100%;text-align:right;font-variant-numeric:tabular-nums;}
-.nw-row input[type="text"]{width:100%;}
+.nw-row input{padding:8px 11px;min-width:0;width:100%;}
+.nw-row input.amt{text-align:right;font-variant-numeric:tabular-nums;}
 .nw-subtotal{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);padding-top:10px;font-variant-numeric:tabular-nums;}
 .nw-subtotal .amt{color:var(--text);font-weight:600;}
 
@@ -454,7 +453,7 @@ select.field-select:focus-visible{outline:2px solid var(--accent);outline-offset
 
 /* ---------- loan: tenure row, amortization + compare tables ---------- */
 .tenure-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
-.tenure-row input[type="number"]{flex:1;min-width:90px;}
+.tenure-row input{flex:1;min-width:90px;}
 
 .amort-scroll{overflow-x:auto;margin-top:4px;}
 .amort-table{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums;}

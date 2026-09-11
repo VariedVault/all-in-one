@@ -16,7 +16,7 @@
   var userTouched = false;  // set once the user changes any field; gates the homepage dashboard
 
   function $(id) { return document.getElementById(id); }
-  function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
+  function num(v) { return AIO.parseNumber(v); } // sanitizes thousands separators
 
   function updateActive() {
     var btns = els.seg.querySelectorAll('.seg-btn');
@@ -37,7 +37,7 @@
 
   function onCustom() {
     userTouched = true;
-    var m = parseInt(els.custom.value, 10);
+    var m = Math.floor(AIO.parseNumber(els.custom.value)); // sanitizes thousands separators; months are whole
     if (els.custom.value.trim() !== '' && isFinite(m) && m > 0) {
       months = m;
       isCustom = true;

@@ -44,6 +44,34 @@
   // Rough offline fallbacks (EUR -> X), only used if the fetch fails with no cache.
   var FALLBACK_RATES = { EUR: 1, USD: 1.08, GBP: 0.85, INR: 110, JPY: 170, CNY: 7.8, AUD: 1.65, CAD: 1.48, CHF: 0.95, SGD: 1.45 };
 
+  /* ---------------- numeric input parsing ----------------
+     Accept the same number format the site DISPLAYS: comma = thousands, dot =
+     decimal (English convention). So "50,000" -> 50000 and "50,000.50" -> 50000.50.
+     A dot is only treated as a thousands separator when it is unambiguous:
+     multiple dots (European "1.234.567"), or a single dot with exactly 3 trailing
+     digits ("50.000" -> 50000). A single dot otherwise stays a decimal ("50.5"). */
+  function parseFormattedNumber(v) {
+    if (v == null) return NaN;
+    var s = String(v).trim().replace(/\s/g, '');
+    if (s === '') return NaN;
+    var hasComma = s.indexOf(',') !== -1;
+    var hasDot = s.indexOf('.') !== -1;
+    if (hasComma) {
+      // comma = thousands (also strips it when a dot decimal is present)
+      s = s.replace(/,/g, '');
+    } else if (hasDot) {
+      var dots = (s.match(/\./g) || []).length;
+      if (dots > 1) {
+        s = s.replace(/\./g, '');                 // European thousands: 1.234.567
+      } else if (/^-?\d{1,3}\.\d{3}$/.test(s)) {
+        s = s.replace(/\./g, '');                 // single dot + exactly 3 digits: 50.000
+      }
+      // otherwise a single dot stays a decimal point (50.5, 1234.56)
+    }
+    var n = parseFloat(s);
+    return isFinite(n) ? n : NaN;
+  }
+
   /* ---------------- localStorage helpers ---------------- */
   function save(key, obj) {
     try { localStorage.setItem(key, JSON.stringify(obj)); } catch (e) {}
@@ -270,6 +298,7 @@
     formatEUR: formatEUR,
     formatAmount: formatAmount,
     formatINR: formatAmount, // backward-compatible alias (now formats in the selected currency)
+    parseNumber: parseFormattedNumber,
     save: save,
     load: load,
     onRate: onRate,

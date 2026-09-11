@@ -16,7 +16,7 @@
   var userTouched = false;   // set once the user changes any field; gates the homepage dashboard
 
   function $(id) { return document.getElementById(id); }
-  function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
+  function num(v) { return AIO.parseNumber(v); } // sanitizes thousands separators
   function opt(v, dflt) { return v.trim() === '' ? dflt : num(v); }
 
   // Smallest number of years for (netWorth compounded + monthly contributions
@@ -141,8 +141,8 @@
   // Reuse the pension calculator's stored "leave Germany" assumptions for a rupee view.
   function renderIndia() {
     var pen = AIO.load('aio:pension') || {};
-    var leaveYear = pen.leaveYear != null && String(pen.leaveYear).trim() !== '' ? parseFloat(pen.leaveYear) : NaN;
-    var infl = pen.indiaInflation != null && String(pen.indiaInflation).trim() !== '' ? parseFloat(pen.indiaInflation) : 7;
+    var leaveYear = pen.leaveYear != null && String(pen.leaveYear).trim() !== '' ? AIO.parseNumber(pen.leaveYear) : NaN;
+    var infl = pen.indiaInflation != null && String(pen.indiaInflation).trim() !== '' ? AIO.parseNumber(pen.indiaInflation) : 7;
     if (!isFinite(infl) || infl < 0) infl = 7;
 
     var hasLeave = isFinite(leaveYear);

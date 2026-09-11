@@ -19,7 +19,7 @@
   var lastPrimaryNetto = null, lastHouseholdNetto = null;
 
   function $(id) { return document.getElementById(id); }
-  function num(v) { var n = parseFloat(v); return isFinite(n) ? n : NaN; }
+  function num(v) { return AIO.parseNumber(v); } // sanitizes thousands separators
   function eur(n) { return AIO.formatEUR(n); }
   function show(el, on) { if (el) el.hidden = !on; }
   function setPreview(el, text, empty) { el.textContent = text; el.classList.toggle('empty', !!empty); }

@@ -28,34 +28,34 @@
 
         <div class="field">
           <label for="birthYear">Birth year</label>
-          <input type="number" id="birthYear" inputmode="numeric" placeholder="1990" min="1930" max="2025">
+          <input type="text" id="birthYear" inputmode="numeric" placeholder="1990" min="1930" max="2025">
         </div>
 
         <div class="field">
           <label for="retireAge">Retirement age</label>
-          <input type="number" id="retireAge" inputmode="numeric" value="67" min="55" max="75">
+          <input type="text" id="retireAge" inputmode="numeric" value="67" min="55" max="75">
           <span class="hint">The standard statutory retirement age is currently 67.</span>
         </div>
 
         <div class="field">
           <label for="salary">Current gross annual salary (€) <span class="info"><button type="button" class="info-icon" aria-label="About the contribution ceiling" aria-expanded="false">i</button><span class="info-pop" role="tooltip">The maximum yearly salary that counts toward your pension points (Beitragsbemessungsgrenze); earning more than this doesn't earn additional points.</span></span></label>
-          <input type="number" id="salary" inputmode="numeric" placeholder="55000" min="0" step="100">
+          <input type="text" id="salary" inputmode="numeric" placeholder="55000" min="0" step="100">
         </div>
 
         <div class="field">
           <label for="careerStart">Career start year</label>
-          <input type="number" id="careerStart" inputmode="numeric" placeholder="2014" min="1940" max="2030">
+          <input type="text" id="careerStart" inputmode="numeric" placeholder="2014" min="1940" max="2030">
           <span class="hint">The first year you started paying into the pension insurance.</span>
         </div>
 
         <div class="field">
           <label for="growth">Expected annual salary growth (%) <span class="de-term">optional · default 0</span></label>
-          <input type="number" id="growth" inputmode="decimal" value="0" step="0.1">
+          <input type="text" id="growth" inputmode="decimal" value="0" step="0.1">
         </div>
 
         <div class="field">
           <label for="override">Known pension points <span class="info"><button type="button" class="info-icon" aria-label="About pension points" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Germany's state pension is calculated in points, not currency (Entgeltpunkte). Earning the average national salary in a year = 1 point. Your total points times the current point value determines your pension.</span></span> <span class="de-term">optional, from your official Renteninformation letter</span></label>
-          <input type="number" id="override" inputmode="decimal" placeholder="e.g. 18.4" min="0" step="0.01">
+          <input type="text" id="override" inputmode="decimal" placeholder="e.g. 18.4" min="0" step="0.01">
           <span class="hint">If filled, we use this as your points so far and add estimated points for future years until retirement, instead of estimating your whole career from the career start year.</span>
         </div>
       </section>
@@ -123,11 +123,11 @@
           <div>
             <div class="field">
               <label for="leaveYear">Year you plan to leave Germany</label>
-              <input type="number" id="leaveYear" inputmode="numeric" placeholder="2030" min="1950" max="2100">
+              <input type="text" id="leaveYear" inputmode="numeric" placeholder="2030" min="1950" max="2100">
             </div>
             <div class="field">
               <label for="indiaInflation">Inflation rate (%)</label>
-              <input type="number" id="indiaInflation" inputmode="decimal" value="7" step="0.1" min="0">
+              <input type="text" id="indiaInflation" inputmode="decimal" value="7" step="0.1" min="0">
               <span class="hint">Used to discount the future value to today's purchasing power.</span>
             </div>
           </div>
@@ -188,11 +188,11 @@
           <div>
             <div class="field">
               <label for="privateMonthly">Monthly contribution (€)</label>
-              <input type="number" id="privateMonthly" inputmode="numeric" placeholder="200" min="0" step="10">
+              <input type="text" id="privateMonthly" inputmode="numeric" placeholder="200" min="0" step="10">
             </div>
             <div class="field">
               <label for="privateReturn">Expected annual return (%)</label>
-              <input type="number" id="privateReturn" inputmode="decimal" value="6" step="0.1" min="0">
+              <input type="text" id="privateReturn" inputmode="decimal" value="6" step="0.1" min="0">
             </div>
             <div class="field">
               <label>Years until retirement</label>

@@ -27,18 +27,18 @@
         <h2>Loan details</h2>
         <div class="field">
           <label for="stdAmount">Loan amount</label>
-          <input type="number" id="stdAmount" inputmode="numeric" placeholder="20000" min="0" step="100">
+          <input type="text" id="stdAmount" inputmode="numeric" placeholder="20000" min="0" step="100">
         </div>
         <div class="field">
           <label for="stdRate">Effective interest rate (%)
             <span class="info"><button type="button" class="info-icon" aria-label="What is the effective interest rate?" aria-expanded="false">i</button><span class="info-pop" role="tooltip">Includes all fees and costs, unlike the base rate some banks quote separately (Sollzins in German). Use this figure to directly compare loan offers.</span></span>
           </label>
-          <input type="number" id="stdRate" inputmode="decimal" placeholder="8" min="0" step="0.1">
+          <input type="text" id="stdRate" inputmode="decimal" placeholder="8" min="0" step="0.1">
         </div>
         <div class="field">
           <label for="stdTenure">Tenure</label>
           <div class="tenure-row">
-            <input type="number" id="stdTenure" inputmode="numeric" placeholder="5" min="0" step="1">
+            <input type="text" id="stdTenure" inputmode="numeric" placeholder="5" min="0" step="1">
             <div class="seg" id="stdUnitSeg" role="group" aria-label="Tenure unit">
               <button type="button" class="seg-btn active" data-unit="years">Years</button>
               <button type="button" class="seg-btn" data-unit="months">Months</button>
@@ -110,7 +110,7 @@
           <div>
             <div class="field">
               <label for="xtraStdMonthly">Extra payment per month</label>
-              <input type="number" id="xtraStdMonthly" inputmode="numeric" placeholder="100" min="0" step="10">
+              <input type="text" id="xtraStdMonthly" inputmode="numeric" placeholder="100" min="0" step="10">
             </div>
           </div>
           <div aria-live="polite">
@@ -144,16 +144,16 @@
           <div>
             <div class="field">
               <label for="cmpStdAmount">Loan B amount</label>
-              <input type="number" id="cmpStdAmount" inputmode="numeric" placeholder="20000" min="0" step="100">
+              <input type="text" id="cmpStdAmount" inputmode="numeric" placeholder="20000" min="0" step="100">
             </div>
             <div class="field">
               <label for="cmpStdRate">Loan B effective interest rate (%)</label>
-              <input type="number" id="cmpStdRate" inputmode="decimal" placeholder="7" min="0" step="0.1">
+              <input type="text" id="cmpStdRate" inputmode="decimal" placeholder="7" min="0" step="0.1">
             </div>
             <div class="field">
               <label for="cmpStdTenure">Loan B tenure</label>
               <div class="tenure-row">
-                <input type="number" id="cmpStdTenure" inputmode="numeric" placeholder="5" min="0" step="1">
+                <input type="text" id="cmpStdTenure" inputmode="numeric" placeholder="5" min="0" step="1">
                 <div class="seg" id="cmpStdUnitSeg" role="group" aria-label="Loan B tenure unit">
                   <button type="button" class="seg-btn active" data-unit="years">Years</button>
                   <button type="button" class="seg-btn" data-unit="months">Months</button>

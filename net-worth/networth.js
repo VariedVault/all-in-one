@@ -21,7 +21,7 @@
   function numVal(el) {
     var v = el.value;
     if (v.trim() === '') return 0;
-    var n = parseFloat(v);
+    var n = AIO.parseNumber(v); // sanitizes thousands separators
     return isFinite(n) ? n : 0;
   }
   function sumFixed(ids) { var t = 0; for (var i = 0; i < ids.length; i++) t += numVal(els[ids[i]]); return t; }
@@ -51,7 +51,8 @@
     if (label != null) labelEl.value = label;
 
     var amtEl = document.createElement('input');
-    amtEl.type = 'number';
+    amtEl.type = 'text';
+    amtEl.className = 'amt';
     amtEl.inputMode = 'numeric';
     amtEl.placeholder = '0';
     amtEl.step = '100';
