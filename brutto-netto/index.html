@@ -3,9 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Brutto/Netto Calculator · All-in-One</title>
+<title>Brutto/Netto Calculator · KnowMyMoney</title>
 <meta name="description" content="Estimate your German net salary (Netto) from gross (Brutto) for any Steuerklasse: income tax, solidarity surcharge, church tax and social insurance. Runs entirely in your browser.">
 <meta name="theme-color" content="#0b0b0c">
+<link rel="canonical" href="https://knowmymoney.de/brutto-netto/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="KnowMyMoney">
+<meta property="og:title" content="Brutto/Netto Calculator · KnowMyMoney">
+<meta property="og:description" content="Estimate your German net salary (Netto) from gross (Brutto) for any Steuerklasse: income tax, solidarity surcharge, church tax and social insurance. Runs entirely in your browser.">
+<meta property="og:url" content="https://knowmymoney.de/brutto-netto/">
+<meta property="og:image" content="https://knowmymoney.de/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Brutto/Netto Calculator · KnowMyMoney">
+<meta name="twitter:description" content="Estimate your German net salary (Netto) from gross (Brutto) for any Steuerklasse: income tax, solidarity surcharge, church tax and social insurance. Runs entirely in your browser.">
+<meta name="twitter:image" content="https://knowmymoney.de/icons/icon-512.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KnowMyMoney">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -142,12 +158,13 @@
     </details>
 
     <div class="disclaimer">
-      <strong>Simplified approximation, not the official Lohnsteuer PAP formula.</strong>
-      It uses the same piecewise-linear §32a tax approximation as the pension calculator, applies the Grundfreibetrag per
-      tax class (doubled for III, none for V/VI) and a Vorsorgepauschale approximated by your social insurance contributions.
-      It does <em>not</em> account for the Kinderfreibetrag in the tax calculation itself, private health insurance (PKV), or
-      other individual circumstances. Social insurance uses the 2026 employee rates and ceilings. For planning direction, not
-      payroll or filing accuracy.
+      <strong>Income tax uses the exact official §32a EStG tariff for 2026.</strong>
+      The Lohnsteuer applies the standard tariff for classes I, II and IV, the splitting method for III, and the
+      no-allowance variant for V and VI, over your income after a Vorsorgepauschale (your pension, health and care
+      contributions). It does <em>not</em> account for the Kinderfreibetrag in the tax calculation itself, private health
+      insurance (PKV), or other individual circumstances, and it uses the average health-insurance Zusatzbeitrag rather than
+      your fund's exact rate, so results can differ from a payslip by a euro or two. Social insurance uses the 2026 employee
+      rates and ceilings. For planning direction, not payroll or filing accuracy.
     </div>
   </div>
 </main>

@@ -14,14 +14,15 @@
   var MAX_MONTHS = 1200; // 100 years cap
   // Editable starter rows. Not mandatory: the user can change or remove them.
   var STARTER = [
-    { name: 'Index funds / ETFs', amount: '', rate: '7' },
-    { name: 'Fixed deposits', amount: '', rate: '3' }
+    { name: 'Stocks', amount: '', rate: '7' },
+    { name: 'ETFs', amount: '', rate: '7' }
   ];
   var els = {};
   var investments = [];      // [{ nameEl, amtEl, rateEl, row }]
   var lastFireNumber = null; // for the converted view
   var lastYears = null;
   var userTouched = false;   // set once the user changes anything; gates the homepage dashboard
+  var sharedView = false;    // true when prefilled from URL params: don't persist until the user edits
 
   function $(id) { return document.getElementById(id); }
   function num(v) { return AIO.parseNumber(v); } // sanitizes thousands separators
@@ -139,6 +140,8 @@
   }
 
   function compute() {
+    // Once the visitor edits a shared plan it becomes their own: drop the banner.
+    if (userTouched && els.fireSharedNote) els.fireSharedNote.hidden = true;
     var currentAge = num(els.fireCurrentAge.value);
     var targetAge = num(els.fireTargetAge.value);
     var expenses = num(els.fireExpenses.value);
@@ -287,11 +290,15 @@
     return out;
   }
   function persist(result) {
+    // Viewing someone else's shared link must never overwrite the user's own
+    // saved FIRE data until they actually edit something (userTouched).
+    if (sharedView && !userTouched) return;
     var s = { result: result, touched: userTouched, investments: serializeInvestments() };
     FIELDS.forEach(function (k) { s[k] = els[k].value; });
     AIO.save(KEY, s);
   }
   function persistNull() {
+    if (sharedView && !userTouched) return;
     var s = { result: null, touched: userTouched, investments: serializeInvestments() };
     FIELDS.forEach(function (k) { s[k] = els[k].value; });
     AIO.save(KEY, s);
@@ -314,23 +321,80 @@
     for (var i = 0; i < STARTER.length; i++) addInvestment(STARTER[i].name, STARTER[i].amount, STARTER[i].rate);
   }
 
+  /* ---------------- shareable links (see shared/share.js) ---------------- */
+  // Map short URL keys <-> field ids to keep shared links compact and readable.
+  var SHARE_MAP = { age: 'fireCurrentAge', fireage: 'fireTargetAge', expenses: 'fireExpenses', networth: 'fireNetWorth', wr: 'fireWithdrawal' };
+
+  // Build the full shareable URL from whatever is currently entered.
+  function currentShareUrl() {
+    var parts = [];
+    Object.keys(SHARE_MAP).forEach(function (key) {
+      var v = els[SHARE_MAP[key]].value;
+      if (v != null && String(v).trim() !== '') parts.push(key + '=' + encodeURIComponent(v));
+    });
+    var inv = [];
+    for (var i = 0; i < investments.length; i++) {
+      inv.push({ n: investments[i].nameEl.value, a: investments[i].amtEl.value, r: investments[i].rateEl.value });
+    }
+    if (inv.length) parts.push('inv=' + AIOShare.b64encode(inv));
+    var base = location.origin + location.pathname;
+    return parts.length ? base + '?' + parts.join('&') : base;
+  }
+
+  // Read share params from the URL. Returns an object or null if none present.
+  function readShareParams() {
+    if (!location.search || location.search.length < 2) return null;
+    var q = new URLSearchParams(location.search);
+    var found = false, out = { fields: {}, investments: null };
+    Object.keys(SHARE_MAP).forEach(function (key) {
+      if (q.has(key)) { out.fields[SHARE_MAP[key]] = q.get(key); found = true; }
+    });
+    if (q.has('inv')) {
+      var arr = AIOShare.b64decode(q.get('inv'));
+      if (Array.isArray(arr)) { out.investments = arr; found = true; }
+    }
+    return found ? out : null;
+  }
+
+  function applyShareParams(p) {
+    Object.keys(p.fields).forEach(function (id) { if (els[id]) els[id].value = p.fields[id]; });
+    if (p.investments) {
+      for (var i = 0; i < p.investments.length; i++) {
+        var it = p.investments[i] || {};
+        addInvestment(it.n != null ? it.n : '', it.a != null ? it.a : '', it.r != null ? it.r : '');
+      }
+    } else {
+      seedStarterRows();
+    }
+  }
+
   function init() {
     FIELDS.concat(['fireYears', 'fireYearMeta', 'fireNumber', 'fireYear', 'fireMeta', 'fireNwHint',
-                   'fireGrounding', 'fireInvList', 'fireAddBtn',
+                   'fireGrounding', 'fireInvList', 'fireAddBtn', 'fireShare', 'fireSharedNote',
                    'fireMultiples', 'fire25', 'fire30', 'fire35',
                    'fireIndiaBlock', 'fireIndiaNote', 'fireIndiaNominal', 'fireIndiaReal', 'fireCurCode']).forEach(function (id) { els[id] = $(id); });
 
-    var firstVisit = !AIO.load(KEY);
-    var hadSavedRows = restore();
-    // Fresh visitor (or a pre-investments backup): show the editable starter rows.
-    if (!hadSavedRows) seedStarterRows();
+    var shared = (typeof AIOShare !== 'undefined') ? readShareParams() : null;
 
-    // First visit only: prefill net worth from the Net Worth calculator if available.
-    if (firstVisit) {
-      var nw = AIO.load('aio:networth');
-      if (nw && nw.result && isFinite(nw.result.totalNetWorth)) {
-        els.fireNetWorth.value = nw.result.totalNetWorth;
-        els.fireNwHint.textContent = 'Pulled from your Net Worth calculator. Edit to override.';
+    if (shared) {
+      // Viewing a shared result: prefill from the URL only, never from (or into)
+      // localStorage until the visitor edits something.
+      sharedView = true;
+      applyShareParams(shared);
+      els.fireSharedNote.hidden = false;
+    } else {
+      var firstVisit = !AIO.load(KEY);
+      var hadSavedRows = restore();
+      // Fresh visitor (or a pre-investments backup): show the editable starter rows.
+      if (!hadSavedRows) seedStarterRows();
+
+      // First visit only: prefill net worth from the Net Worth calculator if available.
+      if (firstVisit) {
+        var nw = AIO.load('aio:networth');
+        if (nw && nw.result && isFinite(nw.result.totalNetWorth)) {
+          els.fireNetWorth.value = nw.result.totalNetWorth;
+          els.fireNwHint.textContent = 'Pulled from your Net Worth calculator. Edit to override.';
+        }
       }
     }
 
@@ -339,6 +403,18 @@
       userTouched = true;
       addInvestment('', '', '').nameEl.focus();
     });
+
+    // Mount the reusable share row.
+    if (typeof AIOShare !== 'undefined') {
+      AIOShare.mount({
+        container: els.fireShare,
+        getUrl: currentShareUrl,
+        shareText: 'Check out my FIRE plan',
+        redditTitle: 'My FIRE plan, calculated with KnowMyMoney',
+        instagramNote: 'Paste this in your bio or story'
+      });
+    }
+
     AIO.onRate(renderIndia);
     compute();
   }

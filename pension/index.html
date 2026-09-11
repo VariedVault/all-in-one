@@ -3,9 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>German Pension Calculator · All-in-One</title>
+<title>German Pension Calculator · KnowMyMoney</title>
 <meta name="description" content="Estimate your German statutory monthly gross pension from your salary history and Entgeltpunkte. Runs entirely in your browser.">
 <meta name="theme-color" content="#0b0b0c">
+<link rel="canonical" href="https://knowmymoney.de/pension/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="KnowMyMoney">
+<meta property="og:title" content="German Pension Calculator · KnowMyMoney">
+<meta property="og:description" content="Estimate your German statutory monthly gross pension from your salary history and Entgeltpunkte. Runs entirely in your browser.">
+<meta property="og:url" content="https://knowmymoney.de/pension/">
+<meta property="og:image" content="https://knowmymoney.de/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="German Pension Calculator · KnowMyMoney">
+<meta name="twitter:description" content="Estimate your German statutory monthly gross pension from your salary history and Entgeltpunkte. Runs entirely in your browser.">
+<meta name="twitter:image" content="https://knowmymoney.de/icons/icon-512.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KnowMyMoney">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -86,7 +102,7 @@
           <p class="result-label" style="margin-top:18px">Net monthly pension <span class="de-term">after estimated income tax</span></p>
           <div class="result-big" id="net">–</div>
 
-          <p class="caveat">Assumes the pension is your only income and you file as single (no Splittingtarif). Other income, marital status, or church tax will change this. Simplified tax approximation, not the exact BMF formula. For planning direction, not filing.</p>
+          <p class="caveat">Assumes the pension is your only income and you file as single (no Splittingtarif). Other income, marital status, or church tax will change this. Uses the exact official §32a EStG 2026 tax tariff. For planning direction, not filing.</p>
         </div>
 
         <p class="hint" id="meta" style="margin-top:14px">Fill in your birth year, retirement age, salary and career start to see an estimate.</p>
@@ -97,8 +113,8 @@
       <strong>This is a rough, simplified estimate, not an official forecast.</strong>
       It multiplies your accumulated pension points (Entgeltpunkte) by today's pension value
       (aktueller Rentenwert, €<span id="rw"></span>) and assumes a constant salary (adjusted only by any growth rate you enter)
-      and a constant average wage. The net figures apply a flat 11.5% health and care deduction and a
-      simplified, piecewise-linear approximation of the 2026 income tax tariff (§32a EStG), not the exact BMF formula.
+      and a constant average wage. The net figures apply a flat 11.5% health and care deduction and the
+      exact official 2026 income tax tariff (§32a EStG), assuming the pension is your only income and single assessment.
       It does <em>not</em> account for future changes to the Rentenwert or average wage,
       contribution gaps, part-time periods, child-rearing credits (Kindererziehungszeiten), disability, the pension
       tax-free portion (Rentenfreibetrag), voluntary contributions, or deductions for retiring early. For real numbers,

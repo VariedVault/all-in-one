@@ -1,72 +1,80 @@
 /* ---------------------------------------------------------------------------
-   Simplified German income tax (Einkommensteuer), 2026.
+   German income tax (Einkommensteuer) per §32a EStG, EXACT tariff for 2026.
 
-   A deliberately SIMPLIFIED, piecewise-LINEAR approximation of the §32a EStG
-   tariff, NOT the exact BMF quadratic formula. Within each progression zone the
-   marginal rate is treated as rising linearly, and total tax is the integral of
-   the marginal rate across the taxable income (zvE).
+   This is the official Bundesministerium der Finanzen zone formula for the
+   Veranlagungszeitraum 2026 (not a linear approximation). The taxable income
+   (zvE) is rounded down to a full euro, the tariff applied, and the result
+   rounded down to a full euro, exactly as the statute prescribes.
 
-   The tariff is defined by a tax-free allowance (Grundfreibetrag) followed by
-   progression zones of fixed WIDTH. estimateIncomeTax(zvE, gf) lets the caller
-   override the allowance (used by the Brutto/Netto calculator per Steuerklasse:
-   doubled for III, zero for V/VI); it defaults to the standard 2026 value so the
-   Pension calculator keeps its existing behaviour.
-
-   Zones (standard gf = 12,348):
+   Zones (standard Grundfreibetrag 12,348):
      zvE <= 12,348            -> 0
-     12,349 .. 17,799         -> marginal 14% rising linearly to ~24%
-     17,800 .. 69,878         -> marginal ~24% rising linearly to 42%
-     69,879 .. 277,825        -> flat 42%
-     >= 277,826               -> flat 45%
+     12,349 .. 17,799         -> (914.51 * y + 1400) * y,      y = (zvE-12348)/10000
+     17,800 .. 69,878         -> (173.10 * z + 2397) * z + 1034.87, z = (zvE-17799)/10000
+     69,879 .. 277,825        -> 0.42 * zvE - 11135.63
+     >= 277,826               -> 0.45 * zvE - 19470.38
+
+   estimateIncomeTax(zvE, gf) keeps its original signature: with the default
+   (standard) Grundfreibetrag it returns the exact official tariff; when a
+   different allowance is passed (e.g. 0 for Steuerklasse V/VI) the same zone
+   shape is shifted to that allowance. Steuerklasse III uses the exact splitting
+   method via taxSplitting(). Coefficients confirmed against gesetze-im-internet.de
+   and buzer.de for VZ 2026.
 --------------------------------------------------------------------------- */
 (function () {
   'use strict';
 
   var GRUNDFREIBETRAG_DEFAULT = 12348;
+  // Progression-zone widths (independent of the allowance).
+  var W1 = 5451;    // 17799 - 12348
+  var W2 = 52079;   // 69878 - 17799
+  var W3 = 207947;  // 277825 - 69878
 
-  // Progression-zone widths (relative to the allowance) and their marginal rates.
-  var W1 = 5451;    // 17799 - 12348: marginal 14% -> 24%
-  var W2 = 52079;   // 69878 - 17799: marginal 24% -> 42%
-  var W3 = 207947;  // 277825 - 69878: flat 42%
-  var R_START = 0.14;
-  var R_MID = 0.24;
-  var R_TOP = 0.42;
-  var R_RICH = 0.45;
+  function floorEuro(n) { return n > 0 ? Math.floor(n) : 0; }
 
-  // Tax accrued in a zone [lo, hi] whose marginal rate rises linearly rLo -> rHi,
-  // integrated from lo up to x. Exact for a linear rate: average rate times width.
-  function zoneLinear(lo, hi, rLo, rHi, x) {
-    var dx = x - lo;
-    if (dx <= 0) return 0;
-    var rAtX = rLo + (rHi - rLo) * (dx / (hi - lo));
-    return (rLo + rAtX) / 2 * dx;
+  // Exact official §32a tariff for 2026 with the standard Grundfreibetrag.
+  function taxStandard(zvE) {
+    zvE = Math.floor(zvE);
+    if (zvE <= 12348) return 0;
+    if (zvE <= 17799) { var y = (zvE - 12348) / 10000; return floorEuro((914.51 * y + 1400) * y); }
+    if (zvE <= 69878) { var z = (zvE - 17799) / 10000; return floorEuro((173.10 * z + 2397) * z + 1034.87); }
+    if (zvE <= 277825) return floorEuro(0.42 * zvE - 11135.63);
+    return floorEuro(0.45 * zvE - 19470.38);
   }
 
-  // Annual income tax for a taxable income (zvE), with an optional Grundfreibetrag
-  // (defaults to the standard 2026 allowance). The zones shift with the allowance.
+  // Splitting tariff (Steuerklasse III / joint assessment): tax half the income
+  // under the basic tariff, then double. This is the exact PAP method.
+  function taxSplitting(zvE) {
+    zvE = Math.floor(zvE);
+    return 2 * taxStandard(Math.floor(zvE / 2));
+  }
+
+  // Same zone shape shifted to an arbitrary allowance `gf`. Used for the
+  // Steuerklasse V/VI approximation (gf = 0, i.e. no basic allowance). The zone
+  // constants are derived from continuity so the curve stays smooth. For the
+  // standard allowance we defer to taxStandard() to stay exactly on the statute.
+  function taxShifted(zvE, gf) {
+    zvE = Math.floor(zvE);
+    if (zvE <= gf) return 0;
+    var b1 = gf + W1, b2 = gf + W1 + W2, b3 = gf + W1 + W2 + W3;
+    if (zvE <= b1) { var y = (zvE - gf) / 10000; return floorEuro((914.51 * y + 1400) * y); }
+    var e1 = (914.51 * (W1 / 10000) + 1400) * (W1 / 10000);           // zone1 at its top
+    if (zvE <= b2) { var z = (zvE - b1) / 10000; return floorEuro((173.10 * z + 2397) * z + e1); }
+    var e2 = (173.10 * (W2 / 10000) + 2397) * (W2 / 10000) + e1;      // zone2 at its top
+    if (zvE <= b3) return floorEuro(0.42 * (zvE - b2) + e2);
+    var e3 = 0.42 * W3 + e2;                                          // zone3 at its top
+    return floorEuro(0.45 * (zvE - b3) + e3);
+  }
+
+  // Annual income tax for a taxable income (zvE). With the default/standard
+  // Grundfreibetrag this is the exact official tariff; a different allowance
+  // shifts the same zones (used for Steuerklasse V/VI with gf = 0).
   function estimateIncomeTax(zvE, gf) {
     if (gf == null || !isFinite(gf) || gf < 0) gf = GRUNDFREIBETRAG_DEFAULT;
-    if (!(zvE > gf)) return 0;
-
-    var b1 = gf + W1, b2 = gf + W1 + W2, b3 = gf + W1 + W2 + W3;
-    var tax = 0;
-
-    var x = Math.min(zvE, b1);
-    tax += zoneLinear(gf, b1, R_START, R_MID, x);
-    if (zvE <= b1) return tax;
-
-    x = Math.min(zvE, b2);
-    tax += zoneLinear(b1, b2, R_MID, R_TOP, x);
-    if (zvE <= b2) return tax;
-
-    x = Math.min(zvE, b3);
-    tax += R_TOP * (x - b2);
-    if (zvE <= b3) return tax;
-
-    tax += R_RICH * (zvE - b3);
-    return tax;
+    if (gf === GRUNDFREIBETRAG_DEFAULT) return taxStandard(zvE);
+    return taxShifted(zvE, gf);
   }
 
   window.estimateIncomeTax = estimateIncomeTax;
+  window.taxSplitting = taxSplitting;
   window.GRUNDFREIBETRAG_DEFAULT = GRUNDFREIBETRAG_DEFAULT;
 })();

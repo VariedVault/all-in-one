@@ -189,8 +189,8 @@
       try { data[k] = JSON.parse(raw); } catch (e) { data[k] = raw; }
     });
     if (Object.keys(data).length === 0) { setMsg('Nothing to export yet.', 'err'); return; }
-    var payload = { app: 'all-in-one', type: 'all-in-one-data', version: 1, exportedAt: new Date().toISOString(), data: data };
-    downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), 'all-in-one-data-' + todayStr() + '.json');
+    var payload = { app: 'knowmymoney', type: 'knowmymoney-data', version: 1, exportedAt: new Date().toISOString(), data: data };
+    downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' }), 'knowmymoney-data-' + todayStr() + '.json');
     setMsg('Exported your data.', 'ok');
   }
 
@@ -202,9 +202,11 @@
       try { payload = JSON.parse(reader.result); }
       catch (e) { setMsg('That file is not valid JSON.', 'err'); return; }
       var looksRight = payload && typeof payload === 'object' &&
-        (payload.app === 'all-in-one' || payload.type === 'all-in-one-data') &&
+        // accept both the new brand and older 'all-in-one' backups
+        (payload.app === 'knowmymoney' || payload.type === 'knowmymoney-data' ||
+         payload.app === 'all-in-one' || payload.type === 'all-in-one-data') &&
         payload.data && typeof payload.data === 'object';
-      if (!looksRight) { setMsg('That does not look like an All-in-One backup file.', 'err'); return; }
+      if (!looksRight) { setMsg('That does not look like a KnowMyMoney backup file.', 'err'); return; }
 
       var written = 0;
       Object.keys(payload.data).forEach(function (k) {
@@ -226,17 +228,34 @@
     location.reload(); // back to the empty homepage state
   }
 
+  // A branded attribution bar appended into the capture itself so it's part of
+  // the PNG (not a separate overlay). Removed again right after rendering.
+  function makeBrandFooter() {
+    var bar = document.createElement('div');
+    bar.className = 'export-brand';
+    bar.innerHTML =
+      '<div class="export-brand-name"><span class="export-brand-dot">●</span> KnowMyMoney</div>' +
+      '<div class="export-brand-domain">knowmymoney.de</div>' +
+      '<div class="export-brand-tag">Free financial calculators, no accounts, no backend</div>';
+    return bar;
+  }
+
   function exportImage() {
     var target = document.getElementById('dashCapture');
     var btn = document.getElementById('exportImgBtn');
     if (!target || typeof html2canvas === 'undefined') { setMsg('Image export is unavailable.', 'err'); return; }
     if (btn) { btn.disabled = true; btn.textContent = 'Rendering…'; }
+    var footer = makeBrandFooter();
+    target.appendChild(footer);
+    function cleanup() { if (footer.parentNode) footer.parentNode.removeChild(footer); }
     html2canvas(target, { backgroundColor: '#0b0b0c', scale: 2, logging: false }).then(function (canvas) {
+      cleanup();
       canvas.toBlob(function (blob) {
-        if (blob) downloadBlob(blob, 'all-in-one-dashboard-' + todayStr() + '.png');
+        if (blob) downloadBlob(blob, 'knowmymoney-dashboard-' + todayStr() + '.png');
         if (btn) { btn.disabled = false; btn.textContent = 'Export as image'; }
       }, 'image/png');
     }).catch(function () {
+      cleanup();
       if (btn) { btn.disabled = false; btn.textContent = 'Export as image'; }
       setMsg('Could not render the image.', 'err');
     });

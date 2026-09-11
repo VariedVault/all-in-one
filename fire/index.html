@@ -3,9 +3,25 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FIRE Calculator · All-in-One</title>
+<title>FIRE Calculator · KnowMyMoney</title>
 <meta name="description" content="Estimate your FIRE number and how many years until financial independence, based on your savings and expected return. Runs entirely in your browser.">
 <meta name="theme-color" content="#0b0b0c">
+<link rel="canonical" href="https://knowmymoney.de/fire/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="KnowMyMoney">
+<meta property="og:title" content="FIRE Calculator · KnowMyMoney">
+<meta property="og:description" content="Estimate your FIRE number and how many years until financial independence, based on your savings and expected return. Runs entirely in your browser.">
+<meta property="og:url" content="https://knowmymoney.de/fire/">
+<meta property="og:image" content="https://knowmymoney.de/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="FIRE Calculator · KnowMyMoney">
+<meta name="twitter:description" content="Estimate your FIRE number and how many years until financial independence, based on your savings and expected return. Runs entirely in your browser.">
+<meta name="twitter:image" content="https://knowmymoney.de/icons/icon-512.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KnowMyMoney">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -65,6 +81,8 @@
       <section class="panel" aria-label="Your FIRE plan" aria-live="polite">
         <h2>Your FIRE plan</h2>
 
+        <div class="shared-note" id="fireSharedNote" hidden><strong>You're viewing a shared FIRE plan.</strong> Edit any field to make it your own; it won't touch your saved data until you do.</div>
+
         <p class="fire-grounding" id="fireGrounding" hidden></p>
 
         <div class="result-block">
@@ -82,6 +100,8 @@
         </div>
 
         <p class="hint" style="margin-top:12px">This is based on research showing you can typically withdraw about 4% of your savings each year without running out, so your Freedom Number is roughly 25 times your annual expenses.</p>
+
+        <p class="hint" style="margin-top:10px">This isn't a countdown: the money stays invested (for example, in the same funds you built it with) and keeps growing while you withdraw. That's why 4% historically lasts 30+ years, and often indefinitely, though market downturns in the early retirement years carry real risk.</p>
 
         <div class="fire-wr-field">
           <label for="fireWithdrawal">Withdrawal rate (%)</label>
@@ -104,6 +124,8 @@
         </div>
 
         <p class="hint" id="fireMeta" style="margin-top:14px">Fill in your monthly expenses to see your Freedom Number.</p>
+
+        <div id="fireShare"></div>
 
         <!-- Cross-calculator: converted view, reusing the pension "leave Germany" assumptions -->
         <div id="fireIndiaBlock" hidden>
@@ -128,6 +150,7 @@
   </div>
 </main>
 <script src="../shared/app.js" defer></script>
+<script src="../shared/share.js" defer></script>
 <script src="fire.js" defer></script>
 </body>
 </html>

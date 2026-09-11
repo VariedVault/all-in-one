@@ -324,6 +324,17 @@ input::placeholder{color:var(--muted-2);}
 .dash-card .recalc{align-self:flex-start;margin-top:auto;padding-top:16px;font-size:13.5px;font-weight:600;color:var(--accent);}
 .dash-card .recalc:hover{text-decoration:none;color:var(--accent-dim);}
 
+/* Branded attribution bar rendered into the exported PNG (see home.js exportImage).
+   A thin divider sets it apart from the user's data above it. */
+.export-brand{
+  margin-top:22px;padding-top:16px;border-top:1px solid var(--line);
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;
+}
+.export-brand-name{font-size:16px;font-weight:800;letter-spacing:-0.01em;color:var(--text);}
+.export-brand-dot{color:var(--accent);}
+.export-brand-domain{font-size:14px;font-weight:600;color:var(--accent);}
+.export-brand-tag{font-size:12.5px;color:var(--muted);margin-left:auto;}
+
 .synthesis{
   margin-top:20px;background:var(--panel-2);border-radius:var(--radius);
   padding:18px 20px;border-left:3px solid var(--accent);
@@ -466,6 +477,34 @@ input::placeholder{color:var(--muted-2);}
   padding:12px 14px;margin:0 0 18px;color:var(--text);font-size:14.5px;line-height:1.55;
 }
 .fire-multi-mult{color:var(--muted-2);font-size:12px;font-weight:400;}
+
+/* ---------- reusable "Share this result" component (shared/share.js) ---------- */
+.share-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:16px;}
+.share-label{font-size:13px;color:var(--muted);width:100%;}
+.share-btn{
+  display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13.5px;font-weight:600;
+  padding:8px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel-2);
+  color:var(--text);cursor:pointer;transition:border-color .15s ease,color .15s ease;
+}
+.share-btn:hover{border-color:var(--accent);color:var(--accent);}
+.share-btn svg{width:16px;height:16px;flex:none;}
+.share-icons{display:flex;gap:8px;flex-wrap:wrap;}
+.share-icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;
+  border-radius:10px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted);
+  cursor:pointer;transition:border-color .15s ease,color .15s ease,background .15s ease;
+}
+.share-icon-btn svg{width:19px;height:19px;}
+.share-icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.share-msg{font-size:13px;color:var(--accent);opacity:0;transition:opacity .2s ease;width:100%;}
+.share-msg.show{opacity:1;}
+
+/* Banner shown when viewing a shared result (URL-provided, not the user's own data). */
+.shared-note{
+  background:var(--panel-2);border-left:3px solid var(--accent);border-radius:8px;
+  padding:10px 13px;margin:0 0 16px;color:var(--muted);font-size:13.5px;line-height:1.5;
+}
+.shared-note strong{color:var(--text);font-weight:600;}
 
 /* ---------- mode tabs (Single/Married etc.) ---------- */
 .mode-tabs{display:inline-flex;gap:4px;background:var(--panel);border-radius:999px;padding:4px;margin:0 0 28px;flex-wrap:wrap;}

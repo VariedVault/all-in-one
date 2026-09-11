@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-   All-in-One: shared runtime: header, footer, currency selector + rate widget,
+   KnowMyMoney: shared runtime: header, footer, currency selector + rate widget,
    helpers. Plain ES5-ish vanilla JS, no build step. Loaded with `defer` on every page.
 
    Pages declare their directory depth via <body data-depth="0|1"> so links and
@@ -225,7 +225,7 @@
 
     var headerHTML =
       '<header class="site-header"><div class="wrap">' +
-        '<a class="brand" href="' + HOME + '">All-in-One<span class="dot">.</span></a>' +
+        '<a class="brand" href="' + HOME + '">KnowMyMoney<span class="dot">.</span></a>' +
         '<div class="header-right">' +
           '<select class="currency-select" id="currencySelect" aria-label="Display currency">' + options + '</select>' +
           '<div class="rate-pill loading" id="ratePill" aria-live="polite" title="Live exchange rate">' +
@@ -255,11 +255,11 @@
 
   /* ---------------- analytics (GoatCounter, site-wide) ---------------- */
   // Equivalent to placing this before </body> on every page:
-  // <script data-goatcounter="https://all-in-one.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+  // <script data-goatcounter="https://knowmymoney.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
   // (injected as a real element so the script actually executes).
   function injectAnalytics() {
     var s = document.createElement('script');
-    s.setAttribute('data-goatcounter', 'https://all-in-one.goatcounter.com/count');
+    s.setAttribute('data-goatcounter', 'https://knowmymoney.goatcounter.com/count');
     s.async = true;
     s.src = '//gc.zgo.at/count.js';
     document.body.appendChild(s);
@@ -307,8 +307,19 @@
     setCurrency: setCurrency
   };
 
+  /* ---------------- PWA service worker ---------------- */
+  // Registered from the site root so its scope covers every calculator. Only
+  // runs in a secure context (https / localhost); fails silently otherwise.
+  function registerSW() {
+    if (!('serviceWorker' in navigator)) return;
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register(HOME + 'sw.js').catch(function () {});
+    });
+  }
+
   injectChrome();
   injectAnalytics();
   initInfoTips();
   initRate();
+  registerSW();
 })();
