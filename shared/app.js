@@ -242,6 +242,7 @@
         '<nav class="legal-links">' +
           '<a href="' + PREFIX + 'impressum/">Impressum</a>' +
           '<a href="' + PREFIX + 'datenschutz/">Datenschutz</a>' +
+          '<button type="button" class="linklike" id="consentReopen">Cookie settings</button>' +
           '<a href="https://github.com/VariedVault/all-in-one" target="_blank" rel="noopener noreferrer">GitHub</a>' +
         '</nav>' +
       '</div></footer>';
@@ -251,18 +252,124 @@
 
     var sel = document.getElementById('currencySelect');
     if (sel) sel.addEventListener('change', function () { setCurrency(sel.value); });
+
+    var reopen = document.getElementById('consentReopen');
+    if (reopen) reopen.addEventListener('click', function () { showConsentBanner(true); });
   }
 
-  /* ---------------- analytics (GoatCounter, site-wide) ---------------- */
-  // Equivalent to placing this before </body> on every page:
-  // <script data-goatcounter="https://knowmymoney.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
-  // (injected as a real element so the script actually executes).
+  /* ---------------- analytics (GoatCounter) + consent ----------------
+     GoatCounter (and any future advertising script) must not load before the
+     user has consented to that category. We store the choice in localStorage
+     and only inject the counter once analytics consent is granted. Equivalent
+     to placing this before </body> once analytics is allowed:
+     <script data-goatcounter="https://knowmymoney.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script> */
+  var CONSENT_KEY = 'aio:consent';
+  var CONSENT_VERSION = 1;
+  var analyticsLoaded = false;
+
   function injectAnalytics() {
+    if (analyticsLoaded) return;          // load the counter at most once
+    analyticsLoaded = true;
     var s = document.createElement('script');
     s.setAttribute('data-goatcounter', 'https://knowmymoney.goatcounter.com/count');
     s.async = true;
     s.src = '//gc.zgo.at/count.js';
     document.body.appendChild(s);
+  }
+
+  function readConsent() {
+    var c = load(CONSENT_KEY);
+    if (!c || typeof c !== 'object' || c.v !== CONSENT_VERSION) return null;
+    return { analytics: !!c.analytics, advertising: !!c.advertising };
+  }
+  function saveConsent(analytics, advertising) {
+    save(CONSENT_KEY, { v: CONSENT_VERSION, analytics: !!analytics, advertising: !!advertising, ts: Date.now() });
+  }
+
+  // Act on a consent decision. Analytics loads GoatCounter; advertising is
+  // groundwork only (no ad script exists yet, it will read this flag later).
+  function applyConsent(c) {
+    if (c && c.analytics) injectAnalytics();
+    // if (c && c.advertising) { /* future: load AdSense here */ }
+  }
+
+  function buildBanner() {
+    if (document.getElementById('consentBanner')) return;
+    var link = PREFIX + 'datenschutz/';
+    var html =
+      '<div class="consent-banner" id="consentBanner" role="dialog" aria-modal="false" aria-label="Cookie and privacy choices">' +
+        '<div class="consent-inner">' +
+          '<div class="consent-text">' +
+            '<p class="consent-title">Your privacy</p>' +
+            '<p>KnowMyMoney runs in your browser. Essential local storage keeps your calculator inputs on your device (never sent anywhere). ' +
+            'With your consent we also use privacy-friendly analytics (GoatCounter) to count visits, and in the future may show ads (Google AdSense). ' +
+            '<a href="' + link + '">Learn more in our privacy policy</a>.</p>' +
+            '<div class="consent-options" id="consentOptions" hidden>' +
+              '<label class="consent-row"><input type="checkbox" checked disabled> <span><strong>Essential</strong> &mdash; needed for the site to work (your saved inputs). Always on.</span></label>' +
+              '<label class="consent-row"><input type="checkbox" id="consentAnalytics"> <span><strong>Analytics</strong> &mdash; anonymous visit counts via GoatCounter. No cookies, no personal profiles.</span></label>' +
+              '<label class="consent-row"><input type="checkbox" id="consentAds"> <span><strong>Advertising</strong> &mdash; Google AdSense. Not active yet; this only records your preference for the future.</span></label>' +
+            '</div>' +
+          '</div>' +
+          '<div class="consent-actions">' +
+            '<button type="button" class="consent-btn primary" id="consentAccept">Accept all</button>' +
+            '<button type="button" class="consent-btn" id="consentReject">Reject non-essential</button>' +
+            '<button type="button" class="consent-btn ghost" id="consentCustomize">Customize</button>' +
+            '<button type="button" class="consent-btn primary" id="consentSave" hidden>Save choices</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    document.body.insertAdjacentHTML('beforeend', html);
+
+    document.getElementById('consentAccept').addEventListener('click', function () { decide(true, true); });
+    document.getElementById('consentReject').addEventListener('click', function () { decide(false, false); });
+    document.getElementById('consentCustomize').addEventListener('click', openCustomize);
+    document.getElementById('consentSave').addEventListener('click', function () {
+      decide(document.getElementById('consentAnalytics').checked, document.getElementById('consentAds').checked);
+    });
+  }
+
+  function openCustomize() {
+    var opts = document.getElementById('consentOptions');
+    var save2 = document.getElementById('consentSave');
+    var cust = document.getElementById('consentCustomize');
+    if (opts) opts.hidden = false;
+    if (save2) save2.hidden = false;
+    if (cust) cust.hidden = true;
+  }
+
+  function decide(analytics, advertising) {
+    saveConsent(analytics, advertising);
+    applyConsent({ analytics: analytics, advertising: advertising });
+    hideConsentBanner();
+  }
+
+  function hideConsentBanner() {
+    var b = document.getElementById('consentBanner');
+    if (b) b.classList.remove('open');
+  }
+
+  // Show the banner. `customize` pre-expands the per-category options and
+  // reflects any previously stored choice (used by the footer "Cookie settings").
+  function showConsentBanner(customize) {
+    buildBanner();
+    var b = document.getElementById('consentBanner');
+    if (!b) return;
+    var stored = readConsent();
+    var a = document.getElementById('consentAnalytics');
+    var ads = document.getElementById('consentAds');
+    if (a) a.checked = stored ? stored.analytics : true;
+    if (ads) ads.checked = stored ? stored.advertising : false;
+    if (customize) openCustomize();
+    b.classList.add('open');
+  }
+
+  // On load: apply an existing decision, or show the banner (nothing loads yet).
+  function initConsent() {
+    var stored = readConsent();
+    if (stored) { applyConsent(stored); return; }
+    buildBanner();
+    var b = document.getElementById('consentBanner');
+    if (b) b.classList.add('open');
   }
 
   /* ---------------- info tooltips (click to toggle; hover/focus via CSS) ---------------- */
@@ -304,7 +411,9 @@
     onRate: onRate,
     getRate: function () { return currentRate(); },
     getCurrency: function () { return currency; },
-    setCurrency: setCurrency
+    setCurrency: setCurrency,
+    getConsent: readConsent,
+    openConsent: function () { showConsentBanner(true); }
   };
 
   /* ---------------- PWA service worker ---------------- */
@@ -318,7 +427,7 @@
   }
 
   injectChrome();
-  injectAnalytics();
+  initConsent();   // gates GoatCounter behind analytics consent (replaces the old unconditional load)
   initInfoTips();
   initRate();
   registerSW();
