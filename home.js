@@ -320,8 +320,8 @@
     bar.className = 'export-brand';
     bar.innerHTML =
       '<div class="export-brand-name"><span class="export-brand-dot">●</span> KnowMyMoney</div>' +
-      '<div class="export-brand-domain">knowmymoney.de</div>' +
-      '<div class="export-brand-tag">Free financial calculators, no accounts, no backend</div>';
+      '<div class="export-brand-tag">Free financial calculators · Try yours at ' +
+        '<span class="export-brand-domain">knowmymoney.de</span></div>';
     return bar;
   }
 
@@ -330,9 +330,23 @@
     var btn = document.getElementById('exportImgBtn');
     if (!target || typeof html2canvas === 'undefined') { setMsg('Image export is unavailable.', 'err'); return; }
     if (btn) { btn.disabled = true; btn.textContent = 'Rendering…'; }
+
+    // Keep the synthesis / nudge line out of the exported image: the picture is
+    // just the calculator overview plus the branded footer.
+    var synth = document.getElementById('synthesis');
+    var nudge = document.getElementById('nwNudge');
+    var synthShown = synth && !synth.hidden;
+    var nudgeShown = nudge && !nudge.hidden;
+    if (synth) synth.hidden = true;
+    if (nudge) nudge.hidden = true;
+
     var footer = makeBrandFooter();
     target.appendChild(footer);
-    function cleanup() { if (footer.parentNode) footer.parentNode.removeChild(footer); }
+    function cleanup() {
+      if (footer.parentNode) footer.parentNode.removeChild(footer);
+      if (synth && synthShown) synth.hidden = false;
+      if (nudge && nudgeShown) nudge.hidden = false;
+    }
     html2canvas(target, { backgroundColor: '#0b0b0c', scale: 2, logging: false }).then(function (canvas) {
       cleanup();
       canvas.toBlob(function (blob) {
