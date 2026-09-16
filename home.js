@@ -131,11 +131,8 @@
 
   function trimYears(y) { return (y % 1 === 0) ? String(y) : y.toFixed(1); }
 
-  // Ordered "try this next" suggestions per region. `key` matches the done-flags
-  // map built in renderDashboard; the region decides which list is used.
-  // Ordered "try this next" suggestions per region (roughly the order it makes
-  // sense to work through them). `key` matches the done-flags map built in
-  // renderDashboard; the region decides which list is used.
+  // Ordered "try this next" suggestions (roughly the order it makes sense to work
+  // through them). `key` matches the done-flags map built in renderDashboard.
   var GENERAL_SUGGESTIONS = [
     { key: 'networth', href: 'net-worth/', text: 'the Net Worth calculator to map what you own and owe' },
     { key: 'emergency', href: 'emergency-fund/', text: 'the Emergency Fund calculator to size your safety net' },
@@ -149,23 +146,25 @@
     { key: 'bruttonetto', href: 'brutto-netto/', text: 'the Brutto/Netto calculator to see your net salary after tax' }
   ];
 
-  // Suggest the first calculator in the relevant region's list the user hasn't
-  // tried, or a positive note if they've tried them all. `done` maps each
-  // calculator key to a boolean; emDone tailors the opening line.
-  function nextCalcNudge(inGermany, done, emDone) {
-    var list = inGermany ? GERMAN_SUGGESTIONS : GENERAL_SUGGESTIONS;
+  // Suggest the first calculator the user hasn't tried, or a positive note if
+  // they've tried them all. The candidate list follows the region: when in
+  // Germany the German calculators come first, then the general ones (all of
+  // which are still shown in that view); when not, only the general ones apply
+  // since the German group is hidden. `done` maps each calculator key to a bool.
+  function nextCalcNudge(inGermany, done) {
+    var list = inGermany ? GERMAN_SUGGESTIONS.concat(GENERAL_SUGGESTIONS) : GENERAL_SUGGESTIONS;
     for (var i = 0; i < list.length; i++) {
       if (!done[list[i].key]) {
         return {
           cls: 'note',
-          lead: emDone ? 'Your emergency fund is set.' : 'You\'re building your financial picture.',
+          lead: 'You\'re building your financial picture.',
           secondary: 'Next, try <a href="' + list[i].href + '">' + list[i].text + '</a>.'
         };
       }
     }
     return {
       cls: 'ok',
-      lead: 'Nicely done, you\'ve tried every calculator here.',
+      lead: 'Nicely done, you\'ve tried every calculator.',
       secondary: 'Recalculate any of them as your numbers change, and consider exporting a backup of your data below.'
     };
   }
@@ -229,8 +228,8 @@
 
     // No specific insight to show: nudge toward a calculator the user hasn't
     // tried yet, from the region-appropriate list (General when Germany is off,
-    // German when on). Also covers the case where the emergency fund isn't run yet.
-    return nextCalcNudge(inGermany, done, emDone);
+    // German first then General when on). Also covers "emergency fund not run yet".
+    return nextCalcNudge(inGermany, done);
   }
 
   /* ---------------- data tools: export / import / clear / image ---------------- */
