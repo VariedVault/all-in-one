@@ -2,7 +2,7 @@
 
 A small, growing suite of clean financial calculators. Vanilla HTML/CSS/JS, no build step, no framework, no backend. Everything runs in your browser and stays there.
 
-**Live:** https://variedvault.github.io/all-in-one/
+**Live:** https://knowmymoney.de/
 
 ## Calculators
 
