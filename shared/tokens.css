@@ -387,7 +387,7 @@ input::placeholder{color:var(--muted-2);}
 .synthesis .lead .accent{color:var(--accent);}
 .synthesis .secondary{margin:8px 0 0;color:var(--muted);font-size:14px;line-height:1.5;}
 .synthesis.ok .lead{color:var(--accent);}
-.synthesis.info{border-left-color:var(--line);}
+.synthesis.note{border-left-color:var(--line);}
 
 /* ---------- pension net breakdown (receipt) ---------- */
 .receipt{display:flex;flex-direction:column;gap:12px;}

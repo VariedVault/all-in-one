@@ -140,7 +140,7 @@
     for (var i = 0; i < list.length; i++) {
       if (!done[list[i].key]) {
         return {
-          cls: 'info',
+          cls: 'note',
           lead: 'Your emergency fund is set.',
           secondary: 'Next, try <a href="' + list[i].href + '">' + list[i].text + '</a>.'
         };
