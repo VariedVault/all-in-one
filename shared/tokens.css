@@ -633,24 +633,22 @@ select.field-select:focus-visible{outline:2px solid var(--accent);outline-offset
   .bud-row{grid-template-columns:minmax(0,1fr) 78px 92px 24px;column-gap:7px;}
 }
 
-/* 50/30/20 comparison rows */
-.bud-rule-row{margin-bottom:14px;}
-.bud-rule-row:last-child{margin-bottom:0;}
-.bud-rule-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px;}
-.bud-rule-name{font-weight:600;font-size:14px;}
-.bud-rule-fig{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;}
-.bud-rule-target{color:var(--muted-2);font-weight:400;font-size:12px;}
-/* track is overflow:visible so the 50/30/20 target marker can extend past it */
+/* shared bar track (used by the per-category breakdown below) */
 .bud-track{position:relative;height:12px;border-radius:999px;background:var(--panel-2);}
 .bud-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--accent);transition:width .25s ease;}
-.bud-fill.ok{background:var(--accent);}
-.bud-fill.warn{background:#ff6b6b;}
-.bud-target-mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text);opacity:.55;border-radius:2px;}
-.bud-rule-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:5px;}
-.bud-rule-amt{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
-.bud-badge{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;}
-.bud-badge.ok{color:#0b0b0c;background:var(--accent);}
-.bud-badge.warn{color:#fff;background:#ff6b6b;}
+
+/* 50/30/20 donut pie + legend */
+.bud-pie-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
+.bud-pie-svg{width:156px;height:156px;flex:none;}
+.bud-pie-svg text{font-family:var(--font);}
+.bud-pie-center-num{fill:var(--text);font-size:30px;font-weight:800;}
+.bud-pie-center-sub{fill:var(--muted);font-size:12px;letter-spacing:.02em;}
+.bud-legend{flex:1 1 170px;min-width:150px;display:flex;flex-direction:column;gap:10px;}
+.bud-legend-row{display:flex;align-items:center;gap:9px;font-size:13.5px;}
+.bud-legend-dot{width:11px;height:11px;border-radius:3px;flex:none;}
+.bud-legend-name{font-weight:600;}
+.bud-legend-pct{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;}
+.bud-legend-target{color:var(--muted-2);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;}
 
 /* per-category breakdown bars */
 .bud-bar-row{margin-bottom:11px;}

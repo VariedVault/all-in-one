@@ -238,7 +238,7 @@
     var year = new Date().getFullYear();
     var footerHTML =
       '<footer class="site-footer"><div class="wrap">' +
-        '<div>Built by <a href="https://balajijayakumar.com" target="_blank" rel="noopener noreferrer">Balaji</a> · © ' + year + '</div>' +
+        '<div>Idea by <a href="https://balajijayakumar.com" target="_blank" rel="noopener noreferrer">Balaji</a> · © ' + year + '</div>' +
         '<nav class="legal-links">' +
           '<a href="' + PREFIX + 'impressum/">Impressum</a>' +
           '<a href="' + PREFIX + 'datenschutz/">Datenschutz</a>' +

@@ -8,7 +8,7 @@
      cached, so live data and tracking behave normally.
    Bump CACHE when shipping asset changes to retire the old cache.
 --------------------------------------------------------------------------- */
-var CACHE = 'kmm-v1';
+var CACHE = 'kmm-v2';
 var CORE = [
   '/',
   '/index.html',

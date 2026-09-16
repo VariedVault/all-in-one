@@ -183,40 +183,98 @@
     els.budBalanceInr.textContent = '≈ ' + sign + AIO.formatAmount(Math.abs(lastResult.surplus) * rate);
   }
 
-  // 50/30/20: actual % of income per bucket vs the benchmark, flag over/under.
+  // 50/30/20 as a donut pie: the actual needs/wants/savings split (plus any
+  // left-over income), with a compact legend comparing each bucket to its target.
+  var PIE_COLORS = { needs: '#c6ff3a', wants: '#8ab4ff', savings: '#4fd6c4', leftover: '#5c5c58' };
+
+  function polar(cx, cy, radius, angleDeg) {
+    var a = (angleDeg - 90) * Math.PI / 180;
+    return { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) };
+  }
+  // A donut arc path from startAngle to endAngle (degrees, clockwise from top).
+  function donutSlice(cx, cy, rOuter, rInner, start, end) {
+    var large = (end - start) > 180 ? 1 : 0;
+    var o1 = polar(cx, cy, rOuter, start), o2 = polar(cx, cy, rOuter, end);
+    var i2 = polar(cx, cy, rInner, end), i1 = polar(cx, cy, rInner, start);
+    return 'M' + o1.x.toFixed(2) + ' ' + o1.y.toFixed(2) +
+      ' A' + rOuter + ' ' + rOuter + ' 0 ' + large + ' 1 ' + o2.x.toFixed(2) + ' ' + o2.y.toFixed(2) +
+      ' L' + i2.x.toFixed(2) + ' ' + i2.y.toFixed(2) +
+      ' A' + rInner + ' ' + rInner + ' 0 ' + large + ' 0 ' + i1.x.toFixed(2) + ' ' + i1.y.toFixed(2) + ' Z';
+  }
+  // Full donut ring (used when a single slice is the whole pie, which an arc
+  // path can't draw as one segment).
+  function donutRing(cx, cy, rOuter, rInner) {
+    return 'M' + (cx - rOuter) + ' ' + cy +
+      ' A' + rOuter + ' ' + rOuter + ' 0 1 1 ' + (cx + rOuter) + ' ' + cy +
+      ' A' + rOuter + ' ' + rOuter + ' 0 1 1 ' + (cx - rOuter) + ' ' + cy + ' Z' +
+      'M' + (cx - rInner) + ' ' + cy +
+      ' A' + rInner + ' ' + rInner + ' 0 1 0 ' + (cx + rInner) + ' ' + cy +
+      ' A' + rInner + ' ' + rInner + ' 0 1 0 ' + (cx - rInner) + ' ' + cy + ' Z';
+  }
+
   function renderRule(r) {
-    if (!(r.income > 0) || r.totalAllocated <= 0) { els.budRuleBlock.hidden = true; return; }
-    var html = '';
-    for (var i = 0; i < BUCKETS.length; i++) {
-      var b = BUCKETS[i];
-      var amt = r[b.id];
-      var actualPct = pct(amt, r.income);
-      var targetPct = b.target * 100;
-      var targetAmt = b.target * r.income;
-      var diff = actualPct - targetPct;
-      var status, cls;
-      if (Math.abs(diff) < 2) { status = 'on target'; cls = 'ok'; }
-      else if (b.id === 'savings') { // more savings is good, less is a shortfall
-        status = diff > 0 ? Math.round(diff) + ' pts above target' : Math.round(-diff) + ' pts below target';
-        cls = diff > 0 ? 'ok' : 'warn';
-      } else { // needs / wants: over benchmark is the risk
-        status = diff > 0 ? Math.round(diff) + ' pts over' : Math.round(-diff) + ' pts under';
-        cls = diff > 0 ? 'warn' : 'ok';
+    if (!(r.income > 0) && r.totalAllocated <= 0) { els.budRuleBlock.hidden = true; return; }
+
+    var incomeBase = r.income > 0;
+    var overAllocated = incomeBase && r.surplus < 0;
+    // Pie geometry base: income when it covers spending, else total allocated.
+    var base = (incomeBase && !overAllocated) ? r.income : r.totalAllocated;
+    if (base <= 0) { els.budRuleBlock.hidden = true; return; }
+
+    var slices = [
+      { key: 'needs', label: 'Needs', amount: r.needs, target: 50 },
+      { key: 'wants', label: 'Wants', amount: r.wants, target: 30 },
+      { key: 'savings', label: 'Savings', amount: r.savings, target: 20 }
+    ];
+    if (incomeBase && !overAllocated && r.surplus > 0) {
+      slices.push({ key: 'leftover', label: 'Left over', amount: r.surplus, target: null });
+    }
+
+    var cx = 90, cy = 90, rOuter = 80, rInner = 52;
+    var active = [];
+    for (var i = 0; i < slices.length; i++) if (slices[i].amount > 0) active.push(slices[i]);
+
+    var svg = '<svg class="bud-pie-svg" viewBox="0 0 180 180" role="img" aria-label="Needs, wants and savings split">';
+    if (active.length === 1) {
+      svg += '<path d="' + donutRing(cx, cy, rOuter, rInner) + '" fill="' + PIE_COLORS[active[0].key] + '" fill-rule="evenodd"></path>';
+    } else {
+      var angle = 0;
+      for (var j = 0; j < active.length; j++) {
+        var frac = active[j].amount / base;
+        var end = angle + frac * 360;
+        svg += '<path d="' + donutSlice(cx, cy, rOuter, rInner, angle, Math.min(end, 359.999)) +
+          '" fill="' + PIE_COLORS[active[j].key] + '"></path>';
+        angle = end;
       }
-      var barW = Math.max(0, Math.min(100, actualPct));
-      html +=
-        '<div class="bud-rule-row">' +
-          '<div class="bud-rule-top">' +
-            '<span class="bud-rule-name">' + b.label + '</span>' +
-            '<span class="bud-rule-fig">' + Math.round(actualPct) + '% <span class="bud-rule-target">of ' + Math.round(targetPct) + '%</span></span>' +
-          '</div>' +
-          '<div class="bud-track"><div class="bud-fill ' + cls + '" style="width:' + barW + '%"></div>' +
-            '<span class="bud-target-mark" style="left:' + targetPct + '%"></span></div>' +
-          '<div class="bud-rule-foot"><span class="bud-badge ' + cls + '">' + status + '</span>' +
-            '<span class="bud-rule-amt">' + AIO.formatEUR(amt) + ' of ' + AIO.formatEUR(targetAmt) + '</span></div>' +
+    }
+    // Centre label: how much of income is allocated.
+    if (incomeBase) {
+      var allocPct = Math.round(pct(r.totalAllocated, r.income));
+      svg += '<text class="bud-pie-center-num" x="90" y="86" text-anchor="middle">' + allocPct + '%</text>';
+      svg += '<text class="bud-pie-center-sub" x="90" y="104" text-anchor="middle">allocated</text>';
+    }
+    svg += '</svg>';
+
+    // Legend: actual % (of income when available) vs the 50/30/20 target.
+    var legend = '<div class="bud-legend">';
+    for (var k = 0; k < slices.length; k++) {
+      var s = slices[k];
+      var actualPct = incomeBase ? pct(s.amount, r.income) : pct(s.amount, r.totalAllocated);
+      var right = s.target != null
+        ? '<span class="bud-legend-target">target ' + s.target + '%</span>'
+        : '';
+      legend +=
+        '<div class="bud-legend-row">' +
+          '<span class="bud-legend-dot" style="background:' + PIE_COLORS[s.key] + '"></span>' +
+          '<span class="bud-legend-name">' + s.label + '</span>' +
+          '<span class="bud-legend-pct">' + Math.round(actualPct) + '%</span>' +
+          right +
         '</div>';
     }
-    els.budRule.innerHTML = html;
+    legend += '</div>';
+
+    els.budRule.innerHTML = '<div class="bud-pie-wrap">' + svg + legend + '</div>' +
+      (overAllocated ? '<p class="hint" style="margin-top:10px">You are over budget, so the pie shows your split of spending rather than of income.</p>' : '');
     els.budRuleBlock.hidden = false;
   }
 
