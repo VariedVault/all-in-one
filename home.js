@@ -374,6 +374,18 @@
     if (toggle) {
       toggle.checked = inGermany;
       toggle.addEventListener('change', function () {
+        // Turning Germany off clears the Germany-specific calculator data (Pension
+        // and Brutto/Netto), so it doesn't linger and reappear if re-enabled.
+        // Confirm first, since this permanently deletes those saved inputs/results.
+        if (!toggle.checked) {
+          var hasGermanData = !!(AIO.load('aio:pension') || AIO.load('aio:bruttonetto'));
+          if (hasGermanData && !window.confirm('Turn off Germany mode? This clears your saved Pension and Brutto/Netto data.')) {
+            toggle.checked = true; // cancelled: stay in Germany mode, keep the data
+            return;
+          }
+          localStorage.removeItem('aio:pension');
+          localStorage.removeItem('aio:bruttonetto');
+        }
         inGermany = toggle.checked;
         AIO.save('aio:inGermany', inGermany);
         renderAll(inGermany);
