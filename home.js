@@ -385,6 +385,23 @@
   function resetGridCards() {
     var cards = document.querySelectorAll('.card-grid .calc-card');
     for (var i = 0; i < cards.length; i++) cards[i].hidden = false;
+    // Re-show the General group heading; hideEmptyGroups() may hide it again if
+    // every card ends up in the dashboard. (grpGermany is set by renderAll.)
+    var gg = document.getElementById('grpGeneral');
+    if (gg) gg.hidden = false;
+  }
+
+  // Hide a calculator group's heading + grid entirely when all of its cards have
+  // been moved into the dashboard, so no empty "Germany"/"General" label is left.
+  function hideEmptyGroups() {
+    ['grpGermany', 'grpGeneral'].forEach(function (id) {
+      var group = document.getElementById(id);
+      if (!group || group.hidden) return; // already hidden (e.g. Germany group when region is off)
+      var cards = group.querySelectorAll('.calc-card');
+      var anyVisible = false;
+      for (var i = 0; i < cards.length; i++) { if (!cards[i].hidden) { anyVisible = true; break; } }
+      if (!anyVisible) group.hidden = true;
+    });
   }
 
   function renderAll(inGermany) {
@@ -469,6 +486,9 @@
     if (bdInc) hideCard('budget');
     if (cgInc) hideCard('cagr');
     if (loanInc) hideCard('loan');
+
+    // Drop any group heading whose cards are now all in the dashboard.
+    hideEmptyGroups();
   }
 
   function hideCard(calc) {
