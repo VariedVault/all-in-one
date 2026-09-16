@@ -118,9 +118,44 @@
 
   function trimYears(y) { return (y % 1 === 0) ? String(y) : y.toFixed(1); }
 
+  // Ordered "try this next" suggestions per region. `key` matches the done-flags
+  // map built in renderDashboard; the region decides which list is used.
+  var GENERAL_SUGGESTIONS = [
+    { key: 'networth', href: 'net-worth/', text: 'the Net Worth calculator to map what you own and owe' },
+    { key: 'fire', href: 'fire/', text: 'the FIRE calculator to see your path to financial independence' },
+    { key: 'budget', href: 'budget/', text: 'the Monthly Budget calculator to plan where your money goes' },
+    { key: 'cagr', href: 'cagr/', text: 'the CAGR calculator to project how investments grow' },
+    { key: 'loan', href: 'loan/', text: 'the Loan & EMI calculator to plan a loan or compare offers' }
+  ];
+  var GERMAN_SUGGESTIONS = [
+    { key: 'pension', href: 'pension/', text: 'the Pension calculator to see how your retirement is shaping up' },
+    { key: 'bruttonetto', href: 'brutto-netto/', text: 'the Brutto/Netto calculator to see your net salary after tax' }
+  ];
+
+  // The closing nudge once the emergency fund is set: suggest the first calculator
+  // in the relevant region's list the user hasn't tried, or a positive note if
+  // they have tried them all. `done` maps each calculator key to a boolean.
+  function nextCalcNudge(inGermany, done) {
+    var list = inGermany ? GERMAN_SUGGESTIONS : GENERAL_SUGGESTIONS;
+    for (var i = 0; i < list.length; i++) {
+      if (!done[list[i].key]) {
+        return {
+          cls: 'info',
+          lead: 'Your emergency fund is set.',
+          secondary: 'Next, try <a href="' + list[i].href + '">' + list[i].text + '</a>.'
+        };
+      }
+    }
+    return {
+      cls: 'ok',
+      lead: 'Nicely done, you\'ve tried every calculator here.',
+      secondary: 'Recalculate any of them as your numbers change, and consider exporting a backup of your data below.'
+    };
+  }
+
   // Decide the single synthesis message from the priority logic. Returns
   // { cls, lead(HTML), secondary(text) } or null for "no synthesis line".
-  function synthesise(pen, em, penDone, emDone) {
+  function synthesise(pen, em, penDone, emDone, inGermany, done) {
     if (!emDone) return null; // emergency fund not run yet: no synthesis line
 
     var underfunded = em.current < em.target;
@@ -172,12 +207,9 @@
       };
     }
 
-    // Emergency fund funded, pension not run yet: soft nudge only.
-    return {
-      cls: 'info',
-      lead: 'Your emergency fund is set.',
-      secondary: 'Next, try the pension calculator to see how your retirement is shaping up.'
-    };
+    // Emergency fund funded: nudge toward a calculator the user hasn't tried yet,
+    // from the region-appropriate list (General when Germany is off, German when on).
+    return nextCalcNudge(inGermany, done);
   }
 
   /* ---------------- data tools: export / import / clear / image ---------------- */
@@ -382,8 +414,17 @@
     document.getElementById('dashCardsGeneral').innerHTML = genHTML;
     document.getElementById('dashGrpGeneral').hidden = (genHTML === '');
 
-    // Emergency-first / pension-gap synthesis (pension only when in the Germany view).
-    var synth = synthesise(pen, em, penInc, emInc);
+    // Loan has no "done" flag of its own; treat a saved loan amount as "tried".
+    var loanSaved = AIO.load('aio:loan') || {};
+    var loanUsed = !!(loanSaved.stdAmount && String(loanSaved.stdAmount).trim() !== '');
+    var done = {
+      networth: nwDone, fire: fireDone, budget: bdDone, cagr: cgDone, loan: loanUsed,
+      pension: penDone, bruttonetto: bnDone
+    };
+
+    // Emergency-first synthesis. Pension coverage insight only in the Germany view;
+    // the closing nudge suggests an unused calculator from the relevant region.
+    var synth = synthesise(pen, em, penInc, emInc, inGermany, done);
     var synthEl = document.getElementById('synthesis');
     if (synth) {
       synthEl.className = 'synthesis ' + synth.cls;
