@@ -51,6 +51,9 @@ a:hover{text-decoration:underline;}
   background:var(--panel);border:1px solid var(--line);color:var(--text);
   font-family:inherit;font-size:13px;font-weight:600;padding:8px 12px;border-radius:999px;cursor:pointer;
   transition:border-color .15s ease;
+  /* collapsed value is capped + ellipsised so long names don't stretch the header;
+     the open dropdown list still shows each option's full name and symbol */
+  max-width:210px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .currency-select:hover{border-color:var(--accent);}
 .currency-select:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}

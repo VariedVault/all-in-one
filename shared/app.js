@@ -27,16 +27,16 @@
 
   // Supported display currencies. dec = decimals shown for the rate in the pill.
   var CURRENCIES = [
-    { code: 'EUR', locale: 'en-IE', dec: 2 },
-    { code: 'USD', locale: 'en-US', dec: 2 },
-    { code: 'GBP', locale: 'en-GB', dec: 2 },
-    { code: 'INR', locale: 'en-IN', dec: 2 },
-    { code: 'JPY', locale: 'ja-JP', dec: 0 },
-    { code: 'CNY', locale: 'zh-CN', dec: 2 },
-    { code: 'AUD', locale: 'en-AU', dec: 2 },
-    { code: 'CAD', locale: 'en-CA', dec: 2 },
-    { code: 'CHF', locale: 'de-CH', dec: 2 },
-    { code: 'SGD', locale: 'en-SG', dec: 2 }
+    { code: 'EUR', name: 'Euro', locale: 'en-IE', dec: 2 },
+    { code: 'USD', name: 'US Dollar', locale: 'en-US', dec: 2 },
+    { code: 'GBP', name: 'British Pound', locale: 'en-GB', dec: 2 },
+    { code: 'INR', name: 'Indian Rupee', locale: 'en-IN', dec: 2 },
+    { code: 'JPY', name: 'Japanese Yen', locale: 'ja-JP', dec: 0 },
+    { code: 'CNY', name: 'Chinese Yuan', locale: 'zh-CN', dec: 2 },
+    { code: 'AUD', name: 'Australian Dollar', locale: 'en-AU', dec: 2 },
+    { code: 'CAD', name: 'Canadian Dollar', locale: 'en-CA', dec: 2 },
+    { code: 'CHF', name: 'Swiss Franc', locale: 'de-CH', dec: 2 },
+    { code: 'SGD', name: 'Singapore Dollar', locale: 'en-SG', dec: 2 }
   ];
   var CUR_BY_CODE = {};
   CURRENCIES.forEach(function (c) { CUR_BY_CODE[c.code] = c; });
@@ -243,7 +243,9 @@
     var options = '';
     for (var i = 0; i < CURRENCIES.length; i++) {
       var code = CURRENCIES[i].code;
-      options += '<option value="' + code + '"' + (code === currency ? ' selected' : '') + '>' + code + '</option>';
+      // e.g. "Indian Rupee (₹) · INR" so the full name and symbol are easy to read.
+      var label = (CURRENCIES[i].name || code) + ' (' + currencySymbol(code) + ') · ' + code;
+      options += '<option value="' + code + '"' + (code === currency ? ' selected' : '') + '>' + label + '</option>';
     }
 
     var headerHTML =
@@ -274,7 +276,12 @@
     document.body.insertAdjacentHTML('beforeend', footerHTML);
 
     var sel = document.getElementById('currencySelect');
-    if (sel) sel.addEventListener('change', function () { setCurrency(sel.value); });
+    if (sel) sel.addEventListener('change', function () {
+      // Persist the choice, then refresh so every figure and label re-renders
+      // cleanly in the new currency (inputs are restored from localStorage).
+      if (CUR_BY_CODE[sel.value]) save(CURRENCY_KEY, sel.value);
+      location.reload();
+    });
 
     var reopen = document.getElementById('consentReopen');
     if (reopen) reopen.addEventListener('click', function () { showConsentBanner(true); });
