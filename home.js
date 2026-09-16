@@ -39,10 +39,10 @@
   function emCard(em) {
     var head = em.reached
       ? '<p class="dash-label">Emergency fund</p><div class="dash-big accent">✓ Goal reached</div>'
-      : '<p class="dash-label">Still to save</p><div class="dash-big">' + AIO.formatEUR(em.gap) + '</div>';
+      : '<p class="dash-label">Still to save</p><div class="dash-big">' + AIO.formatAmount(em.gap) + '</div>';
     return '<div class="dash-card">' +
       head +
-      '<p class="dash-sub">' + AIO.formatEUR(em.current) + ' saved of ' + AIO.formatEUR(em.target) + ' target</p>' +
+      '<p class="dash-sub">' + AIO.formatAmount(em.current) + ' saved of ' + AIO.formatAmount(em.target) + ' target</p>' +
       '<a class="recalc" href="emergency-fund/">Recalculate →</a>' +
       '</div>';
   }
@@ -50,8 +50,8 @@
   function nwCard(nw) {
     return '<div class="dash-card">' +
       '<p class="dash-label">Net worth</p>' +
-      '<div class="dash-big">' + AIO.formatEUR(nw.totalNetWorth) + '</div>' +
-      '<p class="dash-sub">' + AIO.formatEUR(nw.totalAssets) + ' assets, ' + AIO.formatEUR(nw.totalLiabilities) + ' liabilities</p>' +
+      '<div class="dash-big">' + AIO.formatAmount(nw.totalNetWorth) + '</div>' +
+      '<p class="dash-sub">' + AIO.formatAmount(nw.totalAssets) + ' assets, ' + AIO.formatAmount(nw.totalLiabilities) + ' liabilities</p>' +
       '<a class="recalc" href="net-worth/">Recalculate →</a>' +
       '</div>';
   }
@@ -61,7 +61,7 @@
             : (f.yearsToFire <= 0 ? 'At FIRE' : f.yearsToFire.toFixed(1) + ' yrs');
     // Two key numbers only: years to FIRE + Freedom Number. The full per-category
     // investment breakdown stays on the /fire/ page.
-    var sub = 'Freedom Number: ' + AIO.formatEUR(f.fireNumber);
+    var sub = 'Freedom Number: ' + AIO.formatAmount(f.fireNumber);
     if (f.yearsToFire == null) sub += ' — over 100 years away';
     else if (f.yearsToFire <= 0) sub += ' — reached';
     else if (f.projectedYear) sub += ' — on track for ' + f.projectedYear;
@@ -87,7 +87,7 @@
 
   function budgetCard(bd) {
     var deficit = bd.surplus < 0;
-    var big = (deficit ? '−' : '') + AIO.formatEUR(Math.abs(bd.surplus));
+    var big = (deficit ? '−' : '') + AIO.formatAmount(Math.abs(bd.surplus));
     var head = deficit
       ? '<p class="dash-label">Over budget by</p><div class="dash-big" style="color:#ff6b6b">' + big + '</div>'
       : '<p class="dash-label">Left over each month</p><div class="dash-big">' + big + '</div>';
@@ -103,11 +103,11 @@
   function cagrCard(cg) {
     var isReturn = cg.mode === 'return';
     var big = isReturn ? (cg.ratePct >= 0 ? '' : '−') + Math.abs(cg.ratePct).toFixed(1) + '%'
-                       : AIO.formatEUR(cg.end);
+                       : AIO.formatAmount(cg.end);
     var label = isReturn ? 'Compound annual growth' : 'Projected future value';
     var sub = isReturn
-      ? AIO.formatEUR(cg.start) + ' → ' + AIO.formatEUR(cg.end) + ' over ' + trimYears(cg.years) + ' yrs'
-      : AIO.formatEUR(cg.start) + ' at ' + cg.ratePct.toFixed(1) + '% for ' + trimYears(cg.years) + ' yrs';
+      ? AIO.formatAmount(cg.start) + ' → ' + AIO.formatAmount(cg.end) + ' over ' + trimYears(cg.years) + ' yrs'
+      : AIO.formatAmount(cg.start) + ' at ' + cg.ratePct.toFixed(1) + '% for ' + trimYears(cg.years) + ' yrs';
     return '<div class="dash-card">' +
       '<p class="dash-label">' + label + '</p>' +
       '<div class="dash-big">' + big + '</div>' +
@@ -127,7 +127,7 @@
 
     if (underfunded) {
       var lead = 'Build your emergency fund first. You\'re <span class="accent">' +
-        AIO.formatEUR(em.gap) + '</span> short of ' + em.months + ' months of coverage.';
+        AIO.formatAmount(em.gap) + '</span> short of ' + em.months + ' months of coverage.';
       var secondary = penDone
         ? 'Once that\'s covered, worth knowing: your projected pension covers about ' + pctOf(pen) + '% of your current income.'
         : null;
@@ -394,7 +394,7 @@
 
     var nudge = document.getElementById('nwNudge');
     if (nwInc && !emInc) {
-      nudge.innerHTML = '<p class="lead">You\'ve mapped a net worth of <span class="accent">' + AIO.formatEUR(nw.totalNetWorth) +
+      nudge.innerHTML = '<p class="lead">You\'ve mapped a net worth of <span class="accent">' + AIO.formatAmount(nw.totalNetWorth) +
         '</span>. Have you calculated your emergency fund target?</p>' +
         '<p class="secondary"><a href="emergency-fund/">Open the Emergency Fund Calculator →</a></p>';
       nudge.hidden = false;

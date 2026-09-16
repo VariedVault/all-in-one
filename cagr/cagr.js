@@ -15,7 +15,7 @@
 
   function $(id) { return document.getElementById(id); }
   function num(v) { return AIO.parseNumber(v); } // sanitizes thousands separators
-  function eur(n) { return AIO.formatEUR(n); }
+  function eur(n) { return AIO.formatAmount(n); } // values are native to the selected currency
   function pctStr(n) { return (n >= 0 ? '' : '−') + Math.abs(n).toFixed(2) + '%'; }
 
   function setMode(newMode) {
@@ -206,6 +206,7 @@
       els[id].addEventListener('input', function () { userTouched = true; compute(); });
     });
 
+    AIO.onRate(compute); // reformat figures when the selected currency changes
     compute();
   }
 

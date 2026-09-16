@@ -151,16 +151,15 @@
       return;
     }
 
-    els.budTotalIncome.textContent = AIO.formatEUR(r.income);
-    els.budTotalAlloc.textContent = AIO.formatEUR(r.totalAllocated);
+    els.budTotalIncome.textContent = AIO.formatAmount(r.income);
+    els.budTotalAlloc.textContent = AIO.formatAmount(r.totalAllocated);
 
     // Surplus / deficit headline, clearly flagged when negative.
     var deficit = r.surplus < 0;
     els.budBalance.classList.toggle('result-bad', deficit);
     els.budBalance.classList.toggle('result-good', r.surplus > 0);
     els.budBalanceLabel.textContent = deficit ? 'Over budget by' : 'Left over each month';
-    els.budBalance.textContent = (deficit ? '−' : '') + AIO.formatEUR(Math.abs(r.surplus));
-    renderBalanceConv();
+    els.budBalance.textContent = (deficit ? '−' : '') + AIO.formatAmount(Math.abs(r.surplus));
 
     if (r.income > 0 && r.surplus < 0) {
       els.budMeta.textContent = 'You are spending more than you earn. Trim a category or raise your income to balance it.';
@@ -175,13 +174,8 @@
     renderFireNudge(r);
   }
 
-  function renderBalanceConv() {
-    if (!lastResult) { els.budBalanceInr.textContent = ''; return; }
-    var rate = AIO.getRate();
-    if (AIO.getCurrency() === 'EUR' || rate == null) { els.budBalanceInr.textContent = ''; return; }
-    var sign = lastResult.surplus < 0 ? '−' : '';
-    els.budBalanceInr.textContent = '≈ ' + sign + AIO.formatAmount(Math.abs(lastResult.surplus) * rate);
-  }
+  // Figures are shown natively in the selected currency, so there is no separate
+  // conversion line; re-render simply reformats when the currency changes.
 
   // 50/30/20 as a donut pie: the actual needs/wants/savings split (plus any
   // left-over income), with a compact legend comparing each bucket to its target.
@@ -291,7 +285,7 @@
       html +=
         '<div class="bud-bar-row">' +
           '<div class="bud-bar-top"><span class="bud-bar-name bucket-' + c.bucket + '">' + escapeHtml(c.name) + '</span>' +
-            '<span class="bud-bar-fig">' + AIO.formatEUR(c.amount) + ' · ' + Math.round(p) + '%</span></div>' +
+            '<span class="bud-bar-fig">' + AIO.formatAmount(c.amount) + ' · ' + Math.round(p) + '%</span></div>' +
           '<div class="bud-track"><div class="bud-fill bucket-' + c.bucket + '" style="width:' + Math.max(0, Math.min(100, p)) + '%"></div></div>' +
         '</div>';
     }
@@ -304,7 +298,7 @@
     var fireSaved = AIO.load('aio:fire');
     var fireDone = fireSaved && fireSaved.touched === true && fireSaved.result && isFinite(fireSaved.result.fireNumber);
     if (r.income > 0 && r.surplus > 0 && !fireDone) {
-      els.budFireNudge.innerHTML = 'You have <strong>' + AIO.formatEUR(r.surplus) + '</strong> left over each month. ' +
+      els.budFireNudge.innerHTML = 'You have <strong>' + AIO.formatAmount(r.surplus) + '</strong> left over each month. ' +
         '<a href="../fire/">See how fast that gets you to financial independence →</a>';
       els.budFireNudge.hidden = false;
     } else {
@@ -373,7 +367,7 @@
       userTouched = true;
       addRow('', '', 'needs').nameEl.focus();
     });
-    AIO.onRate(renderBalanceConv);
+    AIO.onRate(function () { if (lastResult) render(lastResult); }); // reformat on currency change
     compute();
   }
 

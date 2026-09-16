@@ -10,8 +10,7 @@
   var els = {};
   var months = 6;          // default coverage
   var isCustom = false;
-  var lastTargetEUR = null;
-  var lastGapEUR = null;
+  var lastResult = null;
   var reached = false;
   var userTouched = false;  // set once the user changes any field; gates the homepage dashboard
 
@@ -64,15 +63,14 @@
     var target = expenses * months;
     var gap = target - current;
     reached = current >= target;
-    lastTargetEUR = target;
-    lastGapEUR = reached ? 0 : gap;
-    render({ target: target, gap: gap, current: current });
+    lastResult = { target: target, gap: gap, current: current };
+    render(lastResult);
     persist({ target: target, current: current, gap: gap, months: months, reached: reached });
   }
 
   function render(r) {
     if (!r) {
-      lastTargetEUR = null; lastGapEUR = null; reached = false;
+      lastResult = null; reached = false;
       els.target.textContent = '–';
       els.targetInr.textContent = '';
       els.gap.textContent = '–';
@@ -82,7 +80,7 @@
       els.meta.textContent = 'Enter your monthly expenses to see your target.';
       return;
     }
-    els.target.textContent = AIO.formatEUR(r.target);
+    els.target.textContent = AIO.formatAmount(r.target);
 
     if (reached) {
       els.gapLabel.textContent = 'Status';
@@ -92,26 +90,16 @@
     } else {
       els.gapLabel.textContent = 'Still to save';
       els.gap.className = 'result-mid';
-      els.gap.textContent = AIO.formatEUR(r.gap);
+      els.gap.textContent = AIO.formatAmount(r.gap);
     }
 
     els.meta.textContent = months + ' months of cover' +
-      (reached ? '. You have ' + AIO.formatEUR(r.current) + ' saved.' : '.');
-
-    renderINR();
+      (reached ? '. You have ' + AIO.formatAmount(r.current) + ' saved.' : '.');
   }
 
-  function renderINR() {
-    var rate = AIO.getRate();
-    if (lastTargetEUR == null) { els.targetInr.textContent = ''; els.gapInr.textContent = ''; return; }
-    if (rate == null) {
-      els.targetInr.textContent = '≈ … (loading rate)';
-      els.gapInr.textContent = reached ? '' : '≈ … (loading rate)';
-      return;
-    }
-    els.targetInr.textContent = '≈ ' + AIO.formatAmount(lastTargetEUR * rate);
-    els.gapInr.textContent = reached ? '' : '≈ ' + AIO.formatAmount(lastGapEUR * rate);
-  }
+  // Figures are shown natively in the selected currency; re-render reformats
+  // them when the currency changes (no separate conversion line).
+  function reformat() { if (lastResult) render(lastResult); }
 
   // Save inputs (so the form restores) plus the computed result (so the homepage
   // dashboard can read it). result is null when inputs are incomplete.
@@ -158,7 +146,7 @@
       })(btns[i]);
     }
 
-    AIO.onRate(renderINR);
+    AIO.onRate(reformat);
     compute();
   }
 

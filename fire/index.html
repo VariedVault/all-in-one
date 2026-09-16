@@ -57,11 +57,11 @@
           <input type="text" id="fireTargetAge" inputmode="numeric" placeholder="50" min="18" max="100">
         </div>
         <div class="field">
-          <label for="fireExpenses">Current monthly expenses (€)</label>
+          <label for="fireExpenses">Current monthly expenses (<span class="cur-sym">€</span>)</label>
           <input type="text" id="fireExpenses" inputmode="numeric" placeholder="2500" min="0" step="100">
         </div>
         <div class="field">
-          <label for="fireNetWorth">Current net worth / invested assets (€)</label>
+          <label for="fireNetWorth">Current net worth / invested assets (<span class="cur-sym">€</span>)</label>
           <input type="text" id="fireNetWorth" inputmode="numeric" placeholder="50000" min="0" step="1000">
           <span class="hint" id="fireNwHint">What you already have invested and working for you.</span>
         </div>
@@ -70,7 +70,7 @@
           <label>Your investments</label>
           <span class="hint" style="margin-bottom:8px">What you invest each month, and the annual return you expect from each. Each one grows at its own rate.</span>
           <div class="fire-inv-head" aria-hidden="true">
-            <span>Category</span><span>Monthly €</span><span>Return %</span><span></span>
+            <span>Category</span><span>Monthly <span class="cur-sym">€</span></span><span>Return %</span><span></span>
           </div>
           <div id="fireInvList"></div>
           <button type="button" class="nw-add-btn" id="fireAddBtn">+ Add category</button>
@@ -130,7 +130,7 @@
         <!-- Cross-calculator: converted view, reusing the pension "leave Germany" assumptions -->
         <div id="fireIndiaBlock" hidden>
           <hr class="result-sep">
-          <p class="result-label">If you leave Germany <span class="de-term">your FIRE number in <span id="fireCurCode">the selected currency</span></span></p>
+          <p class="result-label">Inflation check <span class="de-term">your Freedom Number's real value over time</span></p>
           <div class="result-mid" id="fireIndiaNominal">–</div>
           <p class="result-sub-real" id="fireIndiaReal"></p>
         </div>

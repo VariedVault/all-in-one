@@ -174,9 +174,9 @@
   // informational range, independent of the chosen withdrawal rate.
   function renderMultiples(annualExpenses) {
     if (annualExpenses == null) { els.fireMultiples.hidden = true; return; }
-    els.fire25.textContent = AIO.formatEUR(annualExpenses * 25);
-    els.fire30.textContent = AIO.formatEUR(annualExpenses * 30);
-    els.fire35.textContent = AIO.formatEUR(annualExpenses * 35);
+    els.fire25.textContent = AIO.formatAmount(annualExpenses * 25);
+    els.fire30.textContent = AIO.formatAmount(annualExpenses * 30);
+    els.fire35.textContent = AIO.formatAmount(annualExpenses * 35);
     els.fireMultiples.hidden = false;
   }
 
@@ -196,7 +196,7 @@
       return;
     }
 
-    els.fireNumber.textContent = AIO.formatEUR(r.fireNumber);
+    els.fireNumber.textContent = AIO.formatAmount(r.fireNumber);
     lastFireNumber = r.fireNumber;
     lastYears = r.years;
     renderMultiples(r.annualExpenses);
@@ -207,7 +207,7 @@
       els.fireYear.textContent = '–';
       els.fireGrounding.hidden = false;
       els.fireGrounding.textContent = 'At your current pace, you won\'t reach your Freedom Number of ' +
-        AIO.formatEUR(r.fireNumber) + ' within 100 years. Raise your monthly investments or returns, or lower your expenses.';
+        AIO.formatAmount(r.fireNumber) + ' within 100 years. Raise your monthly investments or returns, or lower your expenses.';
       els.fireMeta.textContent = 'Your Freedom Number is your annual expenses divided by your withdrawal rate.';
       persist({ yearsToFire: null, fireNumber: r.fireNumber, projectedYear: null });
       renderIndia();
@@ -219,7 +219,7 @@
       els.fireYearMeta.textContent = 'Your invested assets already cover your Freedom Number.';
       els.fireYear.textContent = String(r.currentYear);
       els.fireGrounding.hidden = false;
-      els.fireGrounding.textContent = 'You already have enough saved (' + AIO.formatEUR(r.fireNumber) +
+      els.fireGrounding.textContent = 'You already have enough saved (' + AIO.formatAmount(r.fireNumber) +
         ') to stop working today, if your expenses hold.';
     } else {
       var projectedYear = Math.floor(r.currentYear + r.years);
@@ -227,7 +227,7 @@
       els.fireYear.textContent = String(projectedYear);
       els.fireGrounding.hidden = false;
       els.fireGrounding.textContent = 'At your current pace, you could stop working by ' + projectedYear +
-        ' with ' + AIO.formatEUR(r.fireNumber) + ' saved.';
+        ' with ' + AIO.formatAmount(r.fireNumber) + ' saved.';
       var meta = 'Projected FIRE year: ' + projectedYear;
       if (r.currentAge != null) {
         var projAge = Math.round(r.currentAge + r.years);
@@ -251,7 +251,9 @@
     renderIndia();
   }
 
-  // Reuse the pension calculator's stored "leave Germany" assumptions for a converted view.
+  // Reuse the pension calculator's stored "leave Germany" assumptions to show the
+  // Freedom Number's real (inflation-adjusted) purchasing power. Figures are already
+  // in the selected currency (native), so no exchange-rate conversion is applied.
   function renderIndia() {
     var pen = AIO.load('aio:pension') || {};
     var leaveYear = pen.leaveYear != null && String(pen.leaveYear).trim() !== '' ? AIO.parseNumber(pen.leaveYear) : NaN;
@@ -268,16 +270,9 @@
       els.fireIndiaReal.textContent = '';
       return;
     }
-    var rate = AIO.getRate();
-    if (rate == null) {
-      els.fireIndiaNominal.textContent = '≈ … (loading rate)';
-      els.fireIndiaReal.textContent = '';
-      return;
-    }
-    var nominalINR = lastFireNumber * rate;
-    var realINR = nominalINR / Math.pow(1 + infl / 100, lastYears);
-    els.fireIndiaNominal.textContent = '≈ ' + AIO.formatAmount(nominalINR);
-    els.fireIndiaReal.textContent = 'Real value in today\'s purchasing power: ≈ ' + AIO.formatAmount(realINR) +
+    var real = lastFireNumber / Math.pow(1 + infl / 100, lastYears);
+    els.fireIndiaNominal.textContent = AIO.formatAmount(lastFireNumber);
+    els.fireIndiaReal.textContent = 'Real value in today\'s purchasing power: ' + AIO.formatAmount(real) +
       ' (after ' + lastYears.toFixed(1) + ' years at ' + infl + '% inflation)';
   }
 
@@ -415,7 +410,7 @@
       });
     }
 
-    AIO.onRate(renderIndia);
+    AIO.onRate(compute); // reformat all figures (incl. the leave-Germany block) on currency change
     compute();
   }
 

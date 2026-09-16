@@ -108,21 +108,17 @@
       els.nwMeta.textContent = 'Enter your assets and liabilities to see your net worth.';
       return;
     }
-    els.nwTotal.textContent = AIO.formatEUR(r.totalNetWorth);
-    els.nwAssets.textContent = AIO.formatEUR(r.totalAssets);
-    els.nwLiabilities.textContent = AIO.formatEUR(r.totalLiabilities);
+    els.nwTotal.textContent = AIO.formatAmount(r.totalNetWorth);
+    els.nwAssets.textContent = AIO.formatAmount(r.totalAssets);
+    els.nwLiabilities.textContent = AIO.formatAmount(r.totalLiabilities);
     els.nwMeta.textContent = r.totalNetWorth < 0
       ? 'Your liabilities currently exceed your assets.'
-      : AIO.formatEUR(r.totalAssets) + ' in assets, ' + AIO.formatEUR(r.totalLiabilities) + ' in liabilities.';
-    renderINR();
+      : AIO.formatAmount(r.totalAssets) + ' in assets, ' + AIO.formatAmount(r.totalLiabilities) + ' in liabilities.';
   }
 
-  function renderINR() {
-    if (!lastResult) { els.nwTotalInr.textContent = ''; return; }
-    var rate = AIO.getRate();
-    els.nwTotalInr.textContent = rate == null ? '≈ … (loading rate)'
-      : '≈ ' + AIO.formatAmount(lastResult.totalNetWorth * rate);
-  }
+  // Figures are shown natively in the selected currency; re-render reformats
+  // them when the currency changes (no separate conversion line).
+  function reformat() { if (lastResult) render(lastResult); }
 
   /* ---------------- persistence ---------------- */
   function serializeCustom(list) {
@@ -160,7 +156,7 @@
       userTouched = true;
       addCustom(els.nwLiabCustom, customLiabs, '', '').labelEl.focus();
     });
-    AIO.onRate(renderINR);
+    AIO.onRate(reformat);
     compute();
   }
 

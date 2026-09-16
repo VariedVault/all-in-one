@@ -120,6 +120,28 @@
     return amountFmt(currency).format(Math.round(n));
   }
 
+  // The bare currency symbol for the selected (or given) currency, e.g. "₹".
+  var symbolCache = {};
+  function currencySymbol(code) {
+    code = code || currency;
+    if (symbolCache[code]) return symbolCache[code];
+    var sym = code;
+    try {
+      var c = CUR_BY_CODE[code] || { locale: 'en-US' };
+      var parts = new Intl.NumberFormat(c.locale, { style: 'currency', currency: code, maximumFractionDigits: 0 }).formatToParts(0);
+      for (var i = 0; i < parts.length; i++) if (parts[i].type === 'currency') { sym = parts[i].value; break; }
+    } catch (e) {}
+    symbolCache[code] = sym;
+    return sym;
+  }
+  // Set every <span class="cur-sym"> on the page to the selected currency symbol.
+  // Used by the currency-native (non-Germany) calculators for their input labels.
+  function updateCurrencySymbols() {
+    var sym = currencySymbol(currency);
+    var nodes = document.querySelectorAll('.cur-sym');
+    for (var i = 0; i < nodes.length; i++) nodes[i].textContent = sym;
+  }
+
   function currentRate() {
     if (ratesState.rates && typeof ratesState.rates[currency] === 'number') return ratesState.rates[currency];
     return null;
@@ -150,7 +172,8 @@
     save(CURRENCY_KEY, code);
     syncSelect();
     renderPill();
-    emit(); // calculators re-render their converted lines live
+    updateCurrencySymbols(); // relabel (€) -> selected symbol on native calculators
+    emit(); // calculators re-render their figures live
   }
 
   function formatUpdatedTime(ts) {
@@ -411,6 +434,7 @@
     onRate: onRate,
     getRate: function () { return currentRate(); },
     getCurrency: function () { return currency; },
+    getCurrencySymbol: function () { return currencySymbol(currency); },
     setCurrency: setCurrency,
     getConsent: readConsent,
     openConsent: function () { showConsentBanner(true); }
@@ -427,6 +451,7 @@
   }
 
   injectChrome();
+  updateCurrencySymbols(); // relabel native-calculator (€) placeholders on load
   initConsent();   // gates GoatCounter behind analytics consent (replaces the old unconditional load)
   initInfoTips();
   initRate();
