@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAGR Calculator · KnowMyMoney</title>
+<meta name="description" content="Work out the compound annual growth rate (CAGR) of an investment, or project a future value from a rate. See the year-by-year compounding curve. Runs entirely in your browser.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="canonical" href="https://knowmymoney.de/cagr/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="KnowMyMoney">
+<meta property="og:title" content="CAGR Calculator · KnowMyMoney">
+<meta property="og:description" content="Work out the compound annual growth rate of an investment, or project a future value from a rate. See the year-by-year compounding curve.">
+<meta property="og:url" content="https://knowmymoney.de/cagr/">
+<meta property="og:image" content="https://knowmymoney.de/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CAGR Calculator · KnowMyMoney">
+<meta name="twitter:description" content="Work out the compound annual growth rate of an investment, or project a future value from a rate.">
+<meta name="twitter:image" content="https://knowmymoney.de/icons/icon-512.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KnowMyMoney">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/tokens.css">
+</head>
+<body data-depth="1">
+<main>
+  <div class="wrap">
+    <a class="back-link" href="../">← All calculators</a>
+
+    <div class="calc-head">
+      <h1>CAGR Calculator</h1>
+      <p>CAGR is the compound annual growth rate: the smooth yearly rate that takes a starting value to an ending value. Work out the rate an investment achieved, or project a future value from a rate you expect.</p>
+    </div>
+
+    <div class="calc-layout">
+      <!-- Inputs -->
+      <section class="panel" aria-label="Your figures">
+        <div class="field">
+          <label id="cagrModeLabel">What do you want to do?</label>
+          <div class="seg" role="group" aria-labelledby="cagrModeLabel" id="cagrModeSeg">
+            <button type="button" class="seg-btn active" data-mode="return">Calculate my return</button>
+            <button type="button" class="seg-btn" data-mode="project">Project future value</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="cagrStart">Starting value (€)</label>
+          <input type="text" id="cagrStart" inputmode="numeric" placeholder="10000" min="0" step="100">
+        </div>
+
+        <!-- Mode 1: calculate return -->
+        <div class="field cagr-return-only">
+          <label for="cagrEnd">Ending value (€)</label>
+          <input type="text" id="cagrEnd" inputmode="numeric" placeholder="20000" min="0" step="100">
+        </div>
+
+        <!-- Mode 2: project value -->
+        <div class="field cagr-project-only" hidden>
+          <label for="cagrRate">Expected annual return / CAGR (%)</label>
+          <input type="number" id="cagrRate" inputmode="decimal" placeholder="8" step="0.1">
+        </div>
+
+        <div class="field">
+          <label for="cagrYears">Number of years</label>
+          <input type="text" id="cagrYears" inputmode="decimal" placeholder="5" min="0" step="1">
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section class="panel" aria-label="Your result" aria-live="polite">
+        <h2>Your result</h2>
+
+        <div class="result-block">
+          <p class="result-label" id="cagrHeadLabel">Compound annual growth rate</p>
+          <div class="result-big" id="cagrHead">–</div>
+        </div>
+
+        <p class="result-sub-real" id="cagrPlain"></p>
+
+        <div class="receipt" id="cagrReceipt" hidden style="margin-top:16px">
+          <div class="receipt-row"><span class="receipt-label" id="cagrR1Label">Starting value</span><span class="receipt-amt" id="cagrR1">–</span></div>
+          <div class="receipt-row"><span class="receipt-label" id="cagrR2Label">Ending value</span><span class="receipt-amt" id="cagrR2">–</span></div>
+          <div class="receipt-row"><span class="receipt-label" id="cagrR3Label">Total growth</span><span class="receipt-amt" id="cagrR3">–</span></div>
+        </div>
+
+        <div id="cagrTableBlock" hidden>
+          <hr class="result-sep">
+          <p class="result-label">Year by year <span class="de-term">how it compounds each year</span></p>
+          <div class="cagr-chart" id="cagrChart" aria-hidden="true"></div>
+          <div class="amort-scroll">
+            <table class="amort-table" id="cagrTable">
+              <thead><tr><th>Year</th><th>Value</th><th>Growth</th></tr></thead>
+              <tbody id="cagrTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <p class="hint" id="cagrMeta" style="margin-top:14px">Enter your figures to see the result.</p>
+
+        <div class="shared-note" id="cagrFireNudge" hidden></div>
+      </section>
+    </div>
+
+    <div class="disclaimer">
+      CAGR is a smoothed average; it assumes steady yearly growth and ignores the ups and downs a real investment
+      actually takes, as well as fees, taxes and inflation. Projections use the constant rate you enter. For direction,
+      not a guarantee. Nothing here leaves your browser.
+    </div>
+  </div>
+</main>
+<script src="../shared/app.js" defer></script>
+<script src="cagr.js" defer></script>
+</body>
+</html>

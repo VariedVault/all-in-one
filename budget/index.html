@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monthly Budget Calculator · KnowMyMoney</title>
+<meta name="description" content="Plan your monthly budget: track income against expense categories, see your surplus or deficit, and compare your spending to the 50/30/20 rule. Runs entirely in your browser.">
+<meta name="theme-color" content="#0b0b0c">
+<link rel="canonical" href="https://knowmymoney.de/budget/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="KnowMyMoney">
+<meta property="og:title" content="Monthly Budget Calculator · KnowMyMoney">
+<meta property="og:description" content="Track income against expenses, see your surplus or deficit, and compare your spending to the 50/30/20 rule. Runs entirely in your browser.">
+<meta property="og:url" content="https://knowmymoney.de/budget/">
+<meta property="og:image" content="https://knowmymoney.de/icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Monthly Budget Calculator · KnowMyMoney">
+<meta name="twitter:description" content="Track income against expenses, see your surplus or deficit, and compare your spending to the 50/30/20 rule. Runs entirely in your browser.">
+<meta name="twitter:image" content="https://knowmymoney.de/icons/icon-512.png">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KnowMyMoney">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/tokens.css">
+</head>
+<body data-depth="1">
+<main>
+  <div class="wrap">
+    <a class="back-link" href="../">← All calculators</a>
+
+    <div class="calc-head">
+      <h1>Monthly Budget Calculator</h1>
+      <p>Map your take-home pay against where it goes each month. See what's left over, and how your spending compares to the 50/30/20 rule. Add your own categories for anything that isn't listed.</p>
+    </div>
+
+    <div class="calc-layout">
+      <!-- Inputs -->
+      <section class="panel" aria-label="Your budget">
+        <div class="field">
+          <label for="budIncome">Monthly income (net, take-home) (€)</label>
+          <input type="text" id="budIncome" inputmode="numeric" placeholder="3000" min="0" step="50">
+          <span class="hint">What actually lands in your account each month, after tax.</span>
+        </div>
+
+        <div class="nw-group">
+          <h3>Where it goes</h3>
+          <div class="bud-head" aria-hidden="true">
+            <span>Category</span><span>Monthly €</span><span>Bucket</span><span></span>
+          </div>
+          <div id="budList"></div>
+          <button type="button" class="nw-add-btn" id="budAddBtn">+ Add category</button>
+          <span class="hint" style="margin-top:10px">Each category counts toward one 50/30/20 bucket. Change the bucket on any row if the default doesn't fit you.</span>
+        </div>
+      </section>
+
+      <!-- Results -->
+      <section class="panel" aria-label="Your budget summary" aria-live="polite">
+        <h2>Your budget</h2>
+
+        <div class="result-block">
+          <p class="result-label" id="budBalanceLabel">Left over each month</p>
+          <div class="result-big" id="budBalance">–</div>
+          <div class="result-inr" id="budBalanceInr"></div>
+        </div>
+
+        <hr class="result-sep">
+
+        <div class="nw-subtotal"><span>Total income</span><span class="amt" id="budTotalIncome">–</span></div>
+        <div class="nw-subtotal"><span>Total allocated</span><span class="amt" id="budTotalAlloc">–</span></div>
+
+        <div id="budRuleBlock" hidden>
+          <hr class="result-sep">
+          <p class="result-label">The 50/30/20 rule <span class="de-term">needs 50%, wants 30%, savings 20% of net income</span></p>
+          <div class="bud-rule" id="budRule"></div>
+        </div>
+
+        <div id="budBreakdownBlock" hidden>
+          <hr class="result-sep">
+          <p class="result-label">Where your income goes <span class="de-term">each category as a share of income</span></p>
+          <div class="bud-bars" id="budBars"></div>
+        </div>
+
+        <p class="hint" id="budMeta" style="margin-top:14px">Enter your income and expenses to see your budget.</p>
+
+        <div class="shared-note" id="budFireNudge" hidden></div>
+      </section>
+    </div>
+
+    <div class="disclaimer">
+      A planning snapshot based on the values you enter. The 50/30/20 rule is a popular guideline, not a hard rule; your
+      right split depends on your circumstances. Converted figures use the live exchange rate for the currency selected in
+      the header and are for reference only. Nothing here leaves your browser.
+    </div>
+  </div>
+</main>
+<script src="../shared/app.js" defer></script>
+<script src="budget.js" defer></script>
+</body>
+</html>

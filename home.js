@@ -85,6 +85,39 @@
     return html;
   }
 
+  function budgetCard(bd) {
+    var deficit = bd.surplus < 0;
+    var big = (deficit ? '−' : '') + AIO.formatEUR(Math.abs(bd.surplus));
+    var head = deficit
+      ? '<p class="dash-label">Over budget by</p><div class="dash-big" style="color:#ff6b6b">' + big + '</div>'
+      : '<p class="dash-label">Left over each month</p><div class="dash-big">' + big + '</div>';
+    var split = 'Split ' + bd.needsPct + '/' + bd.wantsPct + '/' + bd.savingsPct +
+      ' vs 50/30/20 (needs/wants/savings)';
+    return '<div class="dash-card">' +
+      head +
+      '<p class="dash-sub">' + split + '</p>' +
+      '<a class="recalc" href="budget/">Recalculate →</a>' +
+      '</div>';
+  }
+
+  function cagrCard(cg) {
+    var isReturn = cg.mode === 'return';
+    var big = isReturn ? (cg.ratePct >= 0 ? '' : '−') + Math.abs(cg.ratePct).toFixed(1) + '%'
+                       : AIO.formatEUR(cg.end);
+    var label = isReturn ? 'Compound annual growth' : 'Projected future value';
+    var sub = isReturn
+      ? AIO.formatEUR(cg.start) + ' → ' + AIO.formatEUR(cg.end) + ' over ' + trimYears(cg.years) + ' yrs'
+      : AIO.formatEUR(cg.start) + ' at ' + cg.ratePct.toFixed(1) + '% for ' + trimYears(cg.years) + ' yrs';
+    return '<div class="dash-card">' +
+      '<p class="dash-label">' + label + '</p>' +
+      '<div class="dash-big">' + big + '</div>' +
+      '<p class="dash-sub">' + sub + '</p>' +
+      '<a class="recalc" href="cagr/">Recalculate →</a>' +
+      '</div>';
+  }
+
+  function trimYears(y) { return (y % 1 === 0) ? String(y) : y.toFixed(1); }
+
   // Decide the single synthesis message from the priority logic. Returns
   // { cls, lead(HTML), secondary(text) } or null for "no synthesis line".
   function synthesise(pen, em, penDone, emDone) {
@@ -313,8 +346,11 @@
     var nwSaved = AIO.load('aio:networth') || {};
     var fireSaved = AIO.load('aio:fire') || {};
     var bnSaved = AIO.load('aio:bruttonetto') || {};
+    var bdSaved = AIO.load('aio:budget') || {};
+    var cgSaved = AIO.load('aio:cagr') || {};
     var pen = penSaved.result || null, em = emSaved.result || null, nw = nwSaved.result || null,
-        fire = fireSaved.result || null, bn = bnSaved.result || null;
+        fire = fireSaved.result || null, bn = bnSaved.result || null,
+        bd = bdSaved.result || null, cg = cgSaved.result || null;
 
     // A calculator counts as "calculated" only once the user touched a field.
     var penDone = penSaved.touched === true && !!(pen && isFinite(pen.netMonthly));
@@ -322,10 +358,12 @@
     var nwDone = nwSaved.touched === true && !!(nw && isFinite(nw.totalNetWorth));
     var fireDone = fireSaved.touched === true && !!(fire && isFinite(fire.fireNumber));
     var bnDone = bnSaved.touched === true && !!(bn && isFinite(bn.netto));
+    var bdDone = bdSaved.touched === true && !!(bd && isFinite(bd.surplus));
+    var cgDone = cgSaved.touched === true && !!(cg && isFinite(cg.end));
 
     // Germany-group results only show when the region toggle is on.
     var penInc = penDone && inGermany, bnInc = bnDone && inGermany;
-    var emInc = emDone, nwInc = nwDone, fireInc = fireDone;
+    var emInc = emDone, nwInc = nwDone, fireInc = fireDone, bdInc = bdDone, cgInc = cgDone;
 
     resetGridCards();
 
@@ -339,6 +377,8 @@
     if (nwInc) genHTML += nwCard(nw);
     if (emInc) genHTML += emCard(em);
     if (fireInc) genHTML += fireCard(fire);
+    if (bdInc) genHTML += budgetCard(bd);
+    if (cgInc) genHTML += cagrCard(cg);
     document.getElementById('dashCardsGeneral').innerHTML = genHTML;
     document.getElementById('dashGrpGeneral').hidden = (genHTML === '');
 
@@ -368,6 +408,8 @@
     if (nwInc) hideCard('networth');
     if (emInc) hideCard('emergency');
     if (fireInc) hideCard('fire');
+    if (bdInc) hideCard('budget');
+    if (cgInc) hideCard('cagr');
   }
 
   function hideCard(calc) {

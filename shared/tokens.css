@@ -609,3 +609,67 @@ select.field-select:focus-visible{outline:2px solid var(--accent);outline-offset
 @media (max-width:520px){ .info-pop{max-width:72vw;} }
 
 .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+
+/* ---------- headline result colour states (keep the big size) ---------- */
+.result-big.result-good{color:var(--accent);font-size:clamp(34px,6vw,46px);font-weight:800;}
+.result-big.result-bad{color:#ff6b6b;font-size:clamp(34px,6vw,46px);font-weight:800;}
+
+/* ---------- budget calculator ---------- */
+/* Row grid: name / amount / bucket select / remove, all columns aligned. */
+.bud-head,.bud-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 92px 104px 26px;
+  align-items:center;
+  column-gap:10px;
+}
+.bud-head{padding:0 0 6px;font-size:12px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.04em;}
+.bud-head span:nth-child(2){text-align:right;}
+.bud-row{padding:9px 0;border-bottom:1px solid var(--line);}
+.bud-row input{padding:8px 10px;min-width:0;width:100%;}
+.bud-row input.amt{text-align:right;font-variant-numeric:tabular-nums;}
+.bud-row .bud-bucket{padding:8px 8px;min-width:0;width:100%;font-size:13px;}
+@media (max-width:560px){
+  .bud-head{display:none;}
+  .bud-row{grid-template-columns:minmax(0,1fr) 78px 92px 24px;column-gap:7px;}
+}
+
+/* 50/30/20 comparison rows */
+.bud-rule-row{margin-bottom:14px;}
+.bud-rule-row:last-child{margin-bottom:0;}
+.bud-rule-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:5px;}
+.bud-rule-name{font-weight:600;font-size:14px;}
+.bud-rule-fig{font-variant-numeric:tabular-nums;font-weight:700;font-size:14px;}
+.bud-rule-target{color:var(--muted-2);font-weight:400;font-size:12px;}
+/* track is overflow:visible so the 50/30/20 target marker can extend past it */
+.bud-track{position:relative;height:12px;border-radius:999px;background:var(--panel-2);}
+.bud-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px;background:var(--accent);transition:width .25s ease;}
+.bud-fill.ok{background:var(--accent);}
+.bud-fill.warn{background:#ff6b6b;}
+.bud-target-mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text);opacity:.55;border-radius:2px;}
+.bud-rule-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:5px;}
+.bud-rule-amt{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.bud-badge{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap;}
+.bud-badge.ok{color:#0b0b0c;background:var(--accent);}
+.bud-badge.warn{color:#fff;background:#ff6b6b;}
+
+/* per-category breakdown bars */
+.bud-bar-row{margin-bottom:11px;}
+.bud-bar-row:last-child{margin-bottom:0;}
+.bud-bar-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px;font-size:13px;}
+.bud-bar-name{font-weight:600;}
+.bud-bar-name::before{content:"";display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:middle;background:var(--muted);}
+.bud-bar-fig{color:var(--muted);font-variant-numeric:tabular-nums;}
+.bud-bar-row .bud-track{height:10px;}
+/* bucket colours: needs = lime, wants = blue-grey, savings = teal */
+.bucket-needs.bud-fill,.bud-bar-name.bucket-needs::before{background:var(--accent);}
+.bucket-wants.bud-fill,.bud-bar-name.bucket-wants::before{background:#8ab4ff;}
+.bucket-savings.bud-fill,.bud-bar-name.bucket-savings::before{background:#4fd6c4;}
+
+/* ---------- CAGR calculator ---------- */
+.cagr-chart{
+  display:flex;align-items:flex-end;gap:6px;height:150px;margin:6px 0 16px;
+  padding:10px 4px 0;border-bottom:1px solid var(--line);overflow-x:auto;
+}
+.cagr-col{flex:1 1 0;min-width:26px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+.cagr-col-bar{width:100%;max-width:34px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px;transition:height .25s ease;}
+.cagr-col-lbl{font-size:11px;color:var(--muted);margin-top:6px;}
