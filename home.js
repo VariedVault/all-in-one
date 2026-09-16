@@ -116,6 +116,19 @@
       '</div>';
   }
 
+  function loanCard(loan) {
+    var months = loan.months;
+    var tenure = (months % 12 === 0) ? (months / 12) + ' yr' + (months === 12 ? '' : 's')
+                                     : months + ' mo';
+    return '<div class="dash-card">' +
+      '<p class="dash-label">Monthly EMI</p>' +
+      '<div class="dash-big">' + AIO.formatAmount(loan.emi) + '</div>' +
+      '<p class="dash-sub">' + AIO.formatAmount(loan.principal) + ' at ' + loan.rate + '% over ' + tenure +
+        ' · ' + AIO.formatAmount(loan.totalInterest) + ' total interest</p>' +
+      '<a class="recalc" href="loan/">Recalculate →</a>' +
+      '</div>';
+  }
+
   function trimYears(y) { return (y % 1 === 0) ? String(y) : y.toFixed(1); }
 
   // Ordered "try this next" suggestions per region. `key` matches the done-flags
@@ -388,9 +401,10 @@
     var bnSaved = AIO.load('aio:bruttonetto') || {};
     var bdSaved = AIO.load('aio:budget') || {};
     var cgSaved = AIO.load('aio:cagr') || {};
+    var loanSaved = AIO.load('aio:loan') || {};
     var pen = penSaved.result || null, em = emSaved.result || null, nw = nwSaved.result || null,
         fire = fireSaved.result || null, bn = bnSaved.result || null,
-        bd = bdSaved.result || null, cg = cgSaved.result || null;
+        bd = bdSaved.result || null, cg = cgSaved.result || null, loan = loanSaved.result || null;
 
     // A calculator counts as "calculated" only once the user touched a field.
     var penDone = penSaved.touched === true && !!(pen && isFinite(pen.netMonthly));
@@ -400,10 +414,11 @@
     var bnDone = bnSaved.touched === true && !!(bn && isFinite(bn.netto));
     var bdDone = bdSaved.touched === true && !!(bd && isFinite(bd.surplus));
     var cgDone = cgSaved.touched === true && !!(cg && isFinite(cg.end));
+    var loanDone = loanSaved.touched === true && !!(loan && isFinite(loan.emi));
 
     // Germany-group results only show when the region toggle is on.
     var penInc = penDone && inGermany, bnInc = bnDone && inGermany;
-    var emInc = emDone, nwInc = nwDone, fireInc = fireDone, bdInc = bdDone, cgInc = cgDone;
+    var emInc = emDone, nwInc = nwDone, fireInc = fireDone, bdInc = bdDone, cgInc = cgDone, loanInc = loanDone;
 
     resetGridCards();
 
@@ -419,14 +434,12 @@
     if (fireInc) genHTML += fireCard(fire);
     if (bdInc) genHTML += budgetCard(bd);
     if (cgInc) genHTML += cagrCard(cg);
+    if (loanInc) genHTML += loanCard(loan);
     document.getElementById('dashCardsGeneral').innerHTML = genHTML;
     document.getElementById('dashGrpGeneral').hidden = (genHTML === '');
 
-    // Loan has no "done" flag of its own; treat a saved loan amount as "tried".
-    var loanSaved = AIO.load('aio:loan') || {};
-    var loanUsed = !!(loanSaved.stdAmount && String(loanSaved.stdAmount).trim() !== '');
     var done = {
-      networth: nwDone, emergency: emDone, fire: fireDone, budget: bdDone, cagr: cgDone, loan: loanUsed,
+      networth: nwDone, emergency: emDone, fire: fireDone, budget: bdDone, cagr: cgDone, loan: loanDone,
       pension: penDone, bruttonetto: bnDone
     };
 
@@ -456,6 +469,7 @@
     if (fireInc) hideCard('fire');
     if (bdInc) hideCard('budget');
     if (cgInc) hideCard('cagr');
+    if (loanInc) hideCard('loan');
   }
 
   function hideCard(calc) {

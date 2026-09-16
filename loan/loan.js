@@ -11,6 +11,7 @@
   var els = {};
   var stdUnit = 'years';
   var cmpStdUnit = 'years';
+  var userTouched = false; // gates the homepage dashboard card
 
   var baseStd = null; // { P, rate, r, nMonths, emi, totalPaid, totalInterest }
 
@@ -177,14 +178,27 @@
   }
 
   /* ---------------- persistence ---------------- */
+  // Persist the base-loan result (EMI etc.) so the homepage dashboard can show a
+  // Loan card. A valid base loan means the user genuinely entered one (there are
+  // no pre-filled defaults here), so it also marks the calculator as "used".
   function persist() {
-    var s = { stdUnit: stdUnit, cmpStdUnit: cmpStdUnit };
+    var result = baseStd ? {
+      emi: baseStd.emi,
+      totalInterest: baseStd.totalInterest,
+      totalPaid: baseStd.totalPaid,
+      principal: baseStd.P,
+      rate: baseStd.rate,
+      months: baseStd.nMonths
+    } : null;
+    if (result) userTouched = true;
+    var s = { stdUnit: stdUnit, cmpStdUnit: cmpStdUnit, touched: userTouched, result: result };
     INPUT_IDS.forEach(function (id) { s[id] = els[id].value; });
     AIO.save(KEY, s);
   }
   function restore() {
     var s = AIO.load(KEY);
     if (!s) return;
+    if (s.touched) userTouched = true;
     INPUT_IDS.forEach(function (id) { if (s[id] != null && s[id] !== '') els[id].value = s[id]; });
     if (s.stdUnit === 'months') stdUnit = 'months';
     if (s.cmpStdUnit === 'months') cmpStdUnit = 'months';
