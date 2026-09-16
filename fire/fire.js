@@ -255,6 +255,15 @@
   // Freedom Number's real (inflation-adjusted) purchasing power. Figures are already
   // in the selected currency (native), so no exchange-rate conversion is applied.
   function renderIndia() {
+    // This block reuses the Pension calculator's "leave Germany" assumptions, so
+    // it only applies when the user lives in Germany. Hide it entirely otherwise.
+    var inGermany = AIO.load('aio:inGermany') !== false; // default ON
+    if (!inGermany) {
+      els.fireIndiaBlock.hidden = true;
+      els.fireIndiaNote.hidden = true;
+      return;
+    }
+
     var pen = AIO.load('aio:pension') || {};
     var leaveYear = pen.leaveYear != null && String(pen.leaveYear).trim() !== '' ? AIO.parseNumber(pen.leaveYear) : NaN;
     var infl = pen.indiaInflation != null && String(pen.indiaInflation).trim() !== '' ? AIO.parseNumber(pen.indiaInflation) : 7;

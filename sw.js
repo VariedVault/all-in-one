@@ -1,14 +1,15 @@
 /* ---------------------------------------------------------------------------
    KnowMyMoney service worker. Minimal app-shell caching for offline use.
-   - Navigations (HTML): network-first, fall back to cache so the app opens
-     offline but always shows fresh content when online.
-   - Other same-origin GETs (CSS/JS/icons): cache-first, filled from the
-     network on first use.
+   - All same-origin GETs (HTML/CSS/JS/icons): NETWORK-FIRST. We always try the
+     network so a normal refresh shows the latest deploy; the cache is only an
+     offline fallback (and is refreshed on every successful fetch). This avoids
+     the stale-asset problem a cache-first strategy caused (updates only showing
+     after a hard refresh).
    - Cross-origin (fonts, exchange-rate API, analytics): passthrough, never
      cached, so live data and tracking behave normally.
    Bump CACHE when shipping asset changes to retire the old cache.
 --------------------------------------------------------------------------- */
-var CACHE = 'kmm-v6';
+var CACHE = 'kmm-v7';
 var CORE = [
   '/',
   '/index.html',
@@ -46,30 +47,18 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // passthrough: fonts, rate API, analytics
 
-  // HTML navigations: network-first, cache fallback.
-  if (req.mode === 'navigate') {
-    e.respondWith(
-      fetch(req).then(function (res) {
+  // Network-first for every same-origin GET: always fetch fresh when online,
+  // refresh the cache, and fall back to the cache (then '/') only when offline.
+  e.respondWith(
+    fetch(req).then(function (res) {
+      if (res && res.status === 200 && (res.type === 'basic' || req.mode === 'navigate')) {
         var copy = res.clone();
         caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        return res;
-      }).catch(function () {
-        return caches.match(req).then(function (m) { return m || caches.match('/'); });
-      })
-    );
-    return;
-  }
-
-  // Static assets: cache-first, fill from network.
-  e.respondWith(
-    caches.match(req).then(function (cached) {
-      if (cached) return cached;
-      return fetch(req).then(function (res) {
-        if (res && res.status === 200 && res.type === 'basic') {
-          var copy = res.clone();
-          caches.open(CACHE).then(function (c) { c.put(req, copy); });
-        }
-        return res;
+      }
+      return res;
+    }).catch(function () {
+      return caches.match(req).then(function (m) {
+        return m || (req.mode === 'navigate' ? caches.match('/') : Response.error());
       });
     })
   );
